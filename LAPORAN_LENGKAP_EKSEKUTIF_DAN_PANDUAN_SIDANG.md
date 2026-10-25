@@ -1,4 +1,10 @@
 # 📘 BUKU PUTIH & DOSSIER SIDANG MUNAQASYAH SKRIPSI
+
+> ⚠️ **ARSIP HISTORIS — JANGAN DIPAKAI SEBAGAI SUMBER ANGKA FINAL.**  
+> Dokumen ini ditulis sebelum perbaikan protokol dan masih memuat angka serta klaim lama (Tier 3 “juara mutlak”, RMSE 2.338,22; MAE 1.784,27; MAPE 1,81%). Angka tersebut **tidak valid** untuk naskah final.  
+> Sumber terkini: `docs/DEFENSE_NOTES.md`, `docs/REPRODUCTION_REPORT.md`, `docs/NUMBER_AUDIT.md`, dan `05_Source_Code/results/summary_final.json`.  
+> Verdict final: E7 **tidak mengalahkan persistence** (MAE 1.687,49 vs 1.579,80 USD; CI selisih seluruhnya di atas nol).
+
 ## DOKUMEN LAPORAN LENGKAP EKSEKUTIF DARI A SAMPAI Z
 **Program Studi S1 Teknik Informatika — Fakultas Sains dan Teknologi**  
 **Universitas Islam Nahdlatul Ulama (UNISNU) Jepara — Tahun Akademik 2026**
@@ -16,7 +22,7 @@
 * **Fakultas:** Sains dan Teknologi (FST), UNISNU Jepara
 * **Judul Skripsi Lengkap:**  
   **"Optimasi Hyperparameter Long Short-Term Memory Menggunakan Algoritma Optuna Pada Prediksi Harga Bitcoin"**
-* **Status Proyek:** **100% Selesai, Teruji Secara Komputasi & Terverifikasi Dokumen Master Word (1,08 MB)**
+* **Status Proyek:** **ARSIP HISTORIS** — status “100% selesai” dan seluruh angka di bawah adalah klaim pra-perbaikan yang sudah digantikan. Lihat banner di atas.
 
 ---
 

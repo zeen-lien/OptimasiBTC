@@ -23,13 +23,24 @@ from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.oxml import parse_xml
 from docx.oxml.ns import nsdecls
 
+from doc_paths import SOURCE_ROOT
+from results_context import (
+    FinalResults,
+    format_number,
+    format_pct,
+    format_usd,
+)
+
 def set_font(run, name="Times New Roman", size=12, bold=False, italic=False):
     run.font.name = name
     run.font.size = Pt(size)
     run.bold = bold
     run.italic = italic
 
-def generate_front_matter(output_path="05_Source_Code/front_matter.docx"):
+def generate_front_matter(output_path=None):
+    if output_path is None:
+        output_path = str(SOURCE_ROOT / "front_matter.docx")
+    results = FinalResults.load()
     doc = docx.Document()
     
     # Page Setup UNISNU: Top 4cm, Left 4cm, Bottom 3cm, Right 3cm
@@ -492,27 +503,96 @@ def generate_front_matter(output_path="05_Source_Code/front_matter.docx"):
     r_id = p_id.add_run("Zaini Leon Musthofa Kamal, 231240001455, Optimasi Hyperparameter Long Short-Term Memory Menggunakan Algoritma Optuna Pada Prediksi Harga Bitcoin, 2026.")
     set_font(r_id, "Times New Roman", 11, bold=True)
 
+    # Abstract numbers follow the same published summary as the thesis tables.
+    e0 = results.metrics("E0")
+    e7 = results.metrics("E7")
+    best_lstm = results.best_lstm
+    status = results.verdict.get("status")
+    config = results.final_configuration()
+    hyper = config.get("hyperparameters") or {}
+    if status == "proposed_lower_mae_ci_excludes_zero":
+        result_id = (
+            f"E7 mencatat MAE {format_usd(e7['MAE'])}, lebih rendah daripada "
+            f"persistence ({format_usd(e0['MAE'])}), dan CI selisih berpasangan "
+            "tidak melewati nol. Klaim keunggulan tetap dibatasi pada satu aset, "
+            "satu horizon, dan satu periode uji."
+        )
+        result_en = (
+            f"E7 achieved an MAE of {format_usd(e7['MAE'])}, lower than persistence "
+            f"({format_usd(e0['MAE'])}), with a paired confidence interval that "
+            "excluded zero. The claim remains limited to one asset, one horizon, "
+            "and one test period."
+        )
+    elif status == "proposed_lower_mae_ci_includes_zero":
+        result_id = (
+            f"E7 mencatat MAE {format_usd(e7['MAE'])}, lebih rendah daripada "
+            f"persistence ({format_usd(e0['MAE'])}), tetapi CI selisih "
+            "berpasangan masih melewati nol sehingga perbedaan tersebut belum "
+            "dapat disebut signifikan."
+        )
+        result_en = (
+            f"E7 achieved an MAE of {format_usd(e7['MAE'])}, lower than persistence "
+            f"({format_usd(e0['MAE'])}), but the paired confidence interval still "
+            "included zero, so the difference cannot be called significant."
+        )
+    else:
+        if results.verdict.get("ci_direction") == "persistence_better":
+            result_id = (
+                f"E7 mencatat MAE {format_usd(e7['MAE'])}, lebih tinggi daripada "
+                f"persistence ({format_usd(e0['MAE'])}), dengan CI selisih "
+                "berpasangan yang seluruhnya di atas nol. Hasil ini secara "
+                "statistik lebih buruk dan dilaporkan apa adanya; kontribusi "
+                "penelitian diarahkan pada pipeline evaluasi serta bukti "
+                "terkontrol tentang batas kemampuan LSTM."
+            )
+            result_en = (
+                f"E7 achieved an MAE of {format_usd(e7['MAE'])}, higher than "
+                f"persistence ({format_usd(e0['MAE'])}), with a paired confidence "
+                "interval entirely above zero. This result is statistically worse "
+                "and is reported as such; the contribution is reframed as a "
+                "controlled evaluation pipeline and evidence about the limits of "
+                "LSTM."
+            )
+        else:
+            result_id = (
+                f"E7 mencatat MAE {format_usd(e7['MAE'])}, tidak lebih baik daripada "
+                f"persistence ({format_usd(e0['MAE'])}). Hasil negatif ini dilaporkan "
+                "secara eksplisit dan kontribusi penelitian diarahkan pada pipeline "
+                "evaluasi serta bukti terkontrol tentang batas kemampuan LSTM."
+            )
+            result_en = (
+                f"E7 achieved an MAE of {format_usd(e7['MAE'])}, which did not beat "
+                f"persistence ({format_usd(e0['MAE'])}). This negative result is "
+                "reported explicitly, and the contribution is reframed as a "
+                "controlled evaluation pipeline and evidence about the limits of LSTM."
+            )
+
     # 1 Single Paragraph, 250 - 500 words
     abstrak_id_text = (
-        "Volatilitas ekstrem dan sifat non-stasioneritas pada harga penutupan Bitcoin memicu tantangan signifikan dalam "
-        "pemodelan deret waktu finansial. Arsitektur Long Short-Term Memory (LSTM) terbukti andal dalam menangkap ketergantungan "
-        "jangka panjang, namun kinerjanya sangat sensitif terhadap kombinasi hyperparameter arsitektural dan pelatihan. Pendekatan "
-        "penalaan manual maupun pencarian konvensional rentan terjebak pada local minima dan memerlukan biaya komputasi yang tinggi. "
-        "Penelitian ini bertujuan untuk merancang kerangka kerja optimasi otomatis berbasis Bayesian Optimization dengan algoritma "
-        "Tree-structured Parzen Estimator (TPE) melalui framework Optuna guna menemukan konfigurasi hyperparameter LSTM yang optimal, "
-        "serta membuktikan signifikansi penurunan error secara empiris dibandingkan konfigurasi default dan manual tuning. Eksperimen "
-        "menggunakan 2.192 data transaksi harian BTC/USDT dari Binance Public API periode 1 Januari 2020 hingga 31 Desember 2025. "
-        "Data dipartisi secara kronologis menjadi 80% data latih in-sample (1.753 observasi) dan 20% data uji out-of-sample holdout "
-        "(439 observasi) dengan normalisasi Min-Max skalar tunggal untuk mencegah kebocoran temporal. Ruang pencarian Optuna-TPE "
-        "mencakup jendela historis (lookback window), jumlah unit tersembunyi, laju dropout, learning rate, dan ukuran batch dengan "
-        "skema validasi Time-Series Split 5-fold serta mekanisme pemangkasan MedianPruner sebanyak 50 trials. Evaluasi model "
-        "dilakukan menggunakan tiga metrik utama: Root Mean Square Error (RMSE), Mean Absolute Error (MAE), dan Mean Absolute Percentage "
-        "Error (MAPE). Hasil pengujian empiris membuktikan bahwa arsitektur usulan Tier 3 (Optuna-TPE dengan MAE Loss dan ReduceLROnPlateau) berhasil mencapai performa "
-        "unggul dengan nilai RMSE USD 2.338,22, MAE USD 1.784,27, dan MAPE 1,81%. Model ini melampaui model rujukan Tier 2 "
-        "(Manual Tuning Khumaidi dkk.) dengan penurunan galat sangat signifikan mencapai 40,11% pada RMSE (USD 3.904,15), 43,94% pada MAE (USD 3.182,86), "
-        "serta 42,72% pada MAPE (3,16%), sekaligus mengungguli model baseline default Tier 1 (RMSE USD 2.947,60; MAPE 2,36% dengan penurunan 20,67% RMSE dan 23,31% MAPE). Konfigurasi hyperparameter optimal yang ditemukan terdiri atas lookback window 22 hari, 100 hidden units, "
-        "dropout 0,10, laju pembelajaran adaptif 0,00197 dengan scheduler dynamic decay, serta batch size 16. Temuan ini membuktikan bahwa penalaan otomatis berbasis Optuna-TPE terarah "
-        "(domain-guided) yang dipadukan dengan fungsi kerugian linier MAE secara efektif mengatasi keterlambatan momentum volatilitas dan menghasilkan generalisasi peramalan tingkat presisi tinggi di bawah 2% pada data deret waktu aset kripto."
+        "Volatilitas ekstrem dan sifat non-stasioner pada harga penutupan Bitcoin "
+        "menimbulkan tantangan dalam pemodelan deret waktu finansial. Arsitektur "
+        "Long Short-Term Memory (LSTM) mampu menangkap ketergantungan temporal, "
+        "tetapi kinerjanya sensitif terhadap hyperparameter dan aturan pelatihan. "
+        "Penelitian ini merancang pipeline optimasi berbasis Tree-structured Parzen "
+        "Estimator (TPE) melalui Optuna, lalu mengevaluasinya dengan matriks "
+        "terkontrol E0 sampai E7. Data mencakup "
+        f"{format_number(results.data.get('n_train', 0) + results.data.get('n_test', 0), 0)} "
+        "harga penutupan harian BTC/USDT; "
+        f"{format_number(results.data.get('n_train', 0), 0)} observasi in-sample "
+        "dipakai untuk tuning dan "
+        f"{format_number(results.data.get('n_test', 0), 0)} observasi holdout hanya "
+        "untuk evaluasi akhir. Validasi memakai Time-Series Split berpurge, scaler "
+        "per fold, lima seed, moving-block bootstrap, dan pembanding persistence. "
+        f"E7 menjalani {config.get('total_trials', 0)} trial dan memilih lookback "
+        f"{hyper.get('lookback', '-')} hari, {hyper.get('units', '-')} unit, dropout "
+        f"{format_number(hyper.get('dropout', 0), 2)}, learning rate "
+        f"{format_number(hyper.get('learning_rate', 0), 5)}, serta batch size "
+        f"{hyper.get('batch_size', '-')}. Evaluasi holdout menghasilkan RMSE "
+        f"{format_usd(e7['RMSE'])}, MAE {format_usd(e7['MAE'])}, dan MAPE "
+        f"{format_pct(e7['MAPE'])}. {result_id} Model LSTM terbaik adalah "
+        f"{best_lstm['run']} dengan MAE {format_usd(best_lstm['MAE'])}. Temuan ini "
+        "menegaskan pentingnya baseline naif, pemisahan data tuning, dan pelaporan "
+        "hasil negatif dalam riset peramalan aset kripto."
     )
     p_abs = doc.add_paragraph()
     p_abs.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
@@ -551,25 +631,30 @@ def generate_front_matter(output_path="05_Source_Code/front_matter.docx"):
     set_font(r_en_id, "Times New Roman", 11, bold=True)
 
     abstrak_en_text = (
-        "Extreme volatility and non-stationarity in Bitcoin closing prices pose substantial challenges to financial "
-        "time-series modeling. While Long Short-Term Memory (LSTM) networks excel at learning long-term dependencies, their predictive "
-        "performance remains highly sensitive to hyperparameter configurations. Traditional trial-and-error adjustments and exhaustive "
-        "search methods frequently suffer from prohibitive computational costs and risk converging to suboptimal local minima. This study "
-        "proposes an automated hyperparameter optimization framework utilizing the Tree-structured Parzen Estimator (TPE) algorithm within "
-        "the Optuna framework to systematically identify optimal LSTM configurations, establishing empirical performance gains over baseline "
-        "and manual tuning benchmarks. The empirical dataset comprises 2,192 daily BTC/USDT transaction records retrieved via the Binance "
-        "Public API spanning January 1, 2020, to December 31, 2025. Data were chronologically partitioned into an 80% in-sample training "
-        "subset (1,753 observations) and a 20% out-of-sample holdout test subset (439 observations), normalized using in-sample single-scale "
-        "Min-Max scaling to prevent temporal data leakage. The search space encompassed lookback windows, hidden units, dropout rates, learning "
-        "rates, and batch sizes, evaluated across 50 trials via a 5-fold Time-Series Split and MedianPruner mechanism, integrated with "
-        "MAE loss training and dynamic learning rate decay. Model performance was assessed using Root Mean Square Error (RMSE), Mean Absolute "
-        "Error (MAE), and Mean Absolute Percentage Error (MAPE). Empirical findings demonstrate that the proposed Tier 3 (Optuna-TPE) "
-        "architecture achieved superior forecasting accuracy across all models, yielding an RMSE of USD 2,338.22, MAE of USD 1,784.27, "
-        "and MAPE of 1.81%. This represents a 40.11% error reduction in RMSE, 43.94% in MAE, and 42.72% in MAPE over Tier 2 Manual Tuning "
-        "(RMSE USD 3,904.15; MAE USD 3,182.86; MAPE 3.16%), while outperforming the Tier 1 baseline default (RMSE USD 2,947.60; MAPE 2.36% with a 20.67% RMSE reduction). "
-        "The optimal configuration comprised a 22-day lookback window, 100 hidden units, 0.10 dropout, 0.00197 learning rate, and batch size 16. "
-        "These results confirm that Bayesian TPE optimization with domain-guided bounds and loss-metric alignment effectively mitigates momentum lag "
-        "and enhances generalization capability in cryptocurrency predictive analytics."
+        "Extreme volatility and non-stationarity in Bitcoin closing prices pose "
+        "substantial challenges for financial time-series modeling. Long Short-Term "
+        "Memory (LSTM) networks can capture temporal dependencies, but their "
+        "performance is sensitive to hyperparameters and training rules. This study "
+        "builds a Tree-structured Parzen Estimator (TPE) pipeline in Optuna and "
+        "evaluates it with a controlled E0-E7 matrix. The dataset contains "
+        f"{format_number(results.data.get('n_train', 0) + results.data.get('n_test', 0), 0)} "
+        "daily BTC/USDT closing prices; "
+        f"{format_number(results.data.get('n_train', 0), 0)} in-sample observations "
+        "were used for tuning and "
+        f"{format_number(results.data.get('n_test', 0), 0)} holdout observations only "
+        "for final evaluation. Validation used a purged Time-Series Split, per-fold "
+        "scaling, five seeds, moving-block bootstrap, and a persistence benchmark. "
+        f"E7 ran {config.get('total_trials', 0)} trials and selected a "
+        f"{hyper.get('lookback', '-')}-day lookback, {hyper.get('units', '-')} units, "
+        f"dropout {format_number(hyper.get('dropout', 0), 2)}, learning rate "
+        f"{format_number(hyper.get('learning_rate', 0), 5)}, and batch size "
+        f"{hyper.get('batch_size', '-')}. Holdout evaluation produced an RMSE of "
+        f"{format_usd(e7['RMSE'])}, MAE of {format_usd(e7['MAE'])}, and MAPE of "
+        f"{format_pct(e7['MAPE'])}. {result_en} The best LSTM was "
+        f"{best_lstm['run']} with an MAE of {format_usd(best_lstm['MAE'])}. These "
+        "findings underline the importance of naive baselines, tuning-holdout "
+        "separation, and transparent reporting of negative results in "
+        "cryptocurrency forecasting research."
     )
     p_abs_en = doc.add_paragraph()
     p_abs_en.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
@@ -604,65 +689,66 @@ def generate_front_matter(output_path="05_Source_Code/front_matter.docx"):
         ("HALAMAN SAMPUL LUAR", "i", False),
         ("HALAMAN SAMPUL DALAM", "ii", False),
         ("SURAT PERNYATAAN KEASLIAN", "iii", False),
-        ("LEMBAR PERSETUJUAN PEMBIMBING", "iv", False),
-        ("LEMBAR PENGESAHAN SKRIPSI", "v", False),
-        ("HALAMAN PERSEMBAHAN", "vi", False),
-        ("HALAMAN MOTTO", "vii", False),
-        ("KATA PENGANTAR", "viii", False),
-        ("ABSTRAK", "ix", False),
-        ("ABSTRACT", "x", False),
-        ("DAFTAR ISI", "xi", False),
-        ("DAFTAR TABEL", "xii", False),
-        ("DAFTAR GAMBAR", "xiii", False),
-        ("DAFTAR LAMPIRAN", "xiv", False),
+        ("LEMBAR PERSETUJUAN PEMBIMBING", "v", False),
+        ("LEMBAR PENGESAHAN SKRIPSI", "vi", False),
+        ("HALAMAN PERSEMBAHAN", "vii", False),
+        ("HALAMAN MOTTO", "viii", False),
+        ("KATA PENGANTAR", "ix", False),
+        ("ABSTRAK", "xi", False),
+        ("ABSTRACT", "xii", False),
+        ("DAFTAR ISI", "xiii", False),
+        ("DAFTAR TABEL", "xv", False),
+        ("DAFTAR GAMBAR", "xvi", False),
+        ("DAFTAR LAMPIRAN", "xvii", False),
         ("BAB I   PENDAHULUAN", "1", True),
         ("   A. Latar Belakang Masalah", "1", False),
-        ("   B. Rumusan Masalah", "6", False),
-        ("   C. Batasan Masalah", "7", False),
-        ("   D. Tujuan Penelitian", "8", False),
-        ("   E. Manfaat Penelitian", "9", False),
-        ("   F. Keaslian Penelitian", "10", False),
-        ("   G. Sistematika Penulisan", "11", False),
-        ("BAB II  LANDASAN TEORI", "13", True),
-        ("   A. Penelitian Terdahulu", "13", False),
-        ("   B. Landasan Teori", "20", False),
-        ("      1. Karakteristik Data Deret Waktu Finansial Bitcoin", "20", False),
-        ("      2. Normalisasi Data Min-Max Scaling", "22", False),
-        ("      3. Arsitektur Jaringan Saraf Tiruan LSTM", "24", False),
-        ("      4. Regularisasi Dropout", "27", False),
-        ("      5. Algoritma Optimasi Bobot Adam", "29", False),
-        ("      6. Algoritma Optuna dan Tree-structured Parzen Estimator", "31", False),
-        ("      7. Mekanisme Pemangkasan MedianPruner", "34", False),
-        ("      8. Metrik Evaluasi Kinerja Peramalan (RMSE, MAE, MAPE)", "36", False),
-        ("   C. Kerangka Berpikir", "39", False),
-        ("BAB III METODE PENELITIAN", "42", True),
-        ("   A. Jenis dan Pendekatan Penelitian", "42", False),
-        ("   B. Tempat dan Waktu Penelitian", "44", False),
-        ("   C. Sumber Data dan Variabel Penelitian", "46", False),
-        ("   D. Metode Pengumpulan Data", "49", False),
-        ("   E. Kerangka Kerja dan Tahapan Penelitian", "51", False),
-        ("   F. Metode Analisis dan Evaluasi Model", "56", False),
-        ("BAB IV  HASIL PENELITIAN DAN PEMBAHASAN", "60", True),
-        ("   A. Hasil Penelitian", "60", False),
-        ("      1. Hasil Pengumpulan dan Audit Kualitas Data Historis Binance", "60", False),
-        ("      2. Hasil Pra-Pemrosesan Data dan Partisi Deret Waktu", "63", False),
-        ("      3. Hasil Pelatihan Model Baseline Default (Tier 1)", "65", False),
-        ("      4. Hasil Pelatihan Model Manual Tuning (Tier 2)", "67", False),
-        ("      5. Hasil Optimasi Hyperparameter Optuna-TPE (Tier 3)", "69", False),
-        ("      6. Perbandingan Hasil Evaluasi Kinerja Out-of-Sample", "72", False),
-        ("   B. Pembahasan", "74", False),
-        ("      1. Analisis Efektivitas Algoritma Optuna-TPE", "74", False),
-        ("      2. Fenomena Overfitting pada Manual Tuning", "76", False),
-        ("      3. Pengaruh Jendela Waktu Pendek Terhadap Volatilitas", "78", False),
-        ("      4. Implikasi Praktis dan Kontribusi Penelitian", "80", False),
-        ("BAB V   PENUTUP", "82", True),
-        ("   A. Simpulan", "82", False),
-        ("   B. Saran", "84", False),
-        ("DAFTAR PUSTAKA", "86", True),
-        ("LAMPIRAN", "91", True),
-        ("   Lampiran 1: Ringkasan Kode Program Pipeline Komputasi Python", "91", False),
-        ("   Lampiran 2: Sampel Data Historis Transaksi Binance BTC/USDT", "96", False),
-        ("   Lampiran 3: Log Riwayat Percobaan 50 Trial Optuna-TPE", "100", False),
+        ("   B. Rumusan Masalah", "4", False),
+        ("   C. Tujuan Penelitian", "5", False),
+        ("   D. Manfaat Penelitian", "5", False),
+        ("   E. Batasan Masalah", "6", False),
+        ("BAB II  LANDASAN TEORI", "7", True),
+        ("   A. Penelitian Terdahulu yang Relevan", "7", False),
+        ("   B. Landasan Teori", "14", False),
+        ("      1. Karakteristik Data Deret Waktu dan Volatilitas Pasar Bitcoin", "14", False),
+        ("      2. Arsitektur Jaringan Saraf Tiruan Long Short-Term Memory (LSTM)", "14", False),
+        ("      3. Ruang Pencarian Hyperparameter pada Arsitektur LSTM", "15", False),
+        ("      4. Kerangka Kerja Optuna dan Algoritma Tree-structured Parzen Estimator (TPE)", "16", False),
+        ("      5. Skema Validasi Deret Waktu (Time-Series Split / Walk-Forward)", "17", False),
+        ("      6. Metrik Evaluasi Kinerja Peramalan Komputasi", "18", False),
+        ("   C. Kerangka Berpikir Penelitian", "19", False),
+        ("   D. Hipotesis Penelitian", "20", False),
+        ("BAB III METODE PENELITIAN", "20", True),
+        ("   A. Jenis dan Pendekatan Penelitian", "21", False),
+        ("   B. Waktu dan Tempat Penelitian", "22", False),
+        ("   C. Populasi dan Sampel Penelitian", "23", False),
+        ("   D. Instrumen Penelitian", "24", False),
+        ("   E. Teknik Pengumpulan Data", "27", False),
+        ("   F. Teknis Analisis Data", "29", False),
+        ("BAB IV  HASIL PENELITIAN DAN PEMBAHASAN", "36", True),
+        ("   A. Hasil Penelitian", "36", False),
+        ("      1. Karakteristik Data dan Protokol Evaluasi", "36", False),
+        ("      2. Baseline Persistence dan Baseline Naif", "37", False),
+        ("      3. Model Kontrol Tier 1 dan Tier 2", "37", False),
+        ("      4. Ablasi Loss dan Scheduler pada Parameter Tier 3", "38", False),
+        ("      5. Hasil HPO Bersih Tier 3 (E7)", "38", False),
+        ("      6. Perbandingan Statistik dan Verdict Ilmiah", "39", False),
+        ("      7. Analisis Residual, Rezim, dan Arah", "40", False),
+        ("   B. Pembahasan Hasil Penelitian", "43", False),
+        ("      1. Mengapa Baseline Persistence Sulit Dikalahkan", "43", False),
+        ("      2. Efek Hyperparameter Optuna: E1 versus E3", "44", False),
+        ("      3. Efek Loss MAE dan Scheduler", "44", False),
+        ("      4. Nilai Tambah HPO Penuh: E7 versus E6", "45", False),
+        ("      5. Implikasi Teoritis dan Praktis", "46", False),
+        ("      6. Keterbatasan Penelitian", "46", False),
+        ("      7. Ringkasan Bab", "47", False),
+        ("BAB V   PENUTUP", "47", True),
+        ("   A. Simpulan", "47", False),
+        ("   B. Saran", "49", False),
+        ("DAFTAR PUSTAKA", "50", True),
+        ("LAMPIRAN", "54", True),
+        ("   Lampiran 1: Ringkasan Kode Program Pipeline Komputasi Python", "54", False),
+        ("   Lampiran 2: Sampel Data Historis Transaksi Binance BTC/USDT", "56", False),
+        ("   Lampiran 3: Log Riwayat Percobaan 50 Trial Optuna-TPE", "58", False),
     ]
 
     for title, page_no, is_bold in toc_entries:
@@ -688,17 +774,19 @@ def generate_front_matter(output_path="05_Source_Code/front_matter.docx"):
     set_font(r, "Times New Roman", 12, bold=True)
 
     table_entries = [
-        ("Tabel 2.1", "Matriks Sintesis Literatur Komparatif Penelitian Terdahulu", "19"),
-        ("Tabel 3.1", "Jadwal Pelaksanaan Tahapan Penelitian Tahun 2026", "45"),
-        ("Tabel 3.2", "Deskripsi Fitur Data Historis Binance BTC/USDT", "48"),
-        ("Tabel 3.3", "Ruang Pencarian (Search Space) Hyperparameter Optuna-TPE", "54"),
-        ("Tabel 3.4", "Spesifikasi Perangkat Keras dan Lingkungan Komputasi Eksperimen", "55"),
-        ("Tabel 3.5", "Skala Penilaian Interpretasi Nilai Mean Absolute Percentage Error (MAPE)", "58"),
-        ("Tabel 4.1", "Statistik Deskriptif Data Historis Harian BTC/USDT (2020–2025)", "61"),
-        ("Tabel 4.2", "Ringkasan Hasil Partisi Data dan Parameter Skalasi Min-Max", "64"),
-        ("Tabel 4.3", "Top 5 Konfigurasi Hyperparameter Terbaik Hasil Eksperimen Optuna-TPE", "70"),
-        ("Tabel 4.4", "Evaluasi Kinerja Komparatif Model 3-Tier pada Out-of-Sample Test Set", "72"),
-        ("Tabel 4.5", "Persentase Penurunan Nilai Metrik Error (Positive Improvement)", "74"),
+        ("Tabel 2.1", "Matriks Sintesis Penelitian Terdahulu dan Posisi Penelitian Ini", "13"),
+        ("Tabel 3.1", "Jadwal Pelaksanaan Kegiatan Penelitian", "23"),
+        ("Tabel 3.2", "Spesifikasi Instrumen Perangkat Lunak Penelitian", "26"),
+        ("Tabel 3.3", "Ruang Pencarian Hyperparameter LSTM pada Algoritma Optuna", "30"),
+        ("Tabel 3.4", "Matriks Eksperimen Terkontrol E0–E7", "33"),
+        ("Tabel 3.5", "Ringkasan Alur Prosedur Pelaksanaan Penelitian", "35"),
+        ("Tabel 4.1", "Statistik Deskriptif Harga Penutupan Bitcoin", "36"),
+        ("Tabel 4.2", "Kinerja Baseline Naif pada Holdout", "37"),
+        ("Tabel 4.3", "Hasil Ablasi Loss dan Scheduler", "38"),
+        ("Tabel 4.4", "Konfigurasi Final Model Usulan E7", "38"),
+        ("Tabel 4.5", "Perbandingan Kinerja Seluruh Model pada Holdout", "40"),
+        ("Tabel 4.6", "Perbandingan Berpasangan pada Tanggal yang Sama", "40"),
+        ("Tabel 4.7", "Kinerja E7 Menurut Rezim dan Volatilitas (Label Ex-Ante)", "41"),
     ]
 
     for tbl_num, tbl_title, page_no in table_entries:
@@ -724,11 +812,11 @@ def generate_front_matter(output_path="05_Source_Code/front_matter.docx"):
     set_font(r, "Times New Roman", 12, bold=True)
 
     figure_entries = [
-        ("Gambar 2.1", "Diagram Alir Kerangka Berpikir Optimasi Hyperparameter LSTM", "41"),
-        ("Gambar 3.1", "Alur Metodologi Eksperimen Komputasi Tiga Tingkat (3-Tier)", "52"),
-        ("Gambar 4.1", "Grafik Perbandingan Nilai Aktual vs Prediksi Model 3-Tier (439 Hari Out-of-Sample)", "73"),
-        ("Gambar 4.2", "Kurva Konvergensi Optimasi Bayesian Optuna-TPE Sepanjang 50 Trials", "75"),
-        ("Gambar 4.3", "Distribusi Densitas Residual Error Prediksi Out-of-Sample (Tier 1 vs Tier 2 vs Tier 3)", "77"),
+        ("Gambar 4.1", "Kurva Konvergensi Nilai Validasi Optuna-TPE", "39"),
+        ("Gambar 4.2", "Perbandingan Harga Aktual dan Prediksi pada Holdout", "42"),
+        ("Gambar 4.3", "Diagram Batang Perbandingan Metrik", "42"),
+        ("Gambar 4.4", "Distribusi Galat Absolut Menurut Model", "42"),
+        ("Gambar 4.5", "Galat Menurut Rezim Pasar", "43"),
     ]
 
     for fig_num, fig_title, page_no in figure_entries:
@@ -754,9 +842,9 @@ def generate_front_matter(output_path="05_Source_Code/front_matter.docx"):
     set_font(r, "Times New Roman", 12, bold=True)
 
     appendix_entries = [
-        ("Lampiran 1", "Ringkasan Kode Program Pipeline Komputasi Python (01 s.d. 06)", "91"),
-        ("Lampiran 2", "Sampel Data Historis Transaksi Binance BTC/USDT Periode 2020–2025", "96"),
-        ("Lampiran 3", "Log Riwayat Percobaan 50 Trial Optimasi Bayesian Optuna-TPE", "100"),
+        ("Lampiran 1", "Ringkasan Kode Program Pipeline Komputasi Python (01 s.d. 08)", "54"),
+        ("Lampiran 2", "Sampel Data Historis Transaksi Binance BTC/USDT Periode 2020–2025", "56"),
+        ("Lampiran 3", "Log Riwayat Percobaan 50 Trial Optimasi Bayesian Optuna-TPE", "58"),
     ]
 
     for app_num, app_title, page_no in appendix_entries:

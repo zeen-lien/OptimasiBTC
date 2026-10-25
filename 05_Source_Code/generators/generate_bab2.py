@@ -7,6 +7,9 @@ from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.oxml import parse_xml
 from docx.oxml.ns import nsdecls
 
+from doc_paths import ensure_naskah_dir
+
+
 def generate_enhanced_bab2():
     doc = docx.Document()
 
@@ -176,9 +179,9 @@ def generate_enhanced_bab2():
     # --- 8 PAPER BREAKDOWN (SEPERTI CONTOH TEMAN / KAMPUS) ---
     paper_reviews = [
         (
-            "1. JUTIF (2026): Comparative Analysis of HPO Methods for LSTM",
-            "Kajian yang diterbitkan dalam Jurnal Teknik Informatika (JUTIF, 2026) berjudul \"Comparative Analysis of Hyperparameter Optimization Methods for LSTM in Cryptocurrency Price Prediction: An Application to TRX–USD\" mengevaluasi enam teknik optimasi parameter (Grid Search, Random Search, Hyperopt, Optuna, Particle Swarm Optimization/PSO, dan Genetic Algorithm/GA) pada arsitektur LSTM menggunakan 2.096 data historis harian dari Binance. Hasil evaluasi empiris membuktikan bahwa metode metaheuristik dan Bayesian Optimization menghasilkan akurasi tertinggi, di mana GA dan Optuna mencapai nilai koefisien determinasi (R-squared) sebesar 0,8088 dengan error terendah, sementara Random Search terpuruk dengan R-squared hanya 0,28.",
-            "Kaitan dengan penelitian ini terletak pada pemilihan kerangka kerja Optuna sebagai algoritma pencarian hyperparameter utama yang telah terbukti secara empiris jauh lebih unggul dan efisien dibanding teknik acak maupun grid. Namun, keterbatasan kajian JUTIF (2026) terletak pada pengujian yang hanya berfokus pada aset kripto alternatif (TRX/USD) dan hanya mengandalkan satu pembagian data statis (static train-test split). Penelitian ini mengatasi celah tersebut dengan memfokuskan pengujian pada aset utama Bitcoin (BTC/USDT) serta mengintegrasikan skema Time-Series Split untuk menguji ketahanan model terhadap pergeseran rezim tren pasar."
+            "1. Aldo dkk. (2026): Comparative Analysis of HPO Methods for LSTM",
+            "Kajian yang diterbitkan dalam Jurnal Teknik Informatika (JUTIF) oleh Aldo dkk. (2026) berjudul \"Comparative Analysis of Hyperparameter Optimization Methods for LSTM in Cryptocurrency Price Prediction: An Application to TRX–USD\" mengevaluasi enam teknik optimasi parameter (Grid Search, Random Search, Hyperopt, Optuna, Particle Swarm Optimization/PSO, dan Genetic Algorithm/GA) pada arsitektur LSTM menggunakan 2.096 data historis harian dari Binance. Hasil evaluasi empiris membuktikan bahwa metode metaheuristik dan Bayesian Optimization menghasilkan akurasi tertinggi, di mana GA dan Optuna mencapai nilai koefisien determinasi (R-squared) sebesar 0,8088 dengan error terendah, sementara Random Search terpuruk dengan R-squared hanya 0,28.",
+            "Kaitan dengan penelitian ini terletak pada pemilihan kerangka kerja Optuna sebagai algoritma pencarian hyperparameter utama yang telah terbukti secara empiris jauh lebih unggul dan efisien dibanding teknik acak maupun grid. Namun, keterbatasan kajian Aldo dkk. (2026) terletak pada pengujian yang hanya berfokus pada aset kripto alternatif (TRX/USD) dan hanya mengandalkan satu pembagian data statis (static train-test split). Penelitian ini mengatasi celah tersebut dengan memfokuskan pengujian pada aset utama Bitcoin (BTC/USDT) serta mengintegrasikan skema Time-Series Split untuk menguji ketahanan model terhadap pergeseran rezim tren pasar."
         ),
         (
             "2. Khumaidi, Kusmanto, dan Hikmah (ILKOM Jurnal Ilmiah, 2024)",
@@ -186,34 +189,34 @@ def generate_enhanced_bab2():
             "Kajian Khumaidi dkk. (2024) menjadi rujukan krusial sekaligus berperan sebagai model pembanding Tier-2 Baseline (manual tuning) dalam penelitian ini. Kendati menunjukkan hasil yang baik, kelemahan mendasar penelitian tersebut adalah proses optimasi yang masih dilakukan secara coba-coba manual (trial-and-error) pada ruang parameter diskret yang sangat sempit. Penelitian ini menyempurnakan kelemahan tersebut dengan menggantikan proses coba-coba manual menggunakan optimasi cerdas berbasis algoritma Tree-structured Parzen Estimator (TPE) pada ruang pencarian kontinu berdimensi jamak."
         ),
         (
-            "3. BRIN dan Bina Nusantara University (Journal of Open Innovation, 2025)",
-            "Studi komprehensif oleh peneliti Badan Riset dan Inovasi Nasional (BRIN) bersama Binus University (2025) berjudul \"Improved LSTM Hyperparameters Alongside Sentiment Walk-Forward\" dalam jurnal bereputasi internasional (Scopus Q1) mengungkap fenomena kritis mengenai bias estimasi pada pemodelan deret waktu finansial. Penelitian tersebut membuktikan bahwa optimasi hyperparameter yang dijalankan pada potongan data statis menghasilkan kesimpulan semu akibat overfitting temporal. Dengan mengintegrasikan Bayesian Optimization bersama protokol validasi jendela bergerak (Walk-Forward Validation) melintasi 10 iterasi, studi tersebut berhasil memangkas nilai RMSE rata-rata sebesar 24,3% dan meningkatkan stabilitas prediksi secara konsisten.",
-            "Penelitian BRIN (2025) menjadi pijakan metodologis terpenting bagi penelitian ini dalam menerapkan skema validasi deret waktu yang ketat bebas kebocoran informasi masa depan (temporal data leakage). Celah penelitian yang disasar adalah bahwa studi BRIN berfokus pada instrumen saham perbankan (BBRI) dengan volatilitas terkontrol. Penelitian ini membawa kebaruan metodologis tersebut ke dalam pasar Bitcoin yang memiliki volatilitas dan dinamika non-stasioneritas yang jauh lebih ekstrem, serta memperluas ruang pencarian ke arsitektur multi-layer LSTM."
+            "3. Wahyuddin dkk. (2025): Sentiment Walk-Forward Validation",
+            "Studi komprehensif oleh Wahyuddin dkk. (2025) berjudul \"Improved LSTM Hyperparameters Alongside Sentiment Walk-Forward\" dalam jurnal bereputasi internasional (Scopus Q1) mengungkap fenomena kritis mengenai bias estimasi pada pemodelan deret waktu finansial. Penelitian tersebut membuktikan bahwa optimasi hyperparameter yang dijalankan pada potongan data statis menghasilkan kesimpulan semu akibat overfitting temporal. Dengan mengintegrasikan Bayesian Optimization bersama protokol validasi jendela bergerak (Walk-Forward Validation) melintasi 10 iterasi, studi tersebut berhasil memangkas nilai RMSE rata-rata sebesar 24,3% dan meningkatkan stabilitas prediksi secara konsisten.",
+            "Penelitian Wahyuddin dkk. (2025) menjadi pijakan metodologis terpenting bagi penelitian ini dalam menerapkan skema validasi deret waktu yang ketat bebas kebocoran informasi masa depan (temporal data leakage). Celah penelitian yang disasar adalah bahwa studi Wahyuddin dkk. berfokus pada instrumen saham perbankan (BBRI) dengan volatilitas terkontrol. Penelitian ini membawa kebaruan metodologis tersebut ke dalam pasar Bitcoin yang memiliki volatilitas dan dinamika non-stasioneritas yang jauh lebih ekstrem, serta memperluas ruang pencarian ke arsitektur multi-layer LSTM."
         ),
         (
-            "4. Bit-Tech (2026): Comparative Analysis of LSTM and GRU Models with HPO",
-            "Artikel ilmiah pada jurnal Bit-Tech (2026) berjudul \"Comparative Analysis of LSTM and GRU Models with Hyperparameter Optimization for Bitcoin Price Prediction\" membandingkan efisiensi dan akurasi antara arsitektur Long Short-Term Memory (LSTM) dan Gated Recurrent Unit (GRU) pada data harga penutupan Bitcoin dari Yahoo Finance. Proses optimasi parameter dilakukan menggunakan metode Grid Search terstandardisasi. Temuan studi memperlihatkan adanya kompromi komputasi (accuracy-efficiency trade-off), di mana GRU unggul dalam kecepatan waktu pelatihan karena arsitekturnya yang lebih ringkas, sedangkan LSTM menunjukkan stabilitas metrik MAPE yang lebih baik pada peramalan rentang waktu panjang.",
-            "Kaitan kajian tersebut dengan penelitian ini adalah penegasan posisi LSTM sebagai model yang tangguh dalam mempertahankan dependensi temporal panjang. Celah riset yang ditinggalkan oleh Bit-Tech (2026) adalah penggunaan Grid Search yang menuntut biaya komputasi sangat mahal dan tidak realistis saat jumlah kombinasi parameter meningkat. Penelitian ini menjawab limitasi tersebut dengan menerapkan algoritma Optuna-TPE yang secara probabilistik memfokuskan pencarian pada area hyperparameter yang paling menjanjikan, sehingga memangkas waktu komputasi secara signifikan."
+            "4. Widad dkk. (2026): Comparative Analysis of LSTM and GRU Models with HPO",
+            "Artikel ilmiah oleh Widad dkk. (2026) pada jurnal Bit-Tech berjudul \"Comparative Analysis of LSTM and GRU Models with Hyperparameter Optimization for Bitcoin Price Prediction\" membandingkan efisiensi dan akurasi antara arsitektur Long Short-Term Memory (LSTM) dan Gated Recurrent Unit (GRU) pada data harga penutupan Bitcoin dari Yahoo Finance. Proses optimasi parameter dilakukan menggunakan metode Grid Search terstandardisasi. Temuan studi memperlihatkan adanya kompromi komputasi (accuracy-efficiency trade-off), di mana GRU unggul dalam kecepatan waktu pelatihan karena arsitekturnya yang lebih ringkas, sedangkan LSTM menunjukkan stabilitas metrik MAPE yang lebih baik pada peramalan rentang waktu panjang.",
+            "Kaitan kajian tersebut dengan penelitian ini adalah penegasan posisi LSTM sebagai model yang tangguh dalam mempertahankan dependensi temporal panjang. Celah riset yang ditinggalkan oleh Widad dkk. (2026) adalah penggunaan Grid Search yang menuntut biaya komputasi sangat mahal dan tidak realistis saat jumlah kombinasi parameter meningkat. Penelitian ini menjawab limitasi tersebut dengan menerapkan algoritma Optuna-TPE yang secara probabilistik memfokuskan pencarian pada area hyperparameter yang paling menjanjikan, sehingga memangkas waktu komputasi secara signifikan."
         ),
         (
-            "5. Ganesha, Ratmadani, dkk. (JUTIF, 2025): Streamlit Implementation",
-            "Kajian terapan oleh Ganesha dkk. (2025) dalam Jurnal Teknik Informatika (JUTIF, SINTA 2) berjudul \"Forecasting Bitcoin Price Prediction with Long Short-Term Memory Networks Implementation and Applications Using Streamlit\" mengembangkan pipeline peramalan harga Bitcoin dari Yahoo Finance dan mengintegrasikannya ke dalam aplikasi web interaktif berbasis Streamlit. Model LSTM dievaluasi menggunakan metrik Mean Absolute Error (MAE sebesar 150,57) dan Root Mean Square Error (RMSE sebesar 231,90) untuk memvisualisasikan pergerakan harga historis dan masa depan secara langsung.",
-            "Kaitan penelitian Ganesha dkk. (2025) terhadap penelitian ini terletak pada standardisasi pipeline pemrosesan data deret waktu Bitcoin dan penggunaan metrik evaluasi formal. Namun, kelemahan utama dari penelitian tersebut adalah arsitektur LSTM yang digunakan masih berkonfigurasi bawaan (default/statis) tanpa adanya tahapan hyperparameter tuning sistematis. Penelitian ini mengisi celah tersebut dengan merekayasa proses optimasi hyperparameter otomatis multi-variabel untuk menjamin bahwa model yang dihasilkan memiliki akurasi yang teroptimasi secara maksimal."
+            "5. Fawzi dkk. (2025): Streamlit Implementation",
+            "Kajian terapan oleh Fawzi dkk. (2025) dalam Jurnal Teknik Informatika (JUTIF, SINTA 2) berjudul \"Forecasting Bitcoin Price Prediction with Long Short-Term Memory Networks Implementation and Applications Using Streamlit\" mengembangkan pipeline peramalan harga Bitcoin dari Yahoo Finance dan mengintegrasikannya ke dalam aplikasi web interaktif berbasis Streamlit. Model LSTM dievaluasi menggunakan metrik Mean Absolute Error (MAE sebesar 150,57) dan Root Mean Square Error (RMSE sebesar 231,90) untuk memvisualisasikan pergerakan harga historis dan masa depan secara langsung.",
+            "Kaitan penelitian Fawzi dkk. (2025) terhadap penelitian ini terletak pada standardisasi pipeline pemrosesan data deret waktu Bitcoin dan penggunaan metrik evaluasi formal. Namun, kelemahan utama dari penelitian tersebut adalah arsitektur LSTM yang digunakan masih berkonfigurasi bawaan (default/statis) tanpa adanya tahapan hyperparameter tuning sistematis. Penelitian ini mengisi celah tersebut dengan merekayasa proses optimasi hyperparameter otomatis multi-variabel dan menguji secara terkontrol apakah konfigurasi hasil pencarian benar-benar menurunkan galat pada data holdout."
         ),
         (
-            "6. Sakarya University (2023): LSTM Hparam Optimization for Bitcoin",
-            "Penelitian oleh Sakarya University Journal of Computer and Information Sciences (2023) berjudul \"LSTM Hyperparameters Optimization with Hparam Parameters for Bitcoin Price Prediction\" menginvestigasi pengaruh delapan hyperparameter arsitektur LSTM (go-backward, epoch, batch size, dropout rate, fungsi aktivasi, jenis optimizer, learning rate, dan jumlah neuron) terhadap error prediksi Bitcoin. Dengan memanfaatkan modul visualisasi koordinat paralel TensorBoard Hparam, studi tersebut menemukan bahwa optimizer Adam memberikan konvergensi Mean Square Error (MSE) terendah dan paling stabil dibandingkan SGD dan RMSprop pada data deret waktu.",
-            "Kajian Sakarya University (2023) memberikan rujukan berharga bagi penelitian ini dalam menyusun batasan ruang pencarian (search space) hyperparameter yang relevan pada model LSTM. Keterbatasan dari penelitian tersebut adalah modul Hparam hanya bertindak sebagai alat pemetaan kombinasi diskret pasif tanpa memiliki mekanisme pembelajaran konvergensi adaptif. Penelitian ini melangkah lebih maju dengan menggunakan algoritma Optuna-TPE yang memiliki fungsi akuisisi Expected Improvement untuk memandu pencarian parameter secara cerdas."
+            "6. Kervancı & Akay (2023): LSTM Hparam Optimization for Bitcoin",
+            "Penelitian oleh Kervancı & Akay (2023) yang diterbitkan pada Sakarya University Journal of Computer and Information Sciences berjudul \"LSTM Hyperparameters Optimization with Hparam Parameters for Bitcoin Price Prediction\" menginvestigasi pengaruh delapan hyperparameter arsitektur LSTM (go-backward, epoch, batch size, dropout rate, fungsi aktivasi, jenis optimizer, learning rate, dan jumlah neuron) terhadap error prediksi Bitcoin. Dengan memanfaatkan modul visualisasi koordinat paralel TensorBoard Hparam, studi tersebut menemukan bahwa optimizer Adam memberikan konvergensi Mean Square Error (MSE) terendah dan paling stabil dibandingkan SGD dan RMSprop pada data deret waktu.",
+            "Kajian Kervancı & Akay (2023) memberikan rujukan berharga bagi penelitian ini dalam menyusun batasan ruang pencarian (search space) hyperparameter yang relevan pada model LSTM. Keterbatasan dari penelitian tersebut adalah modul Hparam hanya bertindak sebagai alat pemetaan kombinasi diskret pasif tanpa memiliki mekanisme pembelajaran konvergensi adaptif. Penelitian ini menggunakan algoritma Optuna-TPE dengan fungsi akuisisi Expected Improvement untuk memandu pencarian parameter secara adaptif, lalu menguji hasilnya pada protokol yang sama untuk seluruh model."
         ),
         (
             "7. Ula, Ilhadi, dan Sidek (MATRIK, 2024): LSTM vs Random Forest",
             "Artikel ilmiah pada jurnal terakreditasi SINTA 2 MATRIK (2024) berjudul \"Comparing Long Short-Term Memory and Random Forest Accuracy for Bitcoin Price Forecasting\" menguji perbandingan kinerja antara model deep learning LSTM dan algoritma ensemble machine learning Random Forest pada data historis penutupan Bitcoin. Hasil eksperimen empiris membuktikan bahwa arsitektur LSTM secara konsisten mengungguli Random Forest dengan menghasilkan nilai Mean Absolute Percentage Error (MAPE) yang jauh lebih kecil, membuktikan keandalan mekanisme gerbang berulang dalam menangkap pola autokorelasi deret waktu.",
-            "Kajian Ula dkk. (2024) memperkuat landasan teoretis penelitian ini bahwa LSTM merupakan algoritma yang paling tepat untuk menangani data deret waktu finansial yang sarat fluktuasi. Celah riset yang belum diselesaikan adalah bahwa model LSTM dalam studi tersebut masih menggunakan konfigurasi standar tanpa optimasi hyperparameter. Penelitian ini melengkapi temuan tersebut dengan membuktikan bahwa akurasi LSTM dapat ditingkatkan lebih jauh melalui optimasi terarah berbasis algoritma Optuna."
+            "Kajian Ula dkk. (2024) memperkuat landasan teoretis penelitian ini bahwa LSTM merupakan salah satu arsitektur yang relevan untuk data deret waktu finansial yang sarat fluktuasi. Celah riset yang belum diselesaikan adalah bahwa model LSTM dalam studi tersebut masih menggunakan konfigurasi standar tanpa optimasi hyperparameter. Penelitian ini menguji secara terkontrol apakah optimasi terarah berbasis algoritma Optuna menurunkan galat absolut dibandingkan konfigurasi default dan baseline naif pada holdout yang sama."
         ),
         (
             "8. Akiba et al. (2019) dan Bergstra et al. (2011): Optuna & TPE",
             "Kajian seminal oleh Akiba et al. (2019) pada ACM SIGKDD berjudul \"Optuna: A Next-Generation Hyperparameter Optimization Framework\" memperkenalkan arsitektur Define-by-Run dan strategi pemangkasan otomatis (Asynchronous Successive Halving / MedianPruner). Algoritma pencarian probabilistik yang digunakan berpijak pada fondasi matematis Tree-structured Parzen Estimator (TPE) yang dikembangkan oleh Bergstra et al. (2011) pada konferensi NIPS, yang memodelkan distribusi probabilitas konfigurasi hyperparameter berdasarkan riwayat evaluasi fungsi loss melalui aturan Bayes.",
-            "Paper Akiba et al. (2019) dan Bergstra et al. (2011) menjadi landasan teoretis dan algoritmik utama bagi instrumen optimasi dalam penelitian ini. Kontribusi kebaruan penelitian ini adalah mengimplementasikan algoritma Optuna-TPE pada model LSTM untuk data deret waktu Bitcoin dengan mengintegrasikan mekanisme pemangkasan dini (early pruning) dan skema validasi deret waktu (Time-Series Split) guna menghasilkan model peramalan yang akurat dan efisien secara komputasi."
+            "Paper Akiba et al. (2019) dan Bergstra et al. (2011) menjadi landasan teoretis dan algoritmik utama bagi instrumen optimasi dalam penelitian ini. Kontribusi kebaruan penelitian ini adalah mengimplementasikan algoritma Optuna-TPE pada model LSTM untuk data deret waktu Bitcoin dengan mengintegrasikan mekanisme pemangkasan dini (early pruning) dan skema validasi deret waktu (Time-Series Split), lalu mengevaluasi secara terbuka apakah model yang dihasilkan lebih akurat dan efisien secara komputasi."
         )
     ]
 
@@ -239,7 +242,7 @@ def generate_enhanced_bab2():
         ["No", "Peneliti & Tahun", "Metode & Model", "Dataset & Objek", "Temuan Utama", "Celah Riset & Posisi Penelitian Ini"],
         [
             "1",
-            "JUTIF\n(2026)",
+            "Aldo dkk.\n(2026)",
             "LSTM + 6 HPO (Grid, Random, Optuna, Hyperopt, PSO, GA)",
             "TRX/USD Binance (2.096 data harian)",
             "Optuna & GA mencapai akurasi tertinggi (R2 = 0,8088); Random Search terburuk.",
@@ -255,7 +258,7 @@ def generate_enhanced_bab2():
         ],
         [
             "3",
-            "BRIN & Binus\n(JOItmC, 2025)",
+            "Wahyuddin dkk.\n(2025)",
             "LSTM + Bayesian Optimization + Walk-Forward",
             "Data Saham & Indikator Finansial",
             "Static split picu biased estimation error; walk-forward pangkas RMSE 24,3%.",
@@ -263,7 +266,7 @@ def generate_enhanced_bab2():
         ],
         [
             "4",
-            "Bit-Tech\n(2026)",
+            "Widad dkk.\n(2026)",
             "Komparasi LSTM vs GRU + Grid Search",
             "Bitcoin Closing Price (Yahoo Finance)",
             "GRU lebih cepat dalam komputasi, namun LSTM lebih stabil dalam MAPE.",
@@ -271,7 +274,7 @@ def generate_enhanced_bab2():
         ],
         [
             "5",
-            "Ganesha dkk.\n(JUTIF, 2025)",
+            "Fawzi dkk.\n(2025)",
             "LSTM Default + Web App Streamlit",
             "Bitcoin Closing Price (Yahoo Finance)",
             "Berhasil visualisasi prediksi interaktif dengan MAE 150,57 dan RMSE 231,90.",
@@ -279,7 +282,7 @@ def generate_enhanced_bab2():
         ],
         [
             "6",
-            "Sakarya Univ.\n(2023)",
+            "Kervancı & Akay\n(2023)",
             "LSTM + TensorBoard HParam",
             "Data Bitcoin (8 parameter uji)",
             "Optimizer Adam paling stabil dan menghasilkan MSE terendah.",
@@ -306,8 +309,8 @@ def generate_enhanced_bab2():
             "Penelitian Ini\n(Zaini, 2026)",
             "LSTM Teroptimasi Optuna-TPE + Time-Series Split",
             "Data Deret Waktu Harian BTC/USDT (Binance API)",
-            "Membuktikan penurunan error bertingkat (positive improvement) secara terukur.",
-            "Menjawab tuntas seluruh celah: Optimasi TPE terarah, validasi anti-leakage, dan benchmark 3-tier adil."
+            "Menguji E0–E7 secara terkontrol; E7 tidak lebih baik daripada persistence pada MAE, dan E6 menjadi LSTM terbaik.",
+            "Posisi: pipeline evaluasi terkontrol dengan baseline naif, CI berpasangan, dan pelaporan hasil negatif."
         ]
     ]
 
@@ -365,7 +368,7 @@ def generate_enhanced_bab2():
         "non-stasioneritas yang sangat tinggi, di mana parameter statistik seperti rata-rata (mean) dan variansi tidak konstan "
         "sepanjang waktu (Lim & Zohren, 2021). Pasar mata uang kripto beroperasi tanpa jeda selama 24 jam sehari secara global, "
         "menjadikan pergerakan harga penutupan harian sangat sensitif terhadap perubahan likuiditas, sentimen publik, serta "
-        "pergeseran tren pasar (regime shift) yang tidak berpola linier (Aswadi & Ependi, 2022)."
+        "pergeseran tren pasar (regime shift) yang tidak berpola linier (Aswadi & Ependi, 2025)."
     )
     add_academic_paragraph(p_b1_1)
 
@@ -384,7 +387,7 @@ def generate_enhanced_bab2():
         "perkalian matriks bobot berulang melintasi langkah waktu menyebabkan sinyal kesalahan melemah secara eksponensial "
         "saat ditransmisikan kembali melalui waktu (backpropagation through time). LSTM mengatasi kendala tersebut dengan "
         "memperkenalkan cell state internal ($C_t$) sebagai jalur transmisi memori linear yang diregulasi oleh tiga gerbang "
-        "logika utama: forget gate ($f_t$), input gate ($i_t$), dan output gate ($o_t$) (Greff et al., 2017; Lipton et al., 2015)."
+        "logika utama: forget gate ($f_t$), input gate ($i_t$), dan output gate ($o_t$) (Greff et al., 2017)."
     )
     add_academic_paragraph(p_b2_1)
 
@@ -504,8 +507,8 @@ def generate_enhanced_bab2():
         "internal dari data latih (Goodfellow et al., 2016). Kinerja generalisasi model LSTM sangat sensitif terhadap "
         "kombinasi lima hyperparameter utama: panjang jendela historis (lookback window), jumlah unit neuron tersembunyi "
         "(hidden units), tingkat regulerisasi (dropout rate), laju pembelajaran (learning rate), dan ukuran batch pelatihan "
-        "(batch size) (Feurer & Hutter, 2019; Sakarya University, 2023). Panjang lookback window menentukan seberapa jauh horizon "
-        "data masa lalu yang dianalisis oleh sel memori untuk menghasilkan proyeksi harga satu langkah ke depan (IJEECS, 2023)."
+        "(batch size) (Feurer & Hutter, 2019; Kervancı & Akay, 2023). Panjang lookback window menentukan seberapa jauh horizon "
+        "data masa lalu yang dianalisis oleh sel memori untuk menghasilkan proyeksi harga satu langkah ke depan (Boongasame & Songram, 2023)."
     )
     add_academic_paragraph(p_b3_1)
 
@@ -541,7 +544,7 @@ def generate_enhanced_bab2():
     p_b4_2 = (
         "Alih-alih memodelkan probabilitas $P(y|x)$ secara langsung menggunakan Gaussian Process yang membutuhkan komputasi kubik "
         "$O(N^3)$, algoritma TPE memodelkan probabilitas kondisional parameter $P(x|y)$ dengan memisahkan riwayat evaluasi konfigurasi "
-        "menjadi dua fungsi densitas probabilitas terpisah berdasarkan batas kuantil $\\gamma$ (Bergstra et al., 2011; Falkner et al., 2018):"
+        "menjadi dua fungsi densitas probabilitas terpisah berdasarkan batas kuantil $\\gamma$ (Bergstra et al., 2011):"
     )
     add_academic_paragraph(p_b4_2, space_after=3)
 
@@ -602,7 +605,7 @@ def generate_enhanced_bab2():
         "probabilitas tinggi menghasilkan error rendah (meningkatkan $\\ell(x)$) sekaligus menjauhi kandidat yang berulang kali "
         "gagal (menekan $g(x)$). Di samping itu, keunggulan komputasi Optuna diperkuat oleh algoritma pemangkasan Asynchronous MedianPruner, "
         "yang membandingkan nilai loss parsial model pada langkah epoch berjalan terhadap nilai median riwayat uji coba terdahulu "
-        "dan secara otomatis memutus uji coba yang tidak menjanjikan sebelum mencapai epoch maksimum (Akiba et al., 2019; Li et al., 2017)."
+        "dan secara otomatis memutus uji coba yang tidak menjanjikan sebelum mencapai epoch maksimum (Akiba et al., 2019; Optuna Development Team, 2024)."
     )
     add_academic_paragraph(p_b4_4)
 
@@ -619,7 +622,7 @@ def generate_enhanced_bab2():
         "kesalahan fatal pada data deret waktu karena merusak struktur dependensi autokorelasi temporal dan memicu kebocoran "
         "informasi masa depan ke masa lalu (temporal data leakage) (Arlot & Celisse, 2010; López de Prado, 2018). Untuk mencegah "
         "kebocoran data tersebut, prosedur validasi baku yang wajib digunakan adalah Time-Series Split (dikenal pula sebagai "
-        "Walk-Forward Validation atau Expanding Window) (Tashman, 2000; BRIN & Binus, 2025). Pada skema ini, pelatihan model "
+        "Walk-Forward Validation atau Expanding Window) (Tashman, 2000; Wahyuddin dkk., 2025). Pada skema ini, pelatihan model "
         "dibatasi hanya pada jendela historis $t \\in [1, T]$, sedangkan evaluasi performa dilakukan secara murni pada jendela waktu "
         "sesudahnya $t \\in [T+1, T+k]$ tanpa pernah menyentuh data masa depan dalam proses pelatihan."
     )
@@ -773,11 +776,11 @@ def generate_enhanced_bab2():
     add_academic_paragraph(p_c1)
 
     framework_steps = [
-        ("1. Identifikasi Masalah (Problem Identification)", "Data deret waktu harga Bitcoin memiliki non-stasioneritas ekstrem dan pergeseran rezim tren pasar. Penyetelan parameter model deep learning LSTM selama ini masih mengandalkan penyesuaian manual (trial-and-error) yang terbatas dan rawan local minima (Khumaidi dkk., 2024), sedangkan Grid Search menuntut komputasi eksponensial yang tidak terukur (Bit-Tech, 2026). Selain itu, evaluasi berbasis static split menimbulkan biased estimation error (BRIN, 2025)."),
+        ("1. Identifikasi Masalah (Problem Identification)", "Data deret waktu harga Bitcoin memiliki non-stasioneritas ekstrem dan pergeseran rezim tren pasar. Penyetelan parameter model deep learning LSTM selama ini masih mengandalkan penyesuaian manual (trial-and-error) yang terbatas dan rawan local minima (Khumaidi dkk., 2024), sedangkan Grid Search menuntut komputasi eksponensial yang tidak terukur (Widad dkk., 2026). Selain itu, evaluasi berbasis static split menimbulkan biased estimation error (Wahyuddin dkk., 2025)."),
         ("2. Intervensi Metodologis (Methodological Intervention)", "Menerapkan kerangka kerja optimasi otomatis Optuna berbasis algoritma probabilistik Tree-structured Parzen Estimator (TPE) untuk mengeksplorasi ruang pencarian hyperparameter arsitektur dan pelatihan LSTM secara efisien, dipadukan dengan mekanisme pemangkasan Asynchronous MedianPruner."),
         ("3. Protokol Validasi Bebas Kebocoran (Data Validation Scheme)", "Mengintegrasikan proses optimasi dan evaluasi model dengan skema Time-Series Split (Walk-Forward Validation) untuk menjamin parameter yang ditemukan teruji secara murni pada data out-of-sample lintas periode pasar tanpa kebocoran data masa depan (temporal data leakage)."),
-        ("4. Pengujian Empiris Bertingkat (3-Tier Benchmark Evaluation)", "Membandingkan performa model dalam tiga tingkat: Tier 1 (LSTM Default), Tier 2 (LSTM Replikasi Manual Khumaidi dkk., 2024), dan Tier 3 (LSTM Teroptimasi Optuna-TPE) menggunakan metrik kuantitatif standar informatika: RMSE, MAE, dan MAPE."),
-        ("5. Kontribusi Ilmiah (Expected Scientific Contribution)", "Terbuktinya penurunan nilai error (positive improvement) yang signifikan dan stabil, tersusunnya konfigurasi hyperparameter optimal model LSTM, serta tersedianya kerangka kerja optimasi yang efisien bagi peramalan deret waktu bervolatilitas tinggi.")
+        ("4. Pengujian Empiris Terkontrol (Matriks E0–E7)", "Membandingkan persistence (E0), Tier 1 default (E1), replikasi manual Khumaidi dkk. (E2), ablasi loss/scheduler (E3–E6), dan HPO penuh (E7) pada tanggal holdout yang sama menggunakan RMSE, MAE, dan MAPE, dengan MAE sebagai metrik utama dan interval kepercayaan berpasangan."),
+        ("5. Kontribusi Ilmiah (Expected Scientific Contribution)", "Konfigurasi hyperparameter yang dapat diaudit, bukti terkontrol tentang ada atau tidaknya nilai tambah HPO, serta pipeline evaluasi bebas kebocoran. Bila model tidak mengalahkan persistence, temuan negatif dilaporkan sebagai kontribusi, bukan ditutupi oleh klaim keunggulan.")
     ]
 
     for title, desc in framework_steps:
@@ -810,8 +813,8 @@ def generate_enhanced_bab2():
 
     hipotesis_items = [
         ("H1", "Algoritma Optuna berbasis Tree-structured Parzen Estimator (TPE) mampu mengidentifikasi konfigurasi hyperparameter optimal model Long Short-Term Memory (LSTM) secara konvergen dan terarah pada ruang pencarian multidimensi."),
-        ("H2", "Model Long Short-Term Memory (LSTM) yang dioptimasi menggunakan algoritma Optuna-TPE menghasilkan penurunan nilai error (positive improvement) yang signifikan pada metrik Root Mean Square Error (RMSE), Mean Absolute Error (MAE), dan Mean Absolute Percentage Error (MAPE) dibandingkan dengan model baseline berkonfigurasi default maupun manual tuning."),
-        ("H3", "Konfigurasi hyperparameter model LSTM hasil optimasi algoritma Optuna mampu mempertahankan stabilitas akurasi prediksi secara konsisten ketika dievaluasi pada berbagai pengujian data deret waktu out-of-sample melintasi berbagai fase volatilitas pasar.")
+        ("H2", "Model LSTM yang dioptimasi menggunakan Optuna-TPE menghasilkan MAE lebih rendah daripada baseline persistence dan kontrol default, dengan selisih berpasangan yang interval kepercayaan 95%-nya tidak melewati nol."),
+        ("H3", "Konfigurasi hyperparameter model LSTM hasil optimasi Optuna mampu mempertahankan stabilitas akurasi prediksi ketika dievaluasi pada data holdout out-of-sample; bila H2 ditolak, H3 dilaporkan sebagai evaluasi stabilitas tanpa klaim keunggulan.")
     ]
 
     for code, item in hipotesis_items:
@@ -827,9 +830,8 @@ def generate_enhanced_bab2():
         set_font(r_ht, "Times New Roman", 12, False, False)
 
     # Save to 03_Naskah_Skripsi
-    out_dir = os.path.join(r"d:\OneDrive\Desktop\jurnal", "03_Naskah_Skripsi")
-    os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, "BAB_2_LANDASAN_TEORI_ZAINI_LEON.docx")
+    out_dir = ensure_naskah_dir()
+    out_path = out_dir / "BAB_2_LANDASAN_TEORI_ZAINI_LEON.docx"
     doc.save(out_path)
     print(f"Successfully generated enhanced Bab 2: {out_path}")
 

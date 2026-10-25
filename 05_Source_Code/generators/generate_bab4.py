@@ -1,34 +1,36 @@
-"""
-generate_bab4.py — Generator BAB IV: HASIL PENELITIAN DAN PEMBAHASAN
-Skripsi: Optimasi Hyperparameter LSTM Menggunakan Algoritma Optuna Pada Prediksi Harga Bitcoin
-Penulis: Zaini Leon Musthofa Kamal (NIM: 231240001455)
-Prodi: S1 Teknik Informatika — FST UNISNU Jepara
+"""Generate BAB IV from the published final results.
 
-Standar & Ketentuan Penulisan:
-  - Mengikuti Panduan Penulisan Skripsi UNISNU Jepara (Format Penelitian Kuantitatif: A. Hasil Penelitian, B. Pembahasan)
-  - Setiap paragraf memenuhi formula SPECH (State, Premise/Problem, Evidence/Explanation, Citation, Hook/Highlight)
-  - Panjang kata per paragraf: KETAT 100 - 140 kata/paragraf (bebas Turnitin & komprehensif)
-  - Minimal 1 sitasi ilmiah kredibel per paragraf
-  - Tipografi: Times New Roman 12pt, 1.5 spasi, first-line indent 1.0 cm, Justified
-  - Margin: Top 4 cm, Left 4 cm, Bottom 3 cm, Right 3 cm
-  - Notasi Matematika: Display equations menggunakan borderless table sebelum sectPr, inline math menggunakan native OMML
-  - Memasukkan 3 Gambar Grafik Akademik (300 DPI) dan 5 Tabel Hasil Eksperimen Terstruktur
+All metrics, confidence intervals, effect sizes, and the scientific verdict
+come from ``05_Source_Code/results/summary_final.json``.  The chapter does not
+hardcode a winner: if E7 fails to beat persistence, the text says so.
 """
 
-import os
+from __future__ import annotations
+
 import re
+
 import docx
-from docx.shared import Pt, Cm, Inches, RGBColor
-from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import parse_xml
 from docx.oxml.ns import nsdecls
+from docx.shared import Cm, Pt
+
+from doc_paths import ensure_naskah_dir
+from results_context import (
+    FinalResults,
+    format_number,
+    format_pct,
+    format_usd,
+)
 
 
 def generate_bab4():
+    results = FinalResults.load()
+    figures_dir = results.figures_dir
+
     doc = docx.Document()
 
-    # ── Page Setup (UNISNU A4: Top 4cm, Left 4cm, Bottom 3cm, Right 3cm) ──
     section = doc.sections[0]
     section.page_width = Cm(21.0)
     section.page_height = Cm(29.7)
@@ -37,559 +39,958 @@ def generate_bab4():
     section.bottom_margin = Cm(3.0)
     section.right_margin = Cm(3.0)
 
-    # ── Helper: Font Setter ──
     def set_font(run, name="Times New Roman", size=12, bold=False, italic=False):
         run.font.name = name
         run.font.size = Pt(size)
         run.bold = bold
         run.italic = italic
 
-    # ── Helper: LaTeX-to-OMML Converter (Inline Math) ──
     def latex_to_omml(token):
-        token = token.strip().replace('\\\\', '\\')
+        token = token.strip().replace("\\\\", "\\")
         if token in [r"\hat{y}_t", "hat{y}_t"]:
-            return '<m:acc><m:accPr><m:chr m:val="^"/></m:accPr><m:e><m:sSub><m:e><m:r><m:t>y</m:t></m:r></m:e><m:sub><m:r><m:t>t</m:t></m:r></m:sub></m:sSub></m:e></m:acc>'
-        elif token in [r"\hat{y}", "hat{y}"]:
-            return '<m:acc><m:accPr><m:chr m:val="^"/></m:accPr><m:e><m:r><m:t>y</m:t></m:r></m:e></m:acc>'
-        elif token in [r"\tilde{C}_t", "tilde{C}_t"]:
-            return '<m:acc><m:accPr><m:chr m:val="~"/></m:accPr><m:e><m:sSub><m:e><m:r><m:t>C</m:t></m:r></m:e><m:sub><m:r><m:t>t</m:t></m:r></m:sub></m:sSub></m:e></m:acc>'
-        elif token in [r"\ell(x)", "\u2113(x)"]:
-            return '<m:r><m:t>\u2113(x)</m:t></m:r>'
-        elif token == "g(x)":
-            return '<m:r><m:t>g(x)</m:t></m:r>'
-        elif token in [r"\ell(x)/g(x)", "\u2113(x)/g(x)"]:
-            return '<m:r><m:t>\u2113(x)/g(x)</m:t></m:r>'
-        elif token in [r"\geq", "\u2265"]:
-            return '<m:r><m:t>\u2265</m:t></m:r>'
-        elif token in [r"\leq", "\u2264"]:
-            return '<m:r><m:t>\u2264</m:t></m:r>'
-        elif token in [r"\times", "\u00d7"]:
-            return '<m:r><m:t>\u00d7</m:t></m:r>'
-        elif '_' in token and not ('^' in token or '\\' in token):
-            base, sub = token.split('_', 1)
-            sub = sub.strip('{}')
-            return f'<m:sSub><m:e><m:r><m:t>{base}</m:t></m:r></m:e><m:sub><m:r><m:t>{sub}</m:t></m:r></m:sub></m:sSub>'
-        elif '^' in token and not ('_' in token or '\\' in token):
-            base, sup = token.split('^', 1)
-            sup = sup.strip('{}')
-            return f'<m:sSup><m:e><m:r><m:t>{base}</m:t></m:r></m:e><m:sup><m:r><m:t>{sup}</m:t></m:r></m:sup></m:sSup>'
-        else:
-            clean = (
-                token.replace(r'\in', '\u2208')
-                .replace(r'\gamma', '\u03b3').replace(r'\sigma', '\u03c3')
-                .replace(r'\odot', '\u2299').replace(r'\ell', '\u2113')
-                .replace(r'\leq', '\u2264').replace(r'\geq', '\u2265')
-                .replace(r'\times', '\u00d7').replace('\\', '')
+            return (
+                '<m:acc><m:accPr><m:chr m:val="^"/></m:accPr><m:e><m:sSub>'
+                "<m:e><m:r><m:t>y</m:t></m:r></m:e><m:sub><m:r><m:t>t</m:t>"
+                "</m:r></m:sub></m:sSub></m:e></m:acc>"
             )
-            return f'<m:r><m:t>{clean}</m:t></m:r>'
+        if token in [r"\hat{y}", "hat{y}"]:
+            return (
+                '<m:acc><m:accPr><m:chr m:val="^"/></m:accPr><m:e><m:r>'
+                "<m:t>y</m:t></m:r></m:e></m:acc>"
+            )
+        if token in [r"\geq", "\u2265"]:
+            return '<m:r><m:t>\u2265</m:t></m:r>'
+        if token in [r"\leq", "\u2264"]:
+            return '<m:r><m:t>\u2264</m:t></m:r>'
+        if token in [r"\times", "\u00d7"]:
+            return '<m:r><m:t>\u00d7</m:t></m:r>'
+        if token in [r"\ell(x)/g(x)", "\u2113(x)/g(x)"]:
+            return '<m:r><m:t>\u2113(x)/g(x)</m:t></m:r>'
+        if "_" in token and not ("^" in token or "\\" in token):
+            base, sub = token.split("_", 1)
+            sub = sub.strip("{}")
+            return (
+                f"<m:sSub><m:e><m:r><m:t>{base}</m:t></m:r></m:e><m:sub>"
+                f"<m:r><m:t>{sub}</m:t></m:r></m:sub></m:sSub>"
+            )
+        if "^" in token and not ("_" in token or "\\" in token):
+            base, sup = token.split("^", 1)
+            sup = sup.strip("{}")
+            return (
+                f"<m:sSup><m:e><m:r><m:t>{base}</m:t></m:r></m:e><m:sup>"
+                f"<m:r><m:t>{sup}</m:t></m:r></m:sup></m:sSup>"
+            )
+        clean = (
+            token.replace(r"\in", "\u2208")
+            .replace(r"\gamma", "\u03b3")
+            .replace(r"\sigma", "\u03c3")
+            .replace(r"\odot", "\u2299")
+            .replace(r"\ell", "\u2113")
+            .replace(r"\leq", "\u2264")
+            .replace(r"\geq", "\u2265")
+            .replace(r"\times", "\u00d7")
+            .replace("\\", "")
+        )
+        return f"<m:r><m:t>{clean}</m:t></m:r>"
 
-    # ── Helper: Academic Paragraph with Inline OMML Math ──
-    def add_paragraph(text, space_after=6, line_spacing=1.5, first_line_indent=Cm(1.0), bold=False):
+    def add_paragraph(
+        text, space_after=6, line_spacing=1.5, first_line_indent=Cm(1.0)
+    ):
         p = doc.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
         p.paragraph_format.line_spacing = line_spacing
         p.paragraph_format.space_after = Pt(space_after)
         if first_line_indent:
             p.paragraph_format.first_line_indent = first_line_indent
-
-        if '$' in text:
-            tokens = re.split(r'(\$[^\$]+\$)', text)
-            for part in tokens:
+        if "$" in text:
+            for part in re.split(r"(\$[^\$]+\$)", text):
                 if not part:
                     continue
-                if part.startswith('$') and part.endswith('$'):
-                    omml_inner = latex_to_omml(part[1:-1])
-                    omml_node = parse_xml(
-                        f'<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">{omml_inner}</m:oMath>'
+                if part.startswith("$") and part.endswith("$"):
+                    inner = latex_to_omml(part[1:-1])
+                    p._element.append(
+                        parse_xml(
+                            '<m:oMath xmlns:m="http://schemas.openxmlformats.org/'
+                            f'officeDocument/2006/math">{inner}</m:oMath>'
+                        )
                     )
-                    p._element.append(omml_node)
                 else:
-                    run = p.add_run(part)
-                    set_font(run, "Times New Roman", 12, bold, False)
+                    set_font(p.add_run(part), size=12)
         else:
-            run = p.add_run(text)
-            set_font(run, "Times New Roman", 12, bold, False)
+            set_font(p.add_run(text), size=12)
         return p
 
-    # ── Helper: Primary Sub-Heading (Level A, B...) ──
     def add_heading(text, space_before=14, space_after=6):
         p = doc.add_paragraph()
         p.paragraph_format.space_before = Pt(space_before)
         p.paragraph_format.space_after = Pt(space_after)
         p.paragraph_format.line_spacing = 1.5
-        run = p.add_run(text)
-        set_font(run, "Times New Roman", 12, True, False)
+        set_font(p.add_run(text), size=12, bold=True)
         return p
 
-    # ── Helper: Numbered Sub-Sub Heading (Level 1, 2, 3...) ──
     def add_sub_heading(text, space_before=10, space_after=4):
         p = doc.add_paragraph()
         p.paragraph_format.space_before = Pt(space_before)
         p.paragraph_format.space_after = Pt(space_after)
         p.paragraph_format.line_spacing = 1.5
-        run = p.add_run(text)
-        set_font(run, "Times New Roman", 12, True, False)
+        set_font(p.add_run(text), size=12, bold=True)
         return p
 
-    # ── Helper: Styled Table ──
-    def add_styled_table(headers, rows, col_widths, caption):
+    def add_styled_table(headers, rows, col_widths, caption, font_size=8.5):
         p_cap = doc.add_paragraph()
         p_cap.paragraph_format.space_before = Pt(10)
         p_cap.paragraph_format.space_after = Pt(3)
         p_cap.paragraph_format.line_spacing = 1.0
         p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        r_cap = p_cap.add_run(caption)
-        set_font(r_cap, "Times New Roman", 11, True, False)
+        set_font(p_cap.add_run(caption), size=11, bold=True)
 
-        all_rows = [headers] + rows
-        t = doc.add_table(rows=len(all_rows), cols=len(headers))
-        t.alignment = WD_TABLE_ALIGNMENT.CENTER
-
-        for ri, row_data in enumerate(all_rows):
+        table = doc.add_table(rows=len(rows) + 1, cols=len(headers))
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+        for ri, row_data in enumerate([headers] + rows):
             for ci, cell_text in enumerate(row_data):
-                cell = t.rows[ri].cells[ci]
+                cell = table.rows[ri].cells[ci]
                 cell.width = col_widths[ci]
-                cell.text = cell_text
+                cell.text = str(cell_text)
                 p = cell.paragraphs[0]
-                p.alignment = WD_ALIGN_PARAGRAPH.CENTER if ci in [0] else (
-                    WD_ALIGN_PARAGRAPH.RIGHT if ("USD" in cell_text or "%" in cell_text) and ri > 0 else WD_ALIGN_PARAGRAPH.JUSTIFY
+                p.alignment = (
+                    WD_ALIGN_PARAGRAPH.CENTER
+                    if ci == 0 or ri == 0
+                    else WD_ALIGN_PARAGRAPH.JUSTIFY
                 )
-                p.paragraph_format.line_spacing = 1.05
-                p.paragraph_format.space_before = Pt(2)
-                p.paragraph_format.space_after = Pt(2)
+                p.paragraph_format.line_spacing = 1.0
+                p.paragraph_format.space_before = Pt(1)
+                p.paragraph_format.space_after = Pt(1)
                 for run in p.runs:
-                    set_font(run, "Times New Roman", 9 if ri == 0 else 9, bold=(ri == 0))
-
-        for cell in t.rows[0].cells:
+                    set_font(run, size=font_size, bold=(ri == 0))
+        for cell in table.rows[0].cells:
             tcPr = cell._tc.get_or_add_tcPr()
             tcPr.append(parse_xml(f'<w:shd {nsdecls("w")} w:fill="E8EEF5"/>'))
+        return table
 
-        return t
-
-    # ── Helper: Insert Centered Image with Caption ──
     def add_figure(image_path, caption, width_cm=14.0):
-        if not os.path.exists(image_path):
-            print(f"[WARNING] Image path not found: {image_path}")
-            return
+        if not image_path.exists():
+            raise FileNotFoundError(
+                f"Gambar wajib tidak ditemukan: {image_path}. "
+                "Jalankan 06_evaluate_and_compare.py dan 08_analyze_results.py."
+            )
         p_img = doc.add_paragraph()
         p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p_img.paragraph_format.space_before = Pt(8)
         p_img.paragraph_format.space_after = Pt(2)
-        run_img = p_img.add_run()
-        run_img.add_picture(image_path, width=Cm(width_cm))
-
+        p_img.add_run().add_picture(str(image_path), width=Cm(width_cm))
         p_cap = doc.add_paragraph()
         p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p_cap.paragraph_format.space_before = Pt(2)
         p_cap.paragraph_format.space_after = Pt(8)
-        r_cap = p_cap.add_run(caption)
-        set_font(r_cap, "Times New Roman", 10.5, True, False)
+        set_font(p_cap.add_run(caption), size=10.5, bold=True)
 
-    # ==========================================================================
-    #                           BAB IV CONTENT
-    # ==========================================================================
+    def signed_change(value: float) -> str:
+        """Describe a relative change without hiding a negative result."""
+        if value >= 0:
+            return f"perbaikan {format_pct(value)}"
+        return f"peningkatan galat {format_pct(abs(value))}"
 
-    # ── JUDUL BAB ──
+    def comparison_claim(label: str) -> str:
+        """Describe a paired MAE comparison using the observed direction.
+
+        ``difference_b_minus_a`` is negative when model B has the lower error.
+        The sentence reports the difference in the same B - A orientation as the
+        table so the prose and the interval keep identical signs.
+        """
+        payload = results.comparison(label)
+        mae = results.comparison_metric(label, "MAE")
+        difference = float(mae["difference_b_minus_a"])
+        key_a = str(payload["model_a"])
+        key_b = str(payload["model_b"])
+        ci_low = float(mae["ci_low"])
+        ci_high = float(mae["ci_high"])
+        excludes_zero = ci_high < 0 or ci_low > 0
+
+        if abs(difference) < 1e-12:
+            return (
+                f"selisih MAE {key_b} terhadap {key_a} nol, sehingga tidak ada "
+                "perbedaan titik yang dapat diklaim."
+            )
+
+        lower, higher = (
+            (key_b, key_a) if difference < 0 else (key_a, key_b)
+        )
+        interval = (
+            f"CI 95% selisih {format_usd(ci_low, signed=True)} sampai "
+            f"{format_usd(ci_high, signed=True)}"
+        )
+        if excludes_zero:
+            return (
+                f"selisih MAE {key_b} − {key_a} adalah "
+                f"{format_usd(difference, signed=True)}, dengan {interval} yang "
+                f"tidak melewati nol; {lower} mencatat MAE lebih rendah daripada "
+                f"{higher}."
+            )
+        return (
+            f"selisih MAE {key_b} − {key_a} adalah "
+            f"{format_usd(difference, signed=True)} dengan {interval}; karena CI "
+            "melewati nol, perbedaan ini belum dapat disebut sebagai bukti "
+            "keunggulan."
+        )
+
+    # ------------------------------------------------------------------
+    # Chapter title
+    # ------------------------------------------------------------------
     p_chap = doc.add_paragraph()
     p_chap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p_chap.paragraph_format.space_before = Pt(0)
     p_chap.paragraph_format.space_after = Pt(4)
     p_chap.paragraph_format.line_spacing = 1.15
-    r_chap = p_chap.add_run("BAB IV\nHASIL PENELITIAN DAN PEMBAHASAN")
-    set_font(r_chap, "Times New Roman", 14, True, False)
+    set_font(
+        p_chap.add_run("BAB IV\nHASIL PENELITIAN DAN PEMBAHASAN"),
+        size=14,
+        bold=True,
+    )
 
-    # Spacer
-    p_sp = doc.add_paragraph()
-    p_sp.paragraph_format.space_after = Pt(12)
-
-    # ==========================================================================
-    # A. HASIL PENELITIAN
-    # ==========================================================================
     add_heading("A. Hasil Penelitian")
 
-    # Paragraf 1 (SPECH: ~118 kata)
     add_paragraph(
-        "Bagian hasil penelitian ini menyajikan seluruh temuan numerik yang diperoleh dari eksekusi "
-        "pipeline eksperimen komputasi peramalan harga Bitcoin menggunakan arsitektur Long Short-Term "
-        "Memory (LSTM). Pelaksanaan pengujian dirancang secara bertahap untuk menjawab rumusan masalah "
-        "dan hipotesis yang telah ditetapkan pada bab-bab sebelumnya melalui bukti empiris kuantitatif "
-        "yang terverifikasi. Tahapan pemaparan hasil disusun secara sistematis, mencakup audit kualitas data "
-        "historis BTC/USDT dari Binance API, implementasi normalisasi Min-Max bebas kebocoran, pelatihan model "
-        "Tier 1 (baseline default) dan Tier 2 (manual tuning Khumaidi dkk.), hingga optimasi otomatis Tier 3 "
-        "menggunakan algoritma Optuna-TPE (Akiba et al., 2019; Creswell & Creswell, 2018). Seluruh model "
-        "dievaluasi pada data uji out-of-sample yang identik untuk menjamin keabsahan dan keadilan komparasi "
-        "kinerja peramalan (Bouthillier et al., 2020)."
+        "Bab ini melaporkan hasil matriks eksperimen terkontrol E0 sampai E7 "
+        "untuk peramalan harga penutupan Bitcoin satu langkah ke depan. Seluruh "
+        f"model dievaluasi pada {format_number(results.data.get('n_test', 0), 0)} hari "
+        "holdout yang identik, sedangkan pemilihan hyperparameter, early stopping "
+        "internal, dan seluruh keputusan desain hanya menggunakan "
+        f"{format_number(results.data.get('n_train', 0), 0)} observasi in-sample. "
+        "Angka yang disajikan pada "
+        "tabel dan paragraf dibaca langsung dari berkas hasil final yang "
+        "tersimpan, bukan dari ingatan peneliti atau tabel lama. Dengan demikian, "
+        "setiap klaim dapat ditelusuri kembali ke run, seed, dan berkas metrik "
+        "yang menghasilkan angka tersebut (Bouthillier et al., 2021)."
     )
 
-    add_sub_heading("1. Karakteristik Dataset dan Hasil Audit Kualitas Data")
+    add_sub_heading("1. Karakteristik Data dan Protokol Evaluasi")
 
-    # Paragraf 2 (SPECH: ~122 kata)
+    stats = results.data.get("statistics") or {}
     add_paragraph(
-        "Data primer yang digunakan dalam penelitian ini berupa runtutan candlestick harian (daily OHLCV) "
-        "pasangan perdagangan BTC/USDT yang diekstraksi secara terprogram melalui Binance Public REST API. "
-        "Dataset mencakup rentang waktu pengamatan selama enam tahun penuh, terhitung mulai tanggal 1 Januari "
-        "2020 hingga 31 Desember 2025, dengan total volume observasi mencapai 2.192 catatan harian berurutan. "
-        "Prosedur audit integritas temporal mengonfirmasi ketiadaan nilai hilang (missing values), nilai tak "
-        "terhingga, maupun celah tanggal pencatatan sepanjang periode tersebut, serta memastikan seluruh relasi "
-        "geometris harga candlestick terpenuhi di mana harga High $\\geq$ Open, Close dan Low $\\leq$ Open, Close "
-        "(Binance Developer API, 2024; Hyndman & Athanasopoulos, 2018). Ringkasan parameter statistik deskriptif "
-        "harga penutupan Bitcoin disajikan pada Tabel 4.1 berikut (Gu et al., 2020)."
+        "Data primer berupa harga penutupan harian BTC/USDT periode "
+        f"{stats.get('period', ['-', '-'])[0]} sampai "
+        f"{stats.get('period', ['-', '-'])[1]} dengan total "
+        f"{format_number(stats.get('n_observations', 0), 0)} observasi. Harga "
+        f"terendah tercatat {format_usd(stats.get('min', 0))} pada "
+        f"{stats.get('min_date', '-')}, sedangkan harga tertinggi "
+        f"{format_usd(stats.get('max', 0))} pada {stats.get('max_date', '-')}. "
+        f"Rata-rata harga adalah {format_usd(stats.get('mean', 0))}, median "
+        f"{format_usd(stats.get('median', 0))}, dan simpangan baku "
+        f"{format_usd(stats.get('std', 0))}. Rentang harga yang lebar menunjukkan "
+        "bahwa model harus bekerja pada rezim pasar yang sangat berbeda, "
+        "sehingga evaluasi tunggal pada satu periode tidak cukup untuk "
+        "menggeneralisasi ke seluruh siklus Bitcoin (Makridakis et al., 2018)."
     )
 
-    # Tabel 4.1: Statistik Deskriptif Dataset
-    t1_headers = ["No", "Parameter Statistik Deskriptif", "Nilai Numerik (USD)", "Keterangan Observasi"]
-    t1_rows = [
-        ["1", "Total Observasi Harian", "2.192 Hari", "Periode 1 Januari 2020 s.d. 31 Desember 2025"],
-        ["2", "Harga Penutupan Minimum", "USD 4.800,00", "Tercatat pada 12 Maret 2020 (Crash Pandemi)"],
-        ["3", "Harga Penutupan Maksimum", "USD 124.658,54", "Tercatat pada 6 Oktober 2025 (Puncak Siklus)"],
-        ["4", "Rata-rata Harga (Mean)", "USD 47.182,88", "Rerata aritmatika seluruh rentang pengamatan"],
-        ["5", "Nilai Tengah (Median)", "USD 39.732,62", "Titik tengah distribusi pergerakan harga"],
-        ["6", "Simpangan Baku (Std Dev)", "USD 31.418,23", "Tingkat dispersi dan volatilitas harga ekstrem"],
-    ]
-    t1_widths = [Cm(0.8), Cm(5.2), Cm(3.8), Cm(5.2)]
-    add_styled_table(t1_headers, t1_rows, t1_widths, "Tabel 4.1 Statistik Deskriptif Data Historis Harga Bitcoin (BTC/USDT)")
+    add_styled_table(
+        ["No", "Parameter", "Nilai", "Keterangan"],
+        [
+            ["1", "Total observasi", f"{format_number(stats.get('n_observations', 0), 0)} hari", "Data harian tanpa celah"],
+            ["2", "Harga minimum", format_usd(stats.get("min", 0)), f"Tercatat {stats.get('min_date', '-')}"],
+            ["3", "Harga maksimum", format_usd(stats.get("max", 0)), f"Tercatat {stats.get('max_date', '-')}"],
+            ["4", "Rata-rata", format_usd(stats.get("mean", 0)), "Rerata aritmatika"],
+            ["5", "Median", format_usd(stats.get("median", 0)), "Titik tengah distribusi"],
+            ["6", "Simpangan baku", format_usd(stats.get("std", 0)), "Dispersi harga"],
+        ],
+        [Cm(0.8), Cm(3.2), Cm(3.4), Cm(6.6)],
+        "Tabel 4.1 Statistik Deskriptif Harga Penutupan Bitcoin",
+    )
 
-    add_sub_heading("2. Hasil Prapemrosesan dan Penskalaan Fitur Min-Max")
-
-    # Paragraf 3 (SPECH: ~124 kata)
     add_paragraph(
-        "Prapemrosesan data diawali dengan pembagian partisi kronologis dengan rasio 80:20, menghasilkan segmen "
-        "in-sample sebanyak 1.753 observasi (1 Januari 2020 s.d. 18 Oktober 2024) dan out-of-sample sebanyak "
-        "439 observasi (19 Oktober 2024 s.d. 31 Desember 2025). Mengingat rentang dinamis harga penutupan Bitcoin "
-        "yang sangat lebar dari USD 4.800 hingga melampaui USD 120.000, penskalaan fitur ke interval [0, 1] "
-        "dieksekusi menggunakan formulasi Min-Max Normalization pada Persamaan (3.1). Penskalaan ini secara ketat "
-        "hanya menghitung batas nilai ekstrem minimum ($x_{min}$ = USD 4.800,00) dan maksimum ($x_{max}$ = "
-        "USD 73.072,41) berdasarkan data latih in-sample (fit on train) guna mengisolasi kebocoran informasi temporal "
-        "(López de Prado, 2018). Skala tersebut kemudian diterapkan untuk mentransformasikan segmen pengujian holdout "
+        "Partisi data dilakukan secara kronologis 80:20 tanpa pengacakan: "
+        f"{format_number(results.data.get('n_train', 0), 0)} observasi in-sample, "
+        f"lalu {format_number(results.data.get('n_test', 0), 0)} observasi holdout "
+        f"mulai {results.data.get('test_period', ['-', '-'])[0]} sampai "
+        f"{results.data.get('test_period', ['-', '-'])[1]}. Holdout tidak pernah "
+        "dibaca selama tuning. Pada Tier 3, validasi silang menggunakan "
+        "Time-Series Split berpurge dengan jarak sebesar lookback dan scaler "
+        "Min-Max yang di-fit ulang pada setiap fold. Interval kepercayaan "
+        "dihitung dengan moving-block bootstrap 7 hari sebanyak 2.000 resample "
+        "pada tanggal yang sama, sedangkan variabilitas antar-seed dilaporkan "
+        "terpisah sebagai mean dan simpangan baku dari lima seed "
         "(Arlot & Celisse, 2010; Tashman, 2000)."
     )
 
-    # Paragraf 4 (SPECH: ~121 kata)
+    add_sub_heading("2. Baseline Persistence dan Baseline Naif")
+
+    baselines = results.payload.get("baselines") or {}
+    e0 = results.metrics("E0")
+    e0_ci = results.ci("E0", "MAE")
+    baseline_rows = []
+    for name, payload in baselines.items():
+        metrics = payload.get("metrics") or {}
+        baseline_rows.append(
+            [
+                name.replace("_", " ").title(),
+                format_usd(metrics.get("RMSE", 0)),
+                format_usd(metrics.get("MAE", 0)),
+                format_pct(metrics.get("MAPE", 0)),
+            ]
+        )
+    if not baseline_rows:
+        baseline_rows = [["Persistence", format_usd(e0["RMSE"]), format_usd(e0["MAE"]), format_pct(e0["MAPE"])]]
+
     add_paragraph(
-        "Rangkaian data ternormalisasi satu dimensi selanjutnya ditransformasikan ke dalam struktur tensor "
-        "tiga dimensi menggunakan teknik jendela geser (sliding window) untuk memenuhi kebutuhan input jaringan syaraf "
-        "rekuren. Setiap irisan vektor masukan $X_t$ dibentuk dari $L$ langkah waktu observasi masa lalu berurutan "
-        "$[x_{t-L+1}, ..., x_t]$, sedangkan nilai skalar target peramalan $y_t$ ditetapkan sebagai nilai harga pada "
-        "tepat satu hari berikutnya $x_{t+1}$ (Sakarya University, 2023). Untuk mengevaluasi seluruh 439 hari pada "
-        "segmen pengujian out-of-sample tanpa kehilangan titik awal, jendela geser pengujian dibentuk dengan "
-        "menyertakan $L$ observasi penutup dari segmen in-sample (Lim & Zohren, 2021). Mekanisme ini menjamin bahwa "
-        "seluruh observasi pengujian memperoleh estimasi peramalan yang utuh dan konsisten (Greff et al., 2017)."
+        "Baseline persistence memprediksi harga besok sama dengan harga hari ini. "
+        f"Pada holdout, baseline ini menghasilkan RMSE {format_usd(e0['RMSE'])}, "
+        f"MAE {format_usd(e0['MAE'])}, dan MAPE {format_pct(e0['MAPE'])}. "
+        f"Interval kepercayaan 95% untuk MAE persistence adalah "
+        f"{format_usd(e0_ci['ci_low'])} sampai {format_usd(e0_ci['ci_high'])}. "
+        "Nilai tersebut menjadi ambang minimum yang harus dikalahkan sebelum "
+        "sebuah model LSTM layak disebut bermanfaat. Baseline drift dan seasonal "
+        "naive juga dilaporkan pada Tabel 4.2 untuk menunjukkan bahwa kesimpulan "
+        "tidak bergantung pada satu pembanding yang lemah (Hyndman & "
+        "Athanasopoulos, 2018; Makridakis et al., 2018)."
     )
 
-    add_sub_heading("3. Hasil Pengujian Model Tier 1 (LSTM Default Baseline Kontrol)")
-
-    # Paragraf 5 (SPECH: ~124 kata)
-    add_paragraph(
-        "Model Tier 1 dilatih sebagai baseline kontrol awal dengan menerapkan spesifikasi konfigurasi standar "
-        "pustaka tanpa intervensi penalaan, mencakup lookback $L=30$ hari, 50 unit neuron LSTM, Dropout 0.20, "
-        "optimizer Adam dengan laju pembelajaran 0.001, dan batch size 32. Pelatihan berlangsung selama 100 epoch "
-        "penuh dalam waktu 34.34 detik dengan fungsi kerugian konvergen stabil pada nilai kerugian validasi akhir "
-        "sebesar 0.000883. Pengujian pada 439 hari data out-of-sample menghasilkan galat peramalan dengan nilai "
-        "Root Mean Square Error (RMSE) sebesar USD 2.947,60, Mean Absolute Error (MAE) sebesar USD 2.378,56, serta "
-        "Mean Absolute Percentage Error (MAPE) sebesar 2.36% (Tabel 4.2). Hasil performa Tier 1 ini menetapkan tolok "
-        "ukur batas bawah perbandingan yang adil bagi model-model eksperimen berikutnya (Bouthillier et al., 2020)."
+    add_styled_table(
+        ["Baseline", "RMSE", "MAE", "MAPE"],
+        baseline_rows,
+        [Cm(3.4), Cm(3.4), Cm(3.4), Cm(3.4)],
+        "Tabel 4.2 Kinerja Baseline Naif pada Holdout",
     )
 
-    # Tabel 4.2: Hasil Evaluasi Model Tier 1
-    t2_headers = ["Parameter Model", "Nilai Konfigurasi", "Metrik Evaluasi Out-of-Sample", "Capaian Numerik"]
-    t2_rows = [
-        ["Lookback Window (L)", "30 Hari", "Root Mean Square Error (RMSE)", "USD 2.947,60"],
-        ["Hidden Units (Layer 1)", "50 Neuron", "Mean Absolute Error (MAE)", "USD 2.378,56"],
-        ["Tingkat Dropout", "0.20", "Mean Absolute Percentage Error (MAPE)", "2,36%"],
-        ["Optimizer & Learning Rate", "Adam (0.001)", "Waktu Pelatihan Komputasi", "34,34 Detik"],
-        ["Ukuran Batch / Epochs", "32 / 100 Epochs", "Status Konvergensi Pelatihan", "Selesai Penuh (100 Epochs)"],
-    ]
-    t2_widths = [Cm(4.0), Cm(3.5), Cm(5.0), Cm(2.5)]
-    add_styled_table(t2_headers, t2_rows, t2_widths, "Tabel 4.2 Parameter Konfigurasi dan Hasil Evaluasi Model Tier 1")
+    add_sub_heading("3. Model Kontrol Tier 1 dan Tier 2")
 
-    add_sub_heading("4. Hasil Pengujian Model Tier 2 (Replikasi Manual Khumaidi dkk., 2024)")
-
-    # Paragraf 6 (SPECH: ~123 kata)
+    e1 = results.metrics("E1")
+    e2 = results.metrics("E2")
+    e1_vs_e0 = results.improvement("E1", "E0", "MAE")
+    e2_vs_e0 = results.improvement("E2", "E0", "MAE")
+    if e1["MAE"] < e0["MAE"] and e2["MAE"] < e0["MAE"]:
+        control_reading = (
+            "Keduanya mencatat MAE lebih rendah daripada persistence, sehingga "
+            "pada konfigurasi ini peningkatan kapasitas maupun replikasi resep "
+            "manual memberi perbaikan titik terhadap baseline naif."
+        )
+    elif e1["MAE"] > e0["MAE"] and e2["MAE"] > e0["MAE"]:
+        control_reading = (
+            "Keduanya masih lebih tinggi daripada persistence yang memiliki MAE "
+            f"{format_usd(e0['MAE'])}, sehingga menambah kapasitas atau mengikuti "
+            "resep manual tidak otomatis mengalahkan baseline naif pada horizon "
+            "satu hari."
+        )
+    else:
+        control_reading = (
+            "Hanya salah satu model kontrol yang mencatat MAE lebih rendah "
+            "daripada persistence, sehingga keunggulan konfigurasi tidak dapat "
+            "digeneralisasi hanya dari label Tier."
+        )
     add_paragraph(
-        "Model Tier 2 mereplikasi spesifikasi arsitektur terbaik dari publikasi Khumaidi dkk. (2024) yang "
-        "mengandalkan penalaan coba-coba manual, menggunakan lookback $L=60$ hari, 128 unit neuron LSTM, Dropout 0.20, "
-        "serta ukuran batch kecil sebesar 10 sampel. Pelatihan model ini terhenti otomatis pada epoch ke-18 akibat "
-        "terpicunya mekanisme Early Stopping saat nilai kerugian validasi mengalami kenaikan tajam akibat variansi "
-        "gradien batch kecil (Srivastava et al., 2014). Evaluasi pada data out-of-sample menghasilkan nilai RMSE sebesar "
-        "USD 3.904,15, MAE sebesar USD 3.182,86, dan MAPE sebesar 3.16% (Tabel 4.3). Hasil ini secara empiris "
-        "membuktikan bahwa konfigurasi manual dengan kapasitas neuron besar dan batch kecil rentan mengalami degradasi "
-        "generalisasi saat menghadapi rezim harga baru di luar sampel latih (Khumaidi dkk., 2024; Makridakis et al., 2018)."
+        "Model kontrol Tier 1 memakai konfigurasi default, sedangkan Tier 2 "
+        "mereplikasi konfigurasi manual Khumaidi dkk. (2024). Tier 1 menghasilkan "
+        f"MAE {format_usd(e1['MAE'])} dan Tier 2 menghasilkan MAE "
+        f"{format_usd(e2['MAE'])}. {control_reading} "
+        f"Perubahan MAE Tier 1 terhadap persistence adalah {signed_change(e1_vs_e0)}, "
+        f"sedangkan Tier 2 terhadap persistence adalah {signed_change(e2_vs_e0)}. "
+        "Perbandingan ini penting karena posisi kedua kontrol terhadap baseline "
+        "menentukan apakah ablasi berikutnya benar-benar memperbaiki titik acuan "
+        "yang bermakna (Khumaidi dkk., 2024; Willmott & Matsuura, 2005)."
     )
 
-    # Tabel 4.3: Hasil Evaluasi Model Tier 2
-    t3_headers = ["Parameter Model", "Nilai Konfigurasi", "Metrik Evaluasi Out-of-Sample", "Capaian Numerik"]
-    t3_rows = [
-        ["Lookback Window (L)", "60 Hari", "Root Mean Square Error (RMSE)", "USD 3.904,15"],
-        ["Hidden Units (Layer 1)", "128 Neuron", "Mean Absolute Error (MAE)", "USD 3.182,86"],
-        ["Tingkat Dropout", "0.20", "Mean Absolute Percentage Error (MAPE)", "3,16%"],
-        ["Optimizer & Learning Rate", "Adam (0.001)", "Waktu Pelatihan Komputasi", "35,19 Detik"],
-        ["Ukuran Batch / Epochs", "10 / 18 Epochs", "Status Penghentian Pelatihan", "Early Stopping (Patience 10)"],
-    ]
-    t3_widths = [Cm(4.0), Cm(3.5), Cm(5.0), Cm(2.5)]
-    add_styled_table(t3_headers, t3_rows, t3_widths, "Tabel 4.3 Parameter Konfigurasi dan Hasil Evaluasi Model Tier 2")
+    add_sub_heading("4. Ablasi Loss dan Scheduler pada Parameter Tier 3")
 
-    add_sub_heading("5. Hasil Optimasi Hyperparameter Tier 3 (LSTM Optuna-TPE)")
-
-    # Paragraf 7 (SPECH: ~124 kata)
+    e3 = results.metrics("E3")
+    e4 = results.metrics("E4")
+    e5 = results.metrics("E5")
+    e6 = results.metrics("E6")
     add_paragraph(
-        "Proses penalaan hyperparameter otomatis Tier 3 dieksekusi menggunakan kerangka kerja Optuna berbasis "
-        "algoritma Tree-structured Parzen Estimator (TPE) sebanyak 50 uji coba terarah dengan skema validasi Time-Series "
-        "Split 5-fold pada data in-sample. Algoritma TPE secara cerdas mengarahkan penjelajahan ruang parameter berdimensi "
-        "tinggi berdasarkan rasio kepadatan probabilitas $\\ell(x)/g(x)$, sementara modul MedianPruner berhasil "
-        "memangkas uji coba yang berkinerja buruk pada lipatan awal (Akiba et al., 2019; Bergstra et al., 2011). Kurva "
-        "konvergensi nilai fungsi kerugian validasi sepanjang 50 uji coba ditampilkan pada Gambar 4.1. Dari proses optimasi "
-        "tersebut, Optuna berhasil mengidentifikasi konfigurasi hyperparameter optimal yang meminimalkan nilai kerugian "
-        "validasi secara signifikan dibandingkan baseline acuan (Falkner et al., 2018; Feurer & Hutter, 2019)."
+        "Ablasi E3 sampai E6 membekukan parameter Tier 3 dan hanya memvariasikan "
+        "fungsi kerugian serta scheduler dalam desain faktorial 2x2. E3 memakai "
+        f"MSE tanpa scheduler dan menghasilkan MAE {format_usd(e3['MAE'])}. "
+        f"E4 memakai MAE tanpa scheduler dengan MAE {format_usd(e4['MAE'])}, "
+        f"sedangkan E5 memakai MSE dengan ReduceLROnPlateau dan MAE "
+        f"{format_usd(e5['MAE'])}. Kombinasi keduanya pada E6 menghasilkan MAE "
+        f"{format_usd(e6['MAE'])}. Dengan demikian, perubahan MAE E4 terhadap E3 "
+        f"adalah {signed_change(results.improvement('E4', 'E3', 'MAE'))}, "
+        f"E5 terhadap E3 adalah {signed_change(results.improvement('E5', 'E3', 'MAE'))}, "
+        f"dan E6 terhadap E3 adalah {signed_change(results.improvement('E6', 'E3', 'MAE'))}."
     )
 
-    # Gambar 4.1: Konvergensi Optuna (File gambar 4.3 di results)
-    fig_conv_path = os.path.join(r"d:\OneDrive\Desktop\jurnal", "05_Source_Code", "results", "figures", "gambar_4_3_konvergensi_optuna.png")
-    add_figure(fig_conv_path, "Gambar 4.1 Kurva Konvergensi Nilai Fungsi Kerugian Validasi Optuna-TPE (50 Trials)", 13.5)
-
-    # Paragraf 8 (SPECH: ~123 kata)
-    add_paragraph(
-        "Konfigurasi hyperparameter optimal yang ditemukan oleh Optuna-TPE menetapkan panjang jendela lookback "
-        "$L=22$ hari, kapasitas hidden layer sebesar 100 unit neuron tunggal, tingkat Dropout 0.10, laju pembelajaran "
-        "awal 0.00197 yang dipadukan dengan scheduler penyesuaian dinamis (ReduceLROnPlateau), fungsi kerugian linier Mean "
-        "Absolute Error (MAE), serta ukuran batch 16 sampel (Tabel 4.4). Temuan panjang jendela 22 hari ini memberikan "
-        "wawasan komputasi baru yang sangat penting bahwa siklus pergerakan harga tiga mingguan kalender perdagangan memiliki korelasi temporal "
-        "terkuat pada dinamika pasar Bitcoin tanpa membebani memori model dengan data usang. Model arsitektur terpilih ini kemudian dilatih ulang pada seluruh data "
-        "in-sample selama 46 epoch hingga mencapai kestabilan konvergensi bobot sinapsis jaringan (Goodfellow et al., "
-        "2016). Seluruh bobot model optimal disimpan ke dalam format berkas biner Keras untuk pengujian holdout akhir "
-        "(Sakarya University, 2023)."
+    ablation_rows = []
+    for row in results.ablation_rows():
+        ablation_rows.append(
+            [
+                row["run"],
+                f"{'MAE' if row['loss'] == 'mae' else 'MSE'} / "
+                f"{'Plateau' if row['scheduler'] == 'plateau' else 'Tanpa'}",
+                format_usd(row["RMSE"]),
+                format_usd(row["MAE"]),
+                format_pct(row["MAPE"]),
+                format_pct(row["delta_MAE_vs_E3"], signed=True),
+            ]
+        )
+    add_styled_table(
+        ["Run", "Loss / Scheduler", "RMSE", "MAE", "MAPE", "Delta MAE vs E3"],
+        ablation_rows,
+        [Cm(1.2), Cm(3.8), Cm(2.4), Cm(2.4), Cm(1.6), Cm(2.6)],
+        "Tabel 4.3 Hasil Ablasi Loss dan Scheduler",
     )
 
-    # Tabel 4.4: Konfigurasi Optimal Tier 3
-    t4_headers = ["Hyperparameter Kunci", "Domain Pencarian Optuna", "Nilai Terpilih Optuna", "Peranan Matematis"]
-    t4_rows = [
-        ["Lookback Window (L)", "7 s.d. 30 Hari (Int)", "22 Hari", "Menangkap siklus momentum temporal ~3 mingguan teroptimasi"],
-        ["Hidden Units (Layer 1)", "32 s.d. 128 Neuron (Int)", "100 Neuron", "Kapasitas representasi non-linier optimal & stabil"],
-        ["Tingkat Regularisasi Dropout", "0.10 s.d. 0.40 (Float)", "0.10", "Mencegah memorisasi derau tanpa degradasi kapasitas"],
-        ["Laju Pembelajaran (LR)", "5e-4 s.d. 2e-3 (Log Float)", "0.00197 + Decay", "Langkah pembaruan gradien adaptif optimizer Adam"],
-        ["Fungsi Kerugian (Loss)", "MAE vs MSE", "MAE (L1-Norm)", "Menyelaraskan langsung objektif latih dengan formula MAPE"],
-        ["Ukuran Batch (Batch Size)", "[16, 32, 64] (Kategorikal)", "16 Sampel", "Keseimbangan stabilitas gradien dan kecepatan konvergensi"],
-        ["Jumlah Layer LSTM", "1 s.d. 2 Layer (Int)", "1 Layer", "Mencegah vanishing gradient pada deret waktu keuangan"],
-    ]
-    t4_widths = [Cm(3.8), Cm(3.2), Cm(2.5), Cm(5.5)]
-    add_styled_table(t4_headers, t4_rows, t4_widths, "Tabel 4.4 Konfigurasi Hyperparameter Optimal Hasil Optimasi Optuna-TPE")
-
-    # Paragraf 9 (SPECH: ~124 kata)
     add_paragraph(
-        "Evaluasi model usulan Tier 3 pada segmen pengujian out-of-sample menghasilkan capaian akurasi yang unggul, "
-        "dengan nilai Root Mean Square Error (RMSE) sebesar USD 2.338,22, Mean Absolute Error (MAE) sebesar USD 1.784,27, "
-        "serta persentase galat Mean Absolute Percentage Error (MAPE) yang berhasil ditekan hingga level 1,81%. "
-        "Jika dibandingkan dengan model rujukan utama Tier 2 (Khumaidi dkk.) maupun model kontrol default Tier 1, Tier 3 membuktikan keunggulan superior di setiap metrik evaluasi "
-        "dengan margin galat yang jauh lebih ramping. Capaian MAPE sebesar 1,81% pada fase pergerakan harga Bitcoin yang "
-        "sangat volatil di atas level USD 100.000 membuktikan ketangguhan generalisasi model hasil penalaan probabilistik "
-        "(Hyndman & Athanasopoulos, 2018). Model ini berhasil mengikuti lintasan perubahan harga tanpa mengalami keterlambatan "
-        "maupun lonjakan deviasi ekstrem (Willmott & Matsuura, 2005)."
+        "Pola pada Tabel 4.3 menunjukkan bahwa efek loss dan scheduler tidak "
+        "selalu bersifat aditif. Bila delta E4 positif, fungsi kerugian MAE "
+        "menurunkan galat absolut rata-rata dibandingkan MSE pada parameter yang "
+        "sama. Bila delta E5 positif, scheduler memberi perbaikan meskipun loss "
+        "tetap MSE. Efek gabungan pada E6 kemudian dibandingkan dengan E4 dan E5 "
+        "untuk melihat apakah kedua faktor saling memperkuat atau justru "
+        "mengganggu. Interpretasi dilakukan pada arah dan besaran efek, bukan "
+        "pada klaim kausal tentang mekanisme internal jaringan, karena ablation "
+        "ini hanya mengubah dua faktor pada satu konfigurasi parameter "
+        "(Bouthillier et al., 2021; Greff et al., 2017)."
     )
 
-    add_sub_heading("6. Hasil Pengujian Benchmark Komparatif 3-Tier")
+    add_sub_heading("5. Hasil HPO Bersih Tier 3 (E7)")
 
-    # Paragraf 10 (SPECH: ~124 kata)
+    config = results.final_configuration()
+    hyper = config.get("hyperparameters") or {}
+    e7 = results.metrics("E7")
+    e7_ci = results.ci("E7", "MAE")
     add_paragraph(
-        "Rekapitulasi komparasi kinerja ketiga tingkatan model disajikan secara terpadu pada Tabel 4.5 dan "
-        "divisualisasikan melalui kurva peramalan harga pada Gambar 4.2 serta diagram batang komparatif pada Gambar 4.3. "
-        "Berdasarkan Persamaan (3.2), Tier 3 berhasil mencatatkan peningkatan performa (*positive improvement*) yang sangat "
-        "signifikan terhadap model penalaan manual Tier 2 (Khumaidi dkk.), di mana Tier 3 mencatatkan penurunan RMSE sebesar +40,11% "
-        "(dari USD 3.904,15 ke USD 2.338,22), penurunan MAE sebesar +43,94% (dari USD 3.182,86 ke USD 1.784,27), serta "
-        "penurunan MAPE sebesar +42,72% (dari 3,16% ke 1,81%) sebagaimana dirangkum pada Tabel 4.5. Di samping itu, Tier 3 juga mengungguli "
-        "Tier 1 baseline default dengan penurunan RMSE +20,67% dan MAPE +23,31%. Bukti empiris ini secara mutlak "
-        "memvalidasi hipotesis penelitian bahwa optimasi otomatis Bayesian TPE mengungguli penalaan manual heuristik (Bouthillier et al., 2020; Makridakis et al., 2018)."
+        "E7 adalah model usulan yang menjalani HPO penuh dengan Optuna-TPE. "
+        f"Studi menyelesaikan {config.get('total_trials', 0)} trial dan memilih "
+        f"trial nomor {config.get('best_trial_number', '-')} dengan nilai CV "
+        f"MAE {format_number(config.get('best_cv_loss', 0))} USD. Konfigurasi "
+        f"terpilih memakai lookback {hyper.get('lookback', '-')} hari, "
+        f"{hyper.get('units', '-')} unit LSTM, dropout "
+        f"{format_number(hyper.get('dropout', 0), 2)}, learning rate "
+        f"{format_number(hyper.get('learning_rate', 0), 5)}, batch size "
+        f"{hyper.get('batch_size', '-')}, dan {hyper.get('layers', '-')} layer. "
+        f"Model final dilatih selama {config.get('epochs_run', '-')} epoch dengan "
+        f"EarlyStopping patience {config.get('early_stopping', {}).get('patience', '-')}."
     )
 
-    # Tabel 4.5: Rekapitulasi Benchmark Komparatif 3-Tier
-    t5_headers = ["Tingkatan Model", "Lookback (L)", "RMSE (USD)", "MAE (USD)", "MAPE (%)", "Imp RMSE vs T2", "Imp MAE vs T2", "Imp MAPE vs T2"]
-    t5_rows = [
-        ["Tier 1: LSTM Default (Baseline)", "30 Hari", "USD 2.947,60", "USD 2.378,56", "2,36%", "-", "-", "-"],
-        ["Tier 2: Manual (Khumaidi dkk.)", "60 Hari", "USD 3.904,15", "USD 3.182,86", "3,16%", "0,00%", "0,00%", "0,00%"],
-        ["Tier 3: Optuna-TPE (Usulan)", "22 Hari", "USD 2.338,22", "USD 1.784,27", "1,81%", "+40,11%", "+43,94%", "+42,72%"],
-    ]
-    t5_widths = [Cm(3.8), Cm(1.6), Cm(1.8), Cm(1.8), Cm(1.4), Cm(1.5), Cm(1.5), Cm(1.6)]
-    add_styled_table(t5_headers, t5_rows, t5_widths, "Tabel 4.5 Rekapitulasi Komparasi Kinerja Benchmark 3-Tier dan Persentase Peningkatan")
+    add_styled_table(
+        ["Parameter", "Nilai Terpilih", "Peran"],
+        [
+            ["Lookback", f"{hyper.get('lookback', '-')} hari", "Panjang jendela masukan"],
+            ["Hidden units", f"{hyper.get('units', '-')}", "Kapasitas representasi"],
+            ["Dropout", format_number(hyper.get("dropout", 0), 2), "Regularisasi"],
+            ["Learning rate", format_number(hyper.get("learning_rate", 0), 5), "Laju Adam"],
+            ["Batch size", f"{hyper.get('batch_size', '-')}", "Ukuran minibatch"],
+            ["Layers", f"{hyper.get('layers', '-')}", "Kedalaman LSTM"],
+            ["Total trials", f"{config.get('total_trials', '-')}", "Anggaran HPO"],
+            ["Trial terbaik", f"#{config.get('best_trial_number', '-')}", "Indeks Optuna (mulai 0)"],
+            ["Epoch final", f"{config.get('epochs_run', '-')}", "Hasil EarlyStopping"],
+        ],
+        [Cm(3.4), Cm(4.4), Cm(6.2)],
+        "Tabel 4.4 Konfigurasi Final Model Usulan E7",
+    )
 
-    # Gambar 4.2: Kurva Prediksi 3-Tier (File gambar 4.1 di results)
-    fig_pred_path = os.path.join(r"d:\OneDrive\Desktop\jurnal", "05_Source_Code", "results", "figures", "gambar_4_1_perbandingan_prediksi_3tier.png")
-    add_figure(fig_pred_path, "Gambar 4.2 Perbandingan Kurva Prediksi Harga Bitcoin pada Data Out-of-Sample (3-Tier Benchmark)", 14.5)
+    add_paragraph(
+        f"Pada holdout, E7 menghasilkan RMSE {format_usd(e7['RMSE'])}, MAE "
+        f"{format_usd(e7['MAE'])}, dan MAPE {format_pct(e7['MAPE'])}. Interval "
+        f"kepercayaan 95% untuk MAE E7 adalah {format_usd(e7_ci['ci_low'])} sampai "
+        f"{format_usd(e7_ci['ci_high'])}. Sebagai pembanding, E6 yang memakai "
+        f"parameter Tier 3 tetap tanpa HPO menghasilkan MAE {format_usd(e6['MAE'])}. "
+        f"Perubahan MAE E7 terhadap E6 adalah "
+        f"{signed_change(results.improvement('E7', 'E6', 'MAE'))}, sedangkan "
+        f"perubahan terhadap persistence adalah "
+        f"{signed_change(results.improvement('E7', 'E0', 'MAE'))}. Angka ini "
+        "menjadi dasar penilaian apakah HPO penuh memberi nilai tambah di luar "
+        "pemilihan loss dan scheduler (Akiba et al., 2019; Feurer & Hutter, 2019)."
+    )
 
-    # Gambar 4.3: Bar Chart Komparasi Metrik (File gambar 4.2 di results)
-    fig_bar_path = os.path.join(r"d:\OneDrive\Desktop\jurnal", "05_Source_Code", "results", "figures", "gambar_4_2_bar_chart_komparasi_metrik.png")
-    add_figure(fig_bar_path, "Gambar 4.3 Diagram Batang Perbandingan Metrik Evaluasi RMSE, MAE, dan MAPE Lintas Tiga Model", 14.5)
+    add_figure(
+        figures_dir / "gambar_4_3_konvergensi_optuna.png",
+        "Gambar 4.1 Kurva Konvergensi Nilai Validasi Optuna-TPE",
+    )
 
-    # ==========================================================================
-    # B. PEMBAHASAN HASIL PENELITIAN
-    # ==========================================================================
+    add_sub_heading("6. Perbandingan Statistik dan Verdict Ilmiah")
+
+    best_lstm = results.best_lstm
+    verdict = results.verdict
+    status = verdict.get("status")
+    e7_vs_e0 = results.comparison_metric("E7_vs_persistence", "MAE")
+    if status == "proposed_lower_mae_ci_excludes_zero":
+        verdict_text = (
+            "Verdict otomatis menyatakan bahwa E7 memiliki MAE lebih rendah "
+            "daripada persistence dan CI selisih berpasangan tidak melewati nol. "
+            "Klaim keunggulan masih harus dibatasi pada satu aset, horizon satu "
+            "hari, satu periode holdout, dan model univariat."
+        )
+    elif status == "proposed_lower_mae_ci_includes_zero":
+        verdict_text = (
+            "Verdict otomatis menyatakan bahwa MAE titik E7 lebih rendah daripada "
+            "persistence, tetapi CI selisih berpasangan masih melewati nol. "
+            "Karena itu, hasil ini tidak boleh disebut signifikan atau unggul "
+            "secara meyakinkan; yang dapat dikatakan hanyalah arah perbaikan "
+            "yang belum stabil."
+        )
+    else:
+        if results.verdict.get("ci_direction") == "persistence_better":
+            verdict_text = (
+                "Verdict otomatis menyatakan bahwa E7 memiliki MAE lebih tinggi "
+                "daripada persistence dan CI selisih berpasangan seluruhnya di atas "
+                "nol. Dengan demikian, hasil ini bukan sekadar tidak lebih baik, "
+                "tetapi secara statistik lebih buruk pada periode holdout yang "
+                "diuji. Hasil negatif ini dilaporkan apa adanya: model LSTM yang "
+                "dioptimasi belum mampu mengalahkan baseline naif pada horizon satu "
+                "hari. Kontribusi penelitian kemudian bergeser menjadi pipeline "
+                "evaluasi dan bukti terkontrol tentang batas kemampuan LSTM, bukan "
+                "klaim keunggulan prediktif."
+            )
+        else:
+            verdict_text = (
+                "Verdict otomatis menyatakan bahwa E7 tidak lebih baik daripada "
+                "persistence pada MAE titik, dan CI selisih berpasangan masih "
+                "melewati nol sehingga arah perbedaannya belum dapat dipastikan. "
+                "Hasil negatif ini dilaporkan apa adanya: model LSTM yang "
+                "dioptimasi belum mampu mengalahkan baseline naif pada horizon satu "
+                "hari. Kontribusi penelitian kemudian bergeser menjadi pipeline "
+                "evaluasi dan bukti terkontrol tentang batas kemampuan LSTM, bukan "
+                "klaim keunggulan prediktif."
+            )
+
+    add_paragraph(
+        f"Tabel 4.5 merangkum seluruh model. Model LSTM terbaik menurut MAE adalah "
+        f"{best_lstm['run']} dengan MAE {format_usd(best_lstm['MAE'])}, sedangkan "
+        f"persistence memiliki MAE {format_usd(e0['MAE'])}. Untuk E7, selisih MAE "
+        f"terhadap persistence adalah {format_usd(e7_vs_e0['difference_b_minus_a'], signed=True)} "
+        f"dengan CI 95% {format_usd(e7_vs_e0['ci_low'], signed=True)} sampai "
+        f"{format_usd(e7_vs_e0['ci_high'], signed=True)}. {verdict_text}"
+    )
+
+    benchmark_rows = []
+    for row in results.summary_rows():
+        ci = results.ci(row["run"], "MAE")
+        aggregate = results.aggregate(row["run"], "MAE") or {}
+        mean_std = (
+            f"{format_usd(aggregate.get('mean', row['MAE']))} ± "
+            f"{format_number(aggregate.get('std', 0.0))}"
+        )
+        benchmark_rows.append(
+            [
+                row["run"],
+                row["label"],
+                format_usd(row["RMSE"]),
+                format_usd(row["MAE"]),
+                format_pct(row["MAPE"]),
+                mean_std,
+                f"{format_usd(ci['ci_low'])}–{format_usd(ci['ci_high'])}",
+            ]
+        )
+    add_styled_table(
+        ["Run", "Model", "RMSE", "MAE", "MAPE", "MAE mean ± std", "CI 95% MAE"],
+        benchmark_rows,
+        [Cm(1.0), Cm(3.1), Cm(1.9), Cm(1.9), Cm(1.4), Cm(2.5), Cm(2.6)],
+        "Tabel 4.5 Perbandingan Kinerja Seluruh Model pada Holdout",
+        font_size=7.5,
+    )
+
+    comparison_rows = []
+    for label in (
+        "E7_vs_persistence",
+        "E7_vs_E6",
+        "E1_vs_E3",
+        "E4_vs_E3",
+        "E5_vs_E3",
+        "E6_vs_E3",
+    ):
+        try:
+            payload = results.comparison(label)
+            mae = results.comparison_metric(label, "MAE")
+        except Exception:
+            continue
+        comparison_rows.append(
+            [
+                f"{payload.get('model_a')} vs {payload.get('model_b')}",
+                format_usd(mae["difference_b_minus_a"], signed=True),
+                f"{format_usd(mae['ci_low'], signed=True)}–{format_usd(mae['ci_high'], signed=True)}",
+                "Ya" if results.is_significant(label, "MAE") else "Tidak",
+            ]
+        )
+    add_styled_table(
+        ["Perbandingan", "Selisih MAE (B - A)", "CI 95%", "CI jauh dari nol?"],
+        comparison_rows,
+        [Cm(3.6), Cm(3.6), Cm(4.6), Cm(2.2)],
+        "Tabel 4.6 Perbandingan Berpasangan pada Tanggal yang Sama",
+        font_size=8,
+    )
+
+    add_paragraph(
+        "Perbandingan berpasangan pada Tabel 4.6 memakai tanggal yang sama untuk "
+        "setiap model, sehingga perbedaan tidak tercampur dengan perbedaan "
+        "komposisi hari. Selisih negatif berarti model B memiliki galat lebih "
+        "rendah. Kolom terakhir hanya menyatakan apakah seluruh interval "
+        "kepercayaan berada di bawah nol; nilai p yang menyertainya bersifat "
+        "deskriptif dan bukan pengganti uji formal Diebold-Mariano. Pembacaan "
+        "yang benar adalah membandingkan arah efek, besar efek, dan lebar "
+        "interval secara bersama-sama, bukan memilih satu angka yang paling "
+        "menguntungkan (Bouthillier et al., 2021; Willmott & Matsuura, 2005)."
+    )
+
+    add_sub_heading("7. Analisis Residual, Rezim, dan Arah")
+
+    e7_res = results.model("E7").get("residuals") or {}
+    e7_regime = results.model("E7").get("regime") or {}
+    e7_high = results.model("E7").get("high_volatility") or {}
+    e7_normal = results.model("E7").get("normal_volatility") or {}
+    direction = results.model("E7").get("directional_accuracy") or {}
+    add_paragraph(
+        f"Residual E7 memiliki rata-rata {format_usd(e7_res.get('mean', 0), signed=True)} "
+        f"dan simpangan baku {format_usd(e7_res.get('std', 0))}. Galat absolut "
+        f"maksimum mencapai {format_usd(e7_res.get('max_absolute_error', 0))}, "
+        f"sedangkan proporsi hari dengan galat di bawah 2% adalah "
+        f"{format_pct((e7_res.get('share_within_2_percent', 0) or 0) * 100)}. "
+        f"Pada rezim bull, MAE E7 adalah "
+        f"{format_usd((e7_regime.get('bull') or {}).get('MAE', 0))}; pada rezim "
+        f"bear {format_usd((e7_regime.get('bear') or {}).get('MAE', 0))}; dan pada "
+        f"sideways {format_usd((e7_regime.get('sideways') or {}).get('MAE', 0))}. "
+        f"Pada hari berivolatilitas tinggi, MAE {format_usd(e7_high.get('MAE', 0))}, "
+        f"sedangkan pada hari normal {format_usd(e7_normal.get('MAE', 0))}."
+    )
+
+    add_styled_table(
+        ["Segmen", "n", "RMSE", "MAE", "MAPE"],
+        [
+            [
+                "Bull",
+                (e7_regime.get("bull") or {}).get("n", 0),
+                format_usd((e7_regime.get("bull") or {}).get("RMSE", 0)),
+                format_usd((e7_regime.get("bull") or {}).get("MAE", 0)),
+                format_pct((e7_regime.get("bull") or {}).get("MAPE", 0)),
+            ],
+            [
+                "Bear",
+                (e7_regime.get("bear") or {}).get("n", 0),
+                format_usd((e7_regime.get("bear") or {}).get("RMSE", 0)),
+                format_usd((e7_regime.get("bear") or {}).get("MAE", 0)),
+                format_pct((e7_regime.get("bear") or {}).get("MAPE", 0)),
+            ],
+            [
+                "Sideways",
+                (e7_regime.get("sideways") or {}).get("n", 0),
+                format_usd((e7_regime.get("sideways") or {}).get("RMSE", 0)),
+                format_usd((e7_regime.get("sideways") or {}).get("MAE", 0)),
+                format_pct((e7_regime.get("sideways") or {}).get("MAPE", 0)),
+            ],
+            [
+                "Volatilitas tinggi",
+                e7_high.get("n", 0),
+                format_usd(e7_high.get("RMSE", 0)),
+                format_usd(e7_high.get("MAE", 0)),
+                format_pct(e7_high.get("MAPE", 0)),
+            ],
+            [
+                "Volatilitas normal",
+                e7_normal.get("n", 0),
+                format_usd(e7_normal.get("RMSE", 0)),
+                format_usd(e7_normal.get("MAE", 0)),
+                format_pct(e7_normal.get("MAPE", 0)),
+            ],
+        ],
+        [Cm(3.6), Cm(1.4), Cm(3.2), Cm(3.2), Cm(2.6)],
+        "Tabel 4.7 Kinerja E7 Menurut Rezim dan Volatilitas (Label Ex-Ante)",
+    )
+
+    add_paragraph(
+        "Label rezim dan volatilitas dihitung dari data yang berakhir pada hari "
+        "sebelumnya, sehingga tidak memakai informasi hari yang diprediksi. "
+        "Karena itu, tabel ini berfungsi sebagai analisis pasca-hoc untuk melihat "
+        "di mana galat membesar, bukan sebagai fitur model atau klaim kausal. "
+        "Perbedaan MAE antar-rezim menunjukkan bahwa satu angka agregat dapat "
+        "menyembunyikan heterogenitas: model yang tampak moderat pada seluruh "
+        "holdout dapat sangat buruk pada bull market atau sebaliknya. Pembacaan "
+        "seperti ini penting sebelum model dipakai untuk keputusan investasi "
+        "(López de Prado, 2018; Lim & Zohren, 2021)."
+    )
+
+    add_paragraph(
+        f"Akurasi arah E7 adalah {format_pct((direction.get('accuracy', 0) or 0) * 100)} "
+        f"dengan {direction.get('correct', 0)} dari {direction.get('n', 0)} hari "
+        "benar. Pada hari harga naik, akurasi hanya "
+        f"{format_pct((direction.get('up_accuracy', 0) or 0) * 100)}, sedangkan pada "
+        f"hari harga turun {format_pct((direction.get('down_accuracy', 0) or 0) * 100)}. "
+        "Ketimpangan ini menunjukkan bahwa angka agregat sekitar 50% tidak "
+        "mencerminkan kemampuan dua arah yang seimbang, melainkan bias arah yang "
+        "kuat. Angka ini juga tidak boleh dibandingkan langsung dengan persistence, "
+        "karena persistence selalu memprediksi harga yang sama sehingga arah "
+        "prediksinya degenerat dan akurasinya dilaporkan terpisah sebagai tidak "
+        "interpretable. Untuk model LSTM, pola ini menunjukkan bahwa kemampuan "
+        "menangkap tanda perubahan harga masih terbatas, bahkan ketika galat harga "
+        "dalam dolar terlihat moderat (Hyndman & Athanasopoulos, 2018)."
+    )
+
+    add_figure(
+        figures_dir / "gambar_4_1_perbandingan_prediksi_3tier.png",
+        "Gambar 4.2 Perbandingan Harga Aktual dan Prediksi pada Holdout",
+    )
+    add_figure(
+        figures_dir / "gambar_4_2_bar_chart_komparasi_metrik.png",
+        "Gambar 4.3 Diagram Batang Perbandingan Metrik",
+    )
+    add_figure(
+        figures_dir / "residual_abs_boxplot.png",
+        "Gambar 4.4 Distribusi Galat Absolut Menurut Model",
+    )
+    add_figure(
+        figures_dir / "error_by_regime.png",
+        "Gambar 4.5 Galat Menurut Rezim Pasar",
+    )
+
+    # ------------------------------------------------------------------
+    # B. Pembahasan
+    # ------------------------------------------------------------------
     add_heading("B. Pembahasan Hasil Penelitian")
 
-    # Paragraf 11 (SPECH: ~124 kata)
     add_paragraph(
-        "Subbab pembahasan ini membedah secara mendalam seluruh temuan empiris yang diperoleh dengan mengaitkannya "
-        "pada landasan teori pembelajaran mendalam dan telaah literatur terdahulu yang telah dikaji pada Bab II. "
-        "Ketiadaan pembahasan kritis sering kali mereduksi nilai riset komputasi menjadi sekadar pelaporan angka tanpa "
-        "memberikan kontribusi teoritis yang bermakna bagi disiplin ilmu informatika. Pembahasan difokuskan pada lima "
-        "aspek krusial: efektivitas penjelajahan Bayes TPE, dinamika sensitivitas panjang jendela temporal, evaluasi "
-        "penyebab kegagalan penalaan coba-coba manual, implikasi peramalan finansial, serta batasan metodologis "
-        "(Creswell & Creswell, 2018; Bouthillier et al., 2020). Telaah ini mengungkap landasan ilmiah mengapa model "
-        "usulan mampu menghasilkan estimasi peramalan yang lebih akurat dan terpercaya (Goodfellow et al., 2016)."
+        "Pembahasan ini menghubungkan hasil numerik dengan teori peramalan deret "
+        "waktu dan literatur optimasi hyperparameter. Fokusnya bukan memilih "
+        "model yang paling menguntungkan untuk diklaim, melainkan menjelaskan "
+        "mengapa pola hasil muncul dan apa batas kesimpulan yang dapat ditarik. "
+        "Tiga pertanyaan dibahas: mengapa persistence sulit dikalahkan, apakah "
+        "faktor loss, scheduler, dan HPO memberi efek yang dapat dipisahkan, dan "
+        "apa implikasi serta keterbatasan hasil ini bagi penelitian lanjutan "
+        "(Bouthillier et al., 2021; Makridakis et al., 2018)."
     )
 
-    add_sub_heading("1. Telaah Kritis Efektivitas Optimasi Bayesian TPE pada Ruang Hyperparameter")
+    add_sub_heading("1. Mengapa Baseline Persistence Sulit Dikalahkan")
 
-    # Paragraf 12 (SPECH: ~123 kata)
     add_paragraph(
-        "Keunggulan performa model Tier 3 membuktikan secara empiris superioritas algoritma Tree-structured Parzen "
-        "Estimator (TPE) dalam menavigasi ruang pencarian hyperparameter yang bersifat kontinu, non-konveks, dan berkorelasi "
-        "tinggi. Berbeda dari Grid Search yang mengalami ledakan kombinatorial dan Random Search yang mengabaikan evaluasi masa "
-        "lalu, TPE memodelkan distribusi probabilitas konfigurasi terbaik $\\ell(x)$ secara adaptif (Bergstra et al., 2011). "
-        "Mekanisme ini memungkinkan Optuna memusatkan anggaran komputasi 50 trials pada wilayah parameter yang paling menjanjikan "
-        "untuk meminimalkan kerugian validasi (Akiba et al., 2019). Keberhasilan ini mengonfirmasi temuan Feurer & Hutter "
-        "(2019) bahwa penalaan otomatis berbasis Bayes secara konsisten melampaui kemampuan intuisi manusia dalam menemukan "
-        "kombinasi parameter global optimal pada model pembelajaran mendalam."
+        "Persistence efektif mengasumsikan bahwa perubahan harga harian memiliki "
+        "ekspektasi mendekati nol. Pada aset likuid dengan perdagangan "
+        "twenty-four seven seperti Bitcoin, asumsi ini sering sulit dikalahkan "
+        "oleh model yang hanya melihat harga masa lalu, terutama pada horizon "
+        "satu hari. Hasil penelitian ini konsisten dengan pola tersebut: seluruh "
+        f"model LSTM memiliki MAE di atas {format_usd(e0['MAE'])}. Fenomena ini "
+        "bukan berarti LSTM tidak berguna, tetapi menunjukkan bahwa sinyal "
+        "prediktif harian yang tersedia pada data univariat sangat kecil "
+        "dibandingkan derau pasar (Makridakis et al., 2018; Lim & Zohren, 2021)."
     )
 
-    # Paragraf 13 (SPECH: ~124 kata)
     add_paragraph(
-        "Efisiensi proses optimasi semakin diperkokoh oleh integrasi strategi pemangkasan otomatis berbasis modul "
-        "MedianPruner yang secara cerdas menghentikan uji coba tidak potensial sebelum merampungkan seluruh epoch pelatihan. "
-        "Dalam eksperimen komputasi intensif, melatih konfigurasi buruk hingga selesai merupakan pemborosan sumber daya pemrosesan "
-        "yang masif (Li et al., 2017). Dengan membandingkan nilai kerugian parsial tiap lipatan terhadap nilai median riwayat uji "
-        "coba terdahulu, MedianPruner berhasil mengeliminasi kandidat berkinerja rendah pada tahap awal (Falkner et al., "
-        "2018). Efisiensi ini memungkinkan penelitian menyelesaikan eksplorasi 50 trials secara tuntas dalam waktu komputasi "
-        "yang terkontrol tanpa mengorbankan kualitas penjelajahan ruang hyperparameter, sejalan dengan prinsip efisiensi komputasi "
-        "modern dalam AutoML (Akiba et al., 2019; Bouthillier et al., 2020)."
+        "Kekalahan model yang lebih kompleks juga dapat dijelaskan oleh "
+        "kombinasi non-stasioneritas, perubahan rezim, dan keterbatasan horizon. "
+        "Model dilatih pada periode in-sample yang mencakup kondisi pasar "
+        "berbeda, lalu diuji pada periode yang didominasi harga tinggi. "
+        "Pergeseran distribusi ini membuat bobot yang optimal secara historis "
+        "belum tentu optimal pada holdout. Baseline persistence tidak memiliki "
+        "parameter yang harus diperbarui, sehingga lebih tahan terhadap "
+        "pergeseran tersebut. Temuan ini menegaskan pentingnya melaporkan "
+        "baseline naif secara eksplisit sebelum mengklaim kemajuan algoritma "
+        "(Bouthillier et al., 2021; Gu et al., 2020)."
     )
 
-    add_sub_heading("2. Pengaruh Dinamika Jendela Temporal (Lookback Window) Terhadap Volatilitas Kripto")
+    add_sub_heading("2. Efek Hyperparameter Optuna: E1 versus E3")
 
-    # Paragraf 14 (SPECH: ~124 kata)
+    if e3["MAE"] < e1["MAE"]:
+        hyperparameter_reading = (
+            "Arah ini menunjukkan bahwa konfigurasi hasil pencarian Optuna "
+            "menurunkan galat dibandingkan konfigurasi default ketika loss dan "
+            "aturan pelatihan disamakan."
+        )
+    elif e1["MAE"] < e3["MAE"]:
+        hyperparameter_reading = (
+            "Arah ini menunjukkan bahwa konfigurasi hasil pencarian Optuna tidak "
+            "otomatis lebih baik daripada konfigurasi default ketika loss dan "
+            "aturan pelatihan disamakan."
+        )
+    else:
+        hyperparameter_reading = (
+            "Kedua konfigurasi menghasilkan MAE titik yang sama, sehingga tidak "
+            "ada arah efek yang dapat diklaim."
+        )
+
     add_paragraph(
-        "Salah satu kontribusi ilmiah paling mendasar dari penelitian ini adalah ditemukannya panjang jendela lookback "
-        "optimal sebesar 22 hari ($L=22$), yang mengonfirmasi prinsip Adaptive Market Hypothesis (Lo, 2004) dan dinamika "
-        "Cell State LSTM pada data non-stasioner (Fischer & Krauss, 2018). Banyak peneliti sebelumnya berasumsi bahwa memperpanjang jendela historis "
-        "(seperti 60 hari pada Khumaidi dkk.) akan memperkaya memori model untuk menangkap pola jangka panjang (Khumaidi dkk., 2024). Namun, "
-        "pada aset bervolatilitas ekstrem seperti Bitcoin, lookback yang terlalu panjang justru menimbulkan fenomena kelambatan "
-        "momentum (*momentum drag*), di mana prediksi terbebani oleh informasi harga masa lalu yang sudah tidak relevan (Lim & Zohren, 2021). "
-        "Hal ini terbukti secara empiris pada tahap pra-eksperimen: saat ruang pencarian dibiarkan hingga 120 hari, model memilih lookback 114 hari "
-        "yang menghasilkan MAPE membengkak hingga 3,92% akibat *memory lag*. Melalui pembatasan terarah (domain-guided), jendela 22 hari terbukti "
-        "paling ideal dalam merepresentasikan siklus likuiditas ~3 mingguan pasar kripto global (Gu et al., 2020)."
+        f"Perbandingan E1 dan E3 mengisolasi efek hyperparameter karena keduanya "
+        f"memakai MSE dan tanpa scheduler. E1 memiliki MAE {format_usd(e1['MAE'])}, "
+        f"sedangkan E3 memiliki MAE {format_usd(e3['MAE'])}. "
+        f"{comparison_claim('E1_vs_E3')} {hyperparameter_reading} Klaim bahwa "
+        "Optuna selalu menghasilkan hyperparameter yang lebih unggul perlu "
+        "dihindari; yang dapat dikatakan adalah bahwa efek HPO bergantung pada "
+        "ruang pencarian, metrik objektif, dan interaksi dengan faktor pelatihan "
+        "lain (Akiba et al., 2019; Bergstra et al., 2011)."
     )
 
-    # Paragraf 15 (SPECH: ~124 kata)
+    add_sub_heading("3. Efek Loss MAE dan Scheduler")
+
+    loss_effect = e3["MAE"] - e4["MAE"]
+    scheduler_effect = e3["MAE"] - e5["MAE"]
+    if loss_effect > 0:
+        loss_reading = (
+            "Arah ini sejalan dengan tujuan MAE yang mengoptimalkan galat "
+            "absolut, tetapi besarnya efek tetap harus dibaca bersama "
+            "variabilitas antar-seed."
+        )
+    else:
+        loss_reading = (
+            "Arah ini tidak mendukung dugaan bahwa loss MAE otomatis lebih baik "
+            "pada konfigurasi ini; efeknya harus dibaca bersama variabilitas "
+            "antar-seed."
+        )
+    if scheduler_effect > 0:
+        scheduler_reading = (
+            f"Scheduler menurunkan MAE titik sebesar {format_usd(scheduler_effect)}, "
+            "tetapi besar efeknya "
+        )
+        scheduler_reading += (
+            "lebih kecil daripada efek penggantian loss."
+            if abs(scheduler_effect) < abs(loss_effect)
+            else "menyamai atau melampaui efek penggantian loss."
+        )
+    elif scheduler_effect < 0:
+        scheduler_reading = (
+            f"Scheduler justru menaikkan MAE titik sebesar "
+            f"{format_usd(abs(scheduler_effect))}, sehingga tidak memberi "
+            "perbaikan pada konfigurasi ini."
+        )
+    else:
+        scheduler_reading = (
+            "Scheduler tidak mengubah MAE titik pada konfigurasi ini."
+        )
+
     add_paragraph(
-        "Ditinjau dari dinamika internal arsitektur LSTM, jendela sekuensial yang teroptimasi ($L=22$) secara "
-        "efektif memitigasi risiko degradasi sinyal gradien selama proses perambatan balik melalui waktu (*backpropagation "
-        "through time*). Meskipun gerbang memori sel LSTM dirancang untuk mengatasi vanishing gradient, dependensi temporal "
-        "yang terlampau panjang pada data acak non-stasioner tetap dapat memicu saturasi gerbang lupakan (*forget gate*) "
-        "(Hochreiter & Schmidhuber, 1997; Greff et al., 2017). Dengan membatasi sekuens masukan pada rentang teroptimasi 22 hari, model "
-        "mampu memusatkan perhatian bobot sinapsisnya pada tren terdekat yang memiliki autokorelasi langsung terhadap pergerakan "
-        "harga esok hari (Tashman, 2000). Hal ini tercermin dari respons kurva Tier 3 yang sangat adaptif mengikuti akselerasi tren "
-        "tanpa menghasilkan deviasi berlebih (Gambar 4.2)."
+        f"Pada E4, penggantian MSE dengan MAE tanpa scheduler mengubah MAE dari "
+        f"{format_usd(e3['MAE'])} menjadi {format_usd(e4['MAE'])}. "
+        f"{comparison_claim('E4_vs_E3')} {loss_reading} Sebaliknya, E5 menguji "
+        f"scheduler tanpa mengubah loss dan menghasilkan MAE {format_usd(e5['MAE'])}. "
+        f"{comparison_claim('E5_vs_E3')} {scheduler_reading} Efek scheduler yang "
+        "kecil atau tidak konsisten menunjukkan bahwa faktor ini bukan sumber "
+        "utama perbedaan pada konfigurasi yang diuji (Willmott & Matsuura, "
+        "2005; Kingma & Ba, 2014)."
     )
 
-    add_sub_heading("3. Analisis Kegagalan Penalaan Manual (Tier 2) dan Peran Regularisasi")
-
-    # Paragraf 16 (SPECH: ~123 kata)
     add_paragraph(
-        "Hasil pengujian memperlihatkan bahwa model Tier 2 (replikasi Khumaidi dkk., 2024) mencatatkan tingkat galat "
-        "tertinggi di antara seluruh model (MAPE 3,16%, RMSE USD 3.904,15), membuktikan kelemahan mendasar dari metode penalaan "
-        "coba-coba manual. Penggunaan ukuran batch yang terlampau kecil (batch=10) dipadukan kapasitas neuron yang besar (128 units) "
-        "menyebabkan estimasi gradien memiliki variansi stokastik yang sangat tinggi (Srivastava et al., 2014; Goodfellow et al., "
-        "2016). Kondisi ini memicu model menghafal fluktuasi derau acak pada data latih (*in-sample overfitting*), sehingga "
-        "akurasinya runtuh saat diuji pada data out-of-sample yang mencakup rezim harga baru di atas level tertinggi historis "
-        "(Makridakis et al., 2018). Temuan ini menegaskan batas kemampuan heuristik manual manusia dalam menangani ruang "
-        "pencarian non-linier (Khumaidi dkk., 2024)."
+        f"E6 menggabungkan MAE dan ReduceLROnPlateau dan menghasilkan MAE "
+        f"{format_usd(e6['MAE'])}. Dibandingkan E3, perubahan MAE E6 adalah "
+        f"{signed_change(results.improvement('E6', 'E3', 'MAE'))}. "
+        f"Perbandingan E6 terhadap E4 dan E5 menunjukkan apakah efek kedua faktor "
+        "saling memperkuat. Namun, karena semua varian memakai parameter Tier 3 "
+        "yang sama, hasil ini tidak dapat digunakan untuk mengklaim bahwa "
+        "kombinasi tertentu akan tetap unggul pada arsitektur atau dataset lain. "
+        "Interpretasi yang defensible adalah bahwa pada konfigurasi yang diuji, "
+        "loss MAE dan scheduler menghasilkan perubahan titik yang arah serta "
+        "besar efeknya dilaporkan pada Tabel 4.3 dan Tabel 4.6; klaim signifikansi "
+        "tetap mengikuti interval kepercayaan berpasangan, bukan selisih "
+        "persentase semata (Bouthillier et al., 2021; Greff et al., 2017)."
     )
 
-    # Paragraf 17 (SPECH: ~124 kata)
+    add_sub_heading("4. Nilai Tambah HPO Penuh: E7 versus E6")
+
+    if e7["MAE"] < e6["MAE"]:
+        if results.is_improvement("E7_vs_E6", "MAE"):
+            hpo_reading = (
+                "HPO penuh menurunkan MAE titik dan perbedaannya didukung CI "
+                "berpasangan yang tidak melewati nol."
+            )
+        else:
+            hpo_reading = (
+                "HPO penuh menurunkan MAE titik, tetapi CI berpasangan masih "
+                "melewati nol sehingga belum dapat disebut sebagai bukti "
+                "keunggulan."
+            )
+    elif e7["MAE"] > e6["MAE"]:
+        hpo_reading = (
+            "HPO penuh tidak menurunkan MAE dibandingkan E6; konfigurasi hasil "
+            "pencarian justru menghasilkan galat titik yang lebih tinggi."
+        )
+    else:
+        hpo_reading = "HPO penuh menghasilkan MAE titik yang sama dengan E6."
+
     add_paragraph(
-        "Sebaliknya, model usulan Tier 3 berhasil mencapai keseimbangan generalisasi yang optimal melalui sinergi "
-        "antara 100 unit neuron, tingkat Dropout moderat 0.10, fungsi kerugian linier MAE yang selaras dengan formula MAPE, "
-        "laju pembelajaran adaptif 0.00197 yang dipadukan dengan scheduler penyesuaian dinamis (ReduceLROnPlateau), serta ukuran "
-        "batch 16 sampel. Ukuran batch 16 menyediakan pembaruan gradien yang stabil, sementara fungsi MAE loss dan scheduler "
-        "mencegah model terjebak pada osilasi lokal dan memfasilitasi konvergensi bobot yang sangat halus (Kingma & Ba, 2014; "
-        "Srivastava et al., 2014). Kombinasi parameter ini memungkinkan jaringan LSTM mengekstraksi struktur pola tren harga secara murni tanpa "
-        "terdistorsi oleh lonjakan derau transaksi sesaat (Lim & Zohren, 2021). Keseimbangan inilah yang mendasari keberhasilan "
-        "Tier 3 dalam mengungguli replikasi model Khumaidi dkk. dengan margin perbaikan masif mencapai lebih dari 40% di seluruh metrik "
-        "(Willmott & Matsuura, 2005)."
+        f"E7 dan E6 memakai loss MAE serta scheduler yang sama, sehingga "
+        f"perbedaannya mengisolasi efek HPO penuh. E7 menghasilkan MAE "
+        f"{format_usd(e7['MAE'])}, sedangkan E6 menghasilkan "
+        f"{format_usd(e6['MAE'])}. "
+        f"{comparison_claim('E7_vs_E6')} {hpo_reading} Apa pun arahnya, nilai "
+        "tambah metodologis tetap terletak pada proses pencarian yang "
+        "terdokumentasi dan kemampuannya mengungkap kombinasi yang menghasilkan "
+        "kinerja serupa. Temuan ini sejalan dengan pandangan bahwa evaluasi HPO "
+        "harus mempertimbangkan variabilitas dan biaya komputasi, bukan hanya "
+        "nilai terbaik pada satu trial (Akiba et al., 2019; Feurer & Hutter, "
+        "2019)."
     )
 
-    add_sub_heading("4. Verifikasi dan Konfirmasi Hipotesis Penelitian")
+    if best_lstm["run"] == "E7":
+        ranking_reading = (
+            "Peringkat ini sesuai dengan posisi E7 sebagai model usulan, tetapi "
+            "keunggulannya tetap harus dibaca bersama CI berpasangan dan "
+            "variabilitas antar-seed, bukan dari label model."
+        )
+    else:
+        ranking_reading = (
+            f"Peringkat tersebut berbeda dari model usulan E7, sehingga pemilihan "
+            "model tidak boleh didasarkan pada label 'usulan' atau 'paling "
+            "kompleks'. Perbedaan ini justru menunjukkan bahwa matriks eksperimen "
+            "bekerja sebagaimana mestinya: setiap klaim diuji, dan model yang "
+            "menang ditentukan oleh data, bukan oleh preferensi peneliti."
+        )
 
-    # Paragraf 18 (SPECH: ~123 kata)
     add_paragraph(
-        "Seluruh temuan numerik yang terangkum pada Tabel 4.5 secara konklusif mengonfirmasi kebenaran hipotesis "
-        "penelitian yang diajukan pada Bab I, di mana optimasi hyperparameter LSTM menggunakan Optuna-TPE terbukti menghasilkan "
-        "peningkatan performa yang konsisten terhadap model rujukan terdahulu. Penurunan error RMSE sebesar +40,11% vs Tier 2, "
-        "penurunan MAE sebesar +43,94% vs Tier 2, serta penurunan MAPE sebesar +42,72% vs Tier 2, membuktikan bahwa peningkatan "
-        "akurasi ini bersifat menyeluruh pada berbagai dimensi sensitivitas statistik (Willmott & Matsuura, 2005). Konsistensi "
-        "penurunan metrik kuadratik (RMSE) dan linier (MAE) menunjukkan bahwa model usulan berhasil memangkas galat ekstrim "
-        "sekaligus menekan deviasi rerata harian secara serempak (Hyndman & Athanasopoulos, 2018; Bouthillier et al., 2020)."
+        f"Model LSTM terbaik pada penelitian ini adalah {best_lstm['run']} dengan "
+        f"MAE {format_usd(best_lstm['MAE'])}. {ranking_reading} "
+        "(Bouthillier et al., 2021; Willmott & Matsuura, 2005)."
     )
 
-    # Paragraf 19 (SPECH: ~124 kata)
+    add_sub_heading("5. Implikasi Teoritis dan Praktis")
+
     add_paragraph(
-        "Keberhasilan pencapaian nilai MAPE sebesar 1,81% pada model Tier 3 menempatkan arsitektur yang dikembangkan "
-        "dalam kategori peramalan berspesifikasi sangat presisi tingkat tinggi (*highly accurate forecasting*) di bawah ambang batas 2% "
-        "menurut kriteria baku evaluasi deret waktu finansial Lewis (Hyndman & Athanasopoulos, 2018). Pada skala pasar aset kripto Bitcoin yang "
-        "diperdagangkan pada kisaran USD 60.000 hingga USD 124.000 selama periode out-of-sample, galat relatif sebesar 1,81% merupakan margin kesalahan "
-        "yang sangat sempit dan bernilai ekonomis tinggi bagi perancangan strategi kuantitatif (Gu et al., 2020). Temuan ini membuktikan "
-        "bahwa intervensi otomatisasi penalaan hyperparameter berbasis TPE yang selaras fungsi evaluasi memberikan nilai tambah teknis yang konkret "
-        "dalam rekayasa model kecerdasan buatan terapan (Akiba et al., 2019; Makridakis et al., 2018)."
+        "Secara teoritis, penelitian ini memperkuat pandangan bahwa peramalan "
+        "harga aset kripto satu langkah ke depan sangat dipengaruhi oleh "
+        "komponen random walk. Model pembelajaran mendalam dapat menangkap "
+        "pola non-linier, tetapi pola tersebut belum tentu cukup stabil untuk "
+        "mengalahkan prediksi naif pada periode uji yang berbeda dari periode "
+        "latih. Kontribusi metodologis yang lebih kokoh adalah pipeline "
+        "evaluasi yang memisahkan in-sample dan holdout, memakai scaler per "
+        "fold, menghitung interval kepercayaan blok, dan melaporkan hasil "
+        "negatif secara eksplisit (Lim & Zohren, 2021; López de Prado, 2018)."
     )
 
-    add_sub_heading("5. Implikasi Teoritis dan Praktis dalam Peramalan Pasar Aset Kripto")
-
-    # Paragraf 20 (SPECH: ~124 kata)
     add_paragraph(
-        "Secara teoritis, penelitian ini memberikan kontribusi metodologis yang berharga bagi literatur sains data "
-        "dan kecerdasan buatan dengan mendemonstrasikan integrasi formal antara optimasi Bayes non-parametrik dan pemodelan recurrent "
-        "deret waktu bebas kebocoran data. Kerangka kerja benchmark 3-Tier yang diimplementasikan menetapkan standar pengujian yang "
-        "transparan untuk membedakan antara perbaikan performa hakiki dan artefak pemilihan baseline yang lemah (Bouthillier "
-        "et al., 2020). Selain itu, pembuktian efektivitas jendela temporal ringkas 22 hari memberikan landasan empiris baru "
-        "bahwa sifat non-stasioner pasar kripto menuntut adaptabilitas parameter lokal daripada akumulasi konteks panjang yang kaku "
-        "(Lim & Zohren, 2021; Tashman, 2000). Hal ini memperkaya teori pemodelan time series finansial modern (López de Prado, 2018)."
+        "Secara praktis, hasil ini memberi peringatan bagi pengembangan sistem "
+        "perdagangan algoritmik: akurasi harga yang terlihat tinggi pada data "
+        "historis tidak otomatis menghasilkan keuntungan setelah biaya "
+        "transaksi, slippage, dan risiko eksekusi. Model yang tidak mengalahkan "
+        "persistence pada MAE sebaiknya tidak dipakai sebagai sinyal tunggal "
+        "untuk keputusan beli atau jual. Penggunaan model perlu disertai "
+        "manajemen risiko, validasi out-of-time, dan pembandingan dengan "
+        "strategi naif sebelum diklaim memiliki nilai ekonomi (Gu et al., 2020; "
+        "Makridakis et al., 2018)."
     )
 
-    # Paragraf 21 (SPECH: ~124 kata)
+    add_sub_heading("6. Keterbatasan Penelitian")
+
     add_paragraph(
-        "Dari perspektif implikasi praktis, model LSTM teroptimasi yang dihasilkan menyediakan instrumen analisis "
-        "prediktif yang andal bagi pelaku pasar digital, manajer portofolio aset kripto, serta pengembang sistem perdagangan "
-        "algoritmik (*algorithmic trading*). Estimasi harga penutupan satu hari ke depan dengan tingkat akurasi tinggi (MAPE 1,81%) "
-        "dapat dimanfaatkan sebagai sinyal masukan untuk perumusan batas toleransi risiko (*stop-loss*) dan optimalisasi eksekusi "
-        "order perdagangan (Gu et al., 2020; Binance Developer API, 2024). Di samping itu, otomatisasi pipeline penalaan Optuna-TPE "
-        "dapat diadopsi oleh industri teknologi finansial untuk melakukan kalibrasi berkala bobot model secara otomatis tanpa "
-        "bergantung pada intervensi penyesuaian manual yang lambat dan subjektif (Akiba et al., 2019; Feurer & Hutter, 2019)."
+        "Penelitian ini memiliki beberapa keterbatasan yang harus dibaca bersama "
+        "hasil. Pertama, data hanya mencakup satu aset, yaitu BTC/USDT, sehingga "
+        "temuan belum tentu berlaku untuk aset kripto lain atau pasar tradisional. "
+        "Kedua, horizon peramalan terbatas pada satu langkah ke depan dan model "
+        "bersifat univariat, sehingga belum menguji peramalan multi-horizon atau "
+        "manfaat fitur eksternal seperti sentimen, volume on-chain, dan indikator "
+        "makroekonomi. Ketiga, evaluasi hanya memakai satu periode holdout "
+        f"sepanjang {format_number(results.data.get('n_test', 0), 0)} hari, "
+        "sehingga hasil sangat bergantung pada rezim pasar "
+        "yang terjadi pada periode tersebut (Makridakis et al., 2018; Lim & "
+        "Zohren, 2021)."
     )
 
-    add_sub_heading("6. Keterbatasan Penelitian Komputasional")
-
-    # Paragraf 22 (SPECH: ~124 kata)
     add_paragraph(
-        "Kendati model Tier 3 berhasil mencatatkan peningkatan kinerja yang sangat signifikan, penelitian komputasi "
-        "ini tetap memiliki sejumlah keterbatasan metodologis yang perlu diungkapkan secara jujur untuk memandu arah riset masa depan. "
-        "Keterbatasan pertama terletak pada penggunaan dataset peramalan univariat yang semata-mata mengandalkan atribut harga historis "
-        "tanpa mengintegrasikan variabel eksternal seperti sentimen media sosial, indeks ketakutan pasar (Fear and Greed Index), "
-        "maupun metrik transaksi on-chain jaringan Bitcoin (BRIN & Binus, 2025; Lim & Zohren, 2021). Faktor-faktor makroekonomi dan "
-        "kebijakan regulasi global kerap memicu lonjakan harga mendadak yang tidak sepenuhnya terpantul pada pola deret waktu harga "
-        "masa lalu (Goodfellow et al., 2016; Tashman, 2000)."
+        "Keterbatasan keempat adalah belum diperhitungkannya biaya transaksi, "
+        "bid-ask spread, dan slippage, sehingga angka MAE tidak dapat langsung "
+        "diterjemahkan menjadi profitabilitas. Kelima, early stopping internal "
+        "memakai 10% data latih terakhir sebagai validation split; meskipun "
+        "bersifat kronologis, mekanisme ini masih berpotensi memberi optimism "
+        "kecil pada pemilihan epoch. Keenam, uji signifikansi bersifat "
+        "deskriptif dan tidak menggantikan uji formal Diebold-Mariano. "
+        "Keterbatasan-keterbatasan ini membuka ruang penelitian lanjutan, "
+        "terutama evaluasi multi-aset dan multi-periode dengan protokol yang "
+        "sama (Bouthillier et al., 2021; Tashman, 2000)."
     )
 
-    # Paragraf 23 (SPECH: ~124 kata)
+    add_sub_heading("7. Ringkasan Bab")
+
     add_paragraph(
-        "Keterbatasan kedua berkaitan dengan ruang lingkup horizon peramalan yang terbatas pada estimasi satu langkah "
-        "ke depan (*one-step-ahead forecasting*), sehingga belum menguji ketahanan model pada skenario peramalan jangka menengah "
-        "atau multi-horizon. Selain itu, penalaan hyperparameter difokuskan secara mendalam pada arsitektur Long Short-Term Memory "
-        "(LSTM) murni dan belum mengeksplorasi penggabungan mekanisme atensi (*attention mechanism*) maupun pembanding arsitektur "
-        "Transformer dan Gated Recurrent Unit (GRU) dalam ruang pencarian yang sama (Vaswani et al., 2017; Greff et al., 2017). "
-        "Keterbatasan-keterbatasan ini membuka peluang yang sangat luas bagi pengembangan riset lanjutan guna menyempurnakan ketahanan "
-        "serta cakupan aplikasi sistem peramalan kecerdasan buatan pada pasar aset digital masa depan (Makridakis et al., 2018)."
+        f"Bab ini menunjukkan bahwa baseline persistence memiliki MAE "
+        f"{format_usd(e0['MAE'])}, sedangkan model LSTM terbaik {best_lstm['run']} "
+        f"memiliki MAE {format_usd(best_lstm['MAE'])}. Verdict ilmiah berstatus "
+        f"{status}. Dengan demikian, kontribusi utama penelitian adalah pipeline "
+        "eksperimen terkontrol, laporan ablasi yang memisahkan loss dan "
+        "scheduler, serta evaluasi statistik yang jujur tentang batas kemampuan "
+        "LSTM pada peramalan harga Bitcoin satu langkah ke depan. Bab V merangkum "
+        "simpulan tersebut dan merumuskan saran penelitian lanjutan."
     )
 
-    # ── Save Document ──
-    out_dir = os.path.join(r"d:\OneDrive\Desktop\jurnal", "03_Naskah_Skripsi")
-    os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, "BAB_4_HASIL_DAN_PEMBAHASAN_ZAINI_LEON.docx")
+    out_dir = ensure_naskah_dir()
+    out_path = out_dir / "BAB_4_HASIL_DAN_PEMBAHASAN_ZAINI_LEON.docx"
     doc.save(out_path)
     print(f"[SUCCESS] BAB 4 Generated successfully: {out_path}")
 

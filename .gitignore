@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Local research outputs
+archive/
+05_Source_Code/results/runs/
+05_Source_Code/results/**/*.backup
+*.log
+
+# OS/editor noise
+.DS_Store
+Thumbs.db

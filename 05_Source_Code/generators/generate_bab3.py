@@ -23,6 +23,8 @@ from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.oxml import parse_xml
 from docx.oxml.ns import nsdecls
 
+from doc_paths import ensure_naskah_dir
+
 
 def generate_bab3():
     doc = docx.Document()
@@ -222,7 +224,7 @@ def generate_bab3():
         "Penelitian ini secara fundamental mengadopsi jenis penelitian kuantitatif dengan pendekatan "
         "eksperimental komputasi (computational experimental research) pada domain kecerdasan buatan dan "
         "rekayasa pembelajaran mesin. Pemilihan pendekatan kuantitatif didasari oleh kebutuhan untuk "
-        "mengukur, menganalisis, serta membuktikan secara empiris perbedaan signifikansi kinerja peramalan "
+        "mengukur, menganalisis, serta menguji secara empiris ada atau tidaknya perbedaan kinerja peramalan "
         "harga Bitcoin sebelum dan sesudah intervensi optimasi hyperparameter dijalankan. Pendekatan ini "
         "memposisikan model Long Short-Term Memory (LSTM) sebagai subjek perlakuan komputasional terarah, "
         "di mana konfigurasi hyperparameter dimanipulasi secara adaptif melalui algoritma Optuna berbasis "
@@ -232,19 +234,17 @@ def generate_bab3():
         "yang sangat kuat serta terbebas dari bias penafsiran kualitatif subjektif (Feurer & Hutter, 2019)."
     )
 
-    # Paragraf 2 (SPECH: ~121 kata)
+    # Paragraf 2 (SPECH: ~125 kata)
     add_paragraph(
-        "Rancangan eksperimen kuantitatif ini disusun secara komprehensif dalam sebuah kerangka kerja "
-        "benchmark bertingkat yang mencakup tiga tingkatan pengujian (3-Tier Benchmark Evaluation) guna "
-        "menghasilkan komparasi performa yang adil dan transparan. Ketiadaan skema pembanding bertingkat "
-        "pada berbagai penelitian peramalan sering kali memicu klaim keunggulan model yang semu akibat "
-        "pemilihan pembanding acuan yang terlalu lemah. Dalam skema ini, Tier 1 berfungsi sebagai kontrol "
-        "dasar menggunakan konfigurasi default pustaka tanpa optimasi, Tier 2 mereplikasi model penalaan "
-        "manual dari riset terdahulu oleh Khumaidi dkk. (2024), dan Tier 3 mengevaluasi arsitektur "
-        "teroptimasi otomatis menggunakan Optuna-TPE (Bouthillier et al., 2020). Desain benchmark bertingkat "
-        "ini memungkinkan penelitian membuktikan secara definitif apakah optimasi probabilistik terarah "
-        "mampu melampaui keterbatasan heuristik manual manusia dalam menavigasi ruang pencarian berdimensi "
-        "tinggi (Makridakis et al., 2018)."
+        "Rancangan eksperimen kuantitatif ini disusun sebagai matriks terkontrol E0 sampai E7 agar perbandingan "
+        "performa bersifat adil dan dapat diaudit. Ketiadaan baseline naif pada berbagai penelitian peramalan sering "
+        "memicu klaim keunggulan model yang semu akibat pemilihan pembanding yang terlalu lemah. Matriks ini "
+        "menempatkan persistence (E0) sebagai ambang minimum, Tier 1 (E1) dan Tier 2 (E2) sebagai kontrol, E3 sampai "
+        "E6 sebagai ablasi faktorial loss dan scheduler, serta E7 sebagai model usulan yang menjalani HPO penuh dengan "
+        "Optuna-TPE (Bouthillier et al., 2021). Dengan desain ini, efek hyperparameter, fungsi kerugian, scheduler, dan "
+        "HPO dapat dipisahkan, bukan tercampur dalam satu perbandingan. Matriks tersebut memungkinkan penelitian menilai "
+        "apakah optimasi probabilistik terarah benar-benar melampaui baseline dan kontrol, bukan hanya melampaui "
+        "konfigurasi yang lemah (Makridakis et al., 2018)."
     )
 
     # Paragraf 3 (SPECH: ~120 kata)
@@ -298,7 +298,7 @@ def generate_bab3():
         ["1", "Studi Literatur & Penyusunan Proposal Skripsi", "\u2713", "\u2713", "", "", ""],
         ["2", "Akuisisi Data Binance API & Prapemrosesan", "", "\u2713", "\u2713", "", ""],
         ["3", "Implementasi LSTM & Optimasi Optuna-TPE", "", "", "\u2713", "\u2713", ""],
-        ["4", "Evaluasi 3-Tier Benchmark & Analisis Hasil", "", "", "", "\u2713", "\u2713"],
+        ["4", "Evaluasi Matriks E0–E7 & Analisis Hasil", "", "", "", "\u2713", "\u2713"],
         ["5", "Penyusunan Naskah Lengkap & Sidang Skripsi", "", "", "", "", "\u2713"],
     ]
     jadwal_widths = [Cm(0.8), Cm(5.0), Cm(1.6), Cm(1.6), Cm(1.6), Cm(1.6), Cm(1.6)]
@@ -346,7 +346,7 @@ def generate_bab3():
         "buatan terdahulu adalah runtuhnya akurasi saat diuji di luar periode latihan karena model hanya dilatih pada "
         "satu kondisi pasar tunggal. Periode pengamatan 2020–2025 merangkum momen peristiwa Bitcoin Halving ketiga "
         "pada Mei 2020, pencapaian rekor tertinggi harga historis pada November 2021, penurunan ekstrem pasar beruang "
-        "pada 2022, hingga periode konsolidasi institusional 2023–2025 (BRIN & Binus, 2025). Keragaman siklus ini "
+        "pada 2022, hingga periode konsolidasi institusional 2023–2025 (Wahyuddin dkk., 2025). Keragaman siklus ini "
         "menjamin bahwa model LSTM teroptimasi diuji ketahanan dan daya generalisasinya secara menyeluruh (Tashman, "
         "2000; Makridakis et al., 2018)."
     )
@@ -367,7 +367,7 @@ def generate_bab3():
         "berbasis bahasa pemrograman Python, serta algoritma optimasi otomatis terstruktur (Creswell & Creswell, "
         "2018; Goodfellow et al., 2016). Keterpaduan instrumen-instrumen ini memastikan eksperimen berlangsung "
         "secara stabil, presisi, serta memiliki tingkat keterulangan empiris yang sempurna di lingkungan komputasi "
-        "sejenis (Bouthillier et al., 2020)."
+        "sejenis (Bouthillier et al., 2021)."
     )
 
     add_sub_heading("1. Perangkat Keras (Hardware)")
@@ -396,8 +396,7 @@ def generate_bab3():
         "secara presisi. Pustaka TensorFlow dan antarmuka Keras digunakan untuk membangun lapisan sel LSTM dan "
         "mengelola kompilasi graf komputasi jaringan saraf tiruan (TensorFlow Developers, 2024). Manipulasi larik "
         "matriks dan struktur data tabular dikelola menggunakan modul NumPy dan Pandas, transformasi data deret "
-        "waktu dieksekusi dengan Scikit-learn, sementara visualisasi kurva evaluasi disusun menggunakan Matplotlib "
-        "(Pedregosa et al., 2011; Akiba et al., 2019)."
+        "waktu dieksekusi dengan Scikit-learn, sementara visualisasi kurva evaluasi disusun menggunakan Matplotlib."
     )
 
     # Tabel 3.2: Instrumen Perangkat Lunak Penelitian
@@ -431,7 +430,7 @@ def generate_bab3():
         "konfigurasi hyperparameter yang menjanjikan (Bergstra et al., 2011; Akiba et al., 2019). Selain itu, "
         "keberadaan modul pemangkasan otomatis MedianPruner secara efisien memutus uji coba model yang berperforma "
         "buruk sebelum menyelesaikan seluruh putaran epoch, sehingga menghemat konsumsi waktu komputasi secara "
-        "signifikan (Falkner et al., 2018)."
+        "signifikan (Akiba et al., 2019)."
     )
 
     # ==========================================================================
@@ -461,7 +460,7 @@ def generate_bab3():
         "pembelajaran mendalam. Prosedur audit kualitas data mencakup lima pemeriksaan utama: kontinuitas stempel "
         "waktu harian tanpa celah, pengecekan ketiadaan rekaman ganda, verifikasi tipe data numerik presisi tinggi, "
         "serta validasi relasi geometris harga candlestick di mana harga High $\\geq$ Open, Close dan Low $\\leq$ "
-        "Open, Close (Bouthillier et al., 2020). Hasil audit mengonfirmasi bahwa 2.192 data observasi berada dalam "
+        "Open, Close (Bouthillier et al., 2021). Hasil audit mengonfirmasi bahwa 2.192 data observasi berada dalam "
         "kondisi valid dan siap diproses ke tahap prapemrosesan (Hyndman & Athanasopoulos, 2018)."
     )
 
@@ -521,7 +520,7 @@ def generate_bab3():
         "tiga yang memuat dimensi jumlah sampel, panjang langkah waktu, serta jumlah fitur guna mempelajari pola "
         "ketergantungan temporal. Untuk setiap langkah waktu ke-$t$, vektor masukan $X_t$ dibentuk dari $L$ observasi "
         "historis masa lalu berurutan $[x_{t-L+1}, ..., x_t]$, sementara target keluaran $y_t$ ditetapkan sebagai "
-        "nilai harga pada langkah waktu tepat satu hari berikutnya $x_{t+1}$ (Sakarya University, 2023). Panjang "
+        "nilai harga pada langkah waktu tepat satu hari berikutnya $x_{t+1}$ (Kervancı & Akay, 2023). Panjang "
         "jendela geser $L$ (lookback window) merupakan salah satu hyperparameter kritis yang turut dioptimasi "
         "menggunakan Optuna guna menemukan konteks historis paling optimal bagi model LSTM (Lim & Zohren, 2021; "
         "Greff et al., 2017)."
@@ -535,14 +534,15 @@ def generate_bab3():
     # Paragraf 18 (SPECH: ~123 kata)
     add_paragraph(
         "Teknis analisis data dalam penelitian ini dirancang secara sistematis melalui pipeline komputasi terpadu "
-        "yang mencakup lima komponen analitis utama guna menjawab rumusan masalah secara komprehensif. Ketiadaan "
+        "yang mencakup enam komponen analitis utama guna menjawab rumusan masalah secara komprehensif. Ketiadaan "
         "struktur analisis yang baku sering kali menyebabkan pengujian model berjalan tidak konsisten sehingga sulit "
         "untuk mengidentifikasi faktor utama peningkatan performa. Komponen analisis ini mencakup: perancangan ruang "
-        "pencarian hyperparameter, prosedur optimasi probabilistik Optuna-TPE, skema validasi temporal bebas "
-        "kebocoran (Time-Series Split 5-fold), pengujian model pada benchmark bertingkat 3-Tier, serta evaluasi "
-        "kuantitatif persentase penurunan error peramalan (Creswell & Creswell, 2018; Bouthillier et al., 2020). "
-        "Setiap tahapan analitis dikonstruksi secara logis untuk menjamin bahwa kesimpulan akhir didasarkan pada bukti "
-        "empiris yang kuat, terukur, dan dapat dipertanggungjawabkan secara ilmiah (Feurer & Hutter, 2019)."
+        "pencarian hyperparameter, prosedur optimasi probabilistik Optuna-TPE, skema validasi temporal berpurge "
+        "(Time-Series Split 5-fold, scaler per fold), matriks eksperimen terkontrol E0–E7, evaluasi statistik dengan "
+        "moving-block bootstrap dan perbandingan berpasangan, serta analisis residual dan rezim pasar (Creswell & "
+        "Creswell, 2018; Bouthillier et al., 2021). Setiap tahapan analitis dikonstruksi secara logis untuk menjamin "
+        "bahwa kesimpulan akhir didasarkan pada bukti empiris yang kuat, terukur, dan dapat dipertanggungjawabkan "
+        "secara ilmiah (Feurer & Hutter, 2019)."
     )
 
     add_sub_heading("1. Definisi Ruang Pencarian Hyperparameter (Search Space)")
@@ -553,11 +553,11 @@ def generate_bab3():
         "mengacu pada sintesis literatur terkini mengenai faktor-faktor yang paling mempengaruhi generalisasi jaringan "
         "recurrent pada data finansial. Penentuan batas rentang pencarian yang terlalu sempit berpotensi mengabaikan "
         "konfigurasi terbaik, sedangkan batas yang terlalu luas memboroskan sumber daya komputasi pada wilayah parameter "
-        "yang tidak realistis. Penelitian ini menetapkan lima hyperparameter kunci untuk dioptimasi: panjang jendela "
+        "yang tidak realistis. Penelitian ini menetapkan enam hyperparameter kunci untuk dioptimasi: panjang jendela "
         "historis ($L$), jumlah unit neuron per lapisan tersembunyi, tingkat regularisasi Dropout, laju pembelajaran "
-        "(Learning Rate), serta ukuran batch komputasi (Batch Size) sebagaimana dirangkum pada Tabel 3.3 (Sakarya "
-        "University, 2023; Greff et al., 2017). Penentuan domain distribusi mengombinasikan tipe diskret, kontinu "
-        "logaritmik, dan kategorikal sesuai karakteristik parameter (Bergstra et al., 2011)."
+        "(Learning Rate), ukuran batch komputasi (Batch Size), serta jumlah lapisan LSTM (Layers) sebagaimana dirangkum "
+        "pada Tabel 3.3 (Kervancı & Akay, 2023; Greff et al., 2017). Penentuan domain distribusi mengombinasikan "
+        "tipe diskret, kontinu logaritmik, dan kategorikal sesuai karakteristik parameter (Bergstra et al., 2011)."
     )
 
     # Tabel 3.3: Ruang Pencarian Hyperparameter LSTM
@@ -568,6 +568,7 @@ def generate_bab3():
         ["3", "Dropout Rate", "suggest_float", "0.1 \u2013 0.4", "Probabilitas eliminasi acak koneksi neuron untuk meredam overfitting"],
         ["4", "Learning Rate", "suggest_float (log)", "5\u00d710\u207b\u2074 \u2013 2\u00d710\u207b\u00b3", "Laju langkah penyesuaian gradien bobot sinapsis optimizer Adam (Kingma & Ba, 2014)"],
         ["5", "Batch Size", "suggest_categorical", "[16, 32, 64]", "Jumlah sampel observasi yang diproses per pembaruan gradien loss"],
+        ["6", "Layers", "suggest_int", "1 \u2013 2 lapisan", "Kedalaman arsitektur LSTM untuk menyesuaikan kapasitas abstraksi model"],
     ]
     hp_widths = [Cm(0.7), Cm(2.8), Cm(2.8), Cm(2.8), Cm(4.2)]
     add_styled_table(hp_headers, hp_rows, hp_widths, "Tabel 3.3 Ruang Pencarian Hyperparameter LSTM pada Algoritma Optuna")
@@ -577,15 +578,15 @@ def generate_bab3():
 
     # Paragraf 20 (SPECH: ~124 kata)
     add_paragraph(
-        "Di samping kelima parameter utama pada ruang pencarian tersebut, kedalaman arsitektur LSTM juga dieksplorasi "
-        "secara dinamis antara rentang 1 hingga 2 lapisan berulang (stacked layers) guna menyesuaikan kapasitas abstraksi "
-        "model terhadap kompleksitas volatilitas harga Bitcoin secara terukur. Algoritma optimasi Adam ditetapkan secara konstan "
-        "sebagai optimizer utama karena memiliki mekanisme penyesuaian laju pembelajaran adaptif berbasis momen orde "
-        "pertama dan kedua yang terbukti sangat stabil pada data deret waktu yang rentan terhadap derau acak (Kingma "
-        "& Ba, 2014). Fungsi kerugian (loss function) yang diminimalkan selama pelatihan adalah Mean Absolute Error "
-        "(MAE) yang secara matematis selaras langsung dengan formula evaluasi akhir MAPE, didukung oleh mekanisme penghentian "
-        "dini (Early Stopping) dan scheduler penyesuaian laju pembelajaran dinamis (ReduceLROnPlateau) guna menghasilkan "
-        "pendaratan konvergensi bobot yang mulus serta mencegah penghafalan derau data (Srivastava et al., 2014; Goodfellow et al., 2016)."
+        "Kedalaman arsitektur LSTM dieksplorasi secara dinamis antara satu hingga dua lapisan berulang (stacked layers) "
+        "guna menyesuaikan kapasitas abstraksi model terhadap kompleksitas volatilitas harga Bitcoin secara terukur. "
+        "Algoritma optimasi Adam ditetapkan konstan sebagai optimizer karena mekanisme penyesuaian laju pembelajaran "
+        "adaptif berbasis momen orde pertama dan kedua terbukti stabil pada data deret waktu yang rentan derau acak "
+        "(Kingma & Ba, 2014). Pada E7, fungsi kerugian yang diminimalkan adalah Mean Absolute Error (MAE) yang selaras "
+        "dengan metrik evaluasi utama, didukung Early Stopping dan ReduceLROnPlateau. Namun, matriks E3–E6 sengaja "
+        "memvariasikan loss dan scheduler untuk menguji apakah kedua faktor tersebut benar-benar memberi perbaikan, "
+        "sehingga konfigurasi E7 tidak diasumsikan unggul sebelum diuji secara empiris (Srivastava et al., 2014; "
+        "Goodfellow et al., 2016)."
     )
 
     add_sub_heading("2. Prosedur Optimasi Algoritma Optuna-TPE")
@@ -606,14 +607,14 @@ def generate_bab3():
     # Paragraf 22 (SPECH: ~123 kata)
     add_paragraph(
         "Efisiensi eksekusi komputasi selama 50 uji coba optimasi ditingkatkan secara substansial melalui integrasi "
-        "strategi pemangkasan cerdas berbasis modul MedianPruner bawaan Optuna. Menjalankan seluruh putaran epoch "
-        "pelatihan pada konfigurasi hyperparameter yang sejak awal telah menunjukkan performa buruk hanya akan "
-        "menghabiskan waktu dan sumber daya komputasi secara sia-sia. Pada setiap akhir epoch pelatihan model, "
-        "MedianPruner secara otomatis membandingkan nilai kerugian validasi dari uji coba yang sedang berjalan terhadap "
-        "nilai median dari riwayat seluruh uji coba sebelumnya pada titik epoch yang sama (Akiba et al., 2019). Apabila "
-        "kinerja uji coba tersebut berada di bawah nilai median, Optuna seketika menghentikan proses pelatihan uji coba "
-        "tersebut dan segera mengalokasikan daya komputasi untuk menguji kandidat konfigurasi baru berikutnya (Li et al., "
-        "2017; Falkner et al., 2018)."
+        "strategi pemangkasan cerdas berbasis modul MedianPruner bawaan Optuna. Menjalankan seluruh lipatan validasi "
+        "pada konfigurasi hyperparameter yang sejak awal menunjukkan performa buruk hanya akan menghabiskan waktu dan "
+        "sumber daya komputasi. Pada setiap akhir lipatan, fungsi objektif melaporkan nilai MAE validasi kepada "
+        "Optuna; MedianPruner kemudian membandingkannya dengan nilai median uji coba sebelumnya pada langkah lipatan "
+        "yang sama (Akiba et al., 2019). Apabila kinerja uji coba berada di atas median galat, Optuna menghentikan "
+        "sisa lipatan dan mengalokasikan komputasi ke kandidat berikutnya. Mekanisme ini bekerja pada tingkat lipatan "
+        "validasi, bukan pada setiap epoch pelatihan internal, sehingga keputusan pruning konsisten dengan protokol "
+        "evaluasi deret waktu (Akiba et al., 2019; Optuna Development Team, 2024)."
     )
 
     add_sub_heading("3. Skema Validasi Deret Waktu (Time-Series Split)")
@@ -627,8 +628,10 @@ def generate_bab3():
         "menimbulkan ilusi akurasi yang bias (data snooping). Pada skema Time-Series Split, data diurutkan secara kronologis "
         "di mana pada setiap lipatan ke-$k$, data pelatihan hanya menggunakan observasi masa lalu sebelum titik potong "
         "temporal ke-$k$, sedangkan data validasi dievaluasi pada jendela waktu berikutnya (Arlot & Celisse, 2010; "
-        "Tashman, 2000). Rata-rata nilai kerugian validasi lintas lima lipatan tersebut dijadikan fungsi objektif yang "
-        "diminimalkan oleh Optuna (BRIN & Binus, 2025)."
+        "Tashman, 2000). Setiap lipatan menyisipkan purge gap sebesar lookback dan scaler Min-Max di-fit ulang hanya "
+        "pada jendela latih lipatan tersebut, sehingga tidak ada observasi masa depan yang bocor ke pelatihan. Nilai "
+        "validasi dihitung dalam satuan USD dan rata-rata lintas lima lipatan dijadikan fungsi objektif yang "
+        "diminimalkan oleh Optuna (Wahyuddin dkk., 2025)."
     )
 
     # Paragraf 24 (SPECH: ~123 kata)
@@ -637,52 +640,48 @@ def generate_bab3():
         "segmen utama dengan rasio 80:20, yaitu segmen data latih-validasi (in-sample) dan data uji akhir (out-of-sample). "
         "Pemisahan ini mutlak diperlukan untuk mencegah terjadinya bias seleksi (selection bias) di mana model dievaluasi "
         "pada data yang turut terlibat dalam pemilihan konfigurasi hyperparameter terbaik. Sebanyak 80% data awal "
-        "(sekitar 1.754 hari) digunakan secara eksklusif untuk proses pelatihan dan validasi silang lima lipatan Optuna, "
-        "sementara 20% data sisanya (sekitar 438 hari perdagangan terakhir) dicadangkan sebagai data uji holdout murni "
+        "(1.753 observasi) digunakan secara eksklusif untuk proses pelatihan dan validasi silang lima lipatan Optuna, "
+        "sementara 20% data sisanya (439 observasi perdagangan terakhir) dicadangkan sebagai data uji holdout murni "
         "yang terkunci (López de Prado, 2018). Model dengan arsitektur terbaik hasil optimasi Optuna kemudian diuji "
         "kemampuannya pada segmen out-of-sample ini untuk mengukur akurasi peramalan yang objektif (Hyndman & "
         "Athanasopoulos, 2018; Makridakis et al., 2018)."
     )
 
-    add_sub_heading("4. Desain Eksperimen Benchmark Bertingkat (3-Tier Evaluation)")
+    add_sub_heading("4. Desain Matriks Eksperimen Terkontrol (E0–E7)")
 
-    # Paragraf 25 (SPECH: ~122 kata)
+    # Paragraf 25 (SPECH: ~126 kata)
     add_paragraph(
-        "Kinerja arsitektur model LSTM hasil penalaan otomatis Optuna-TPE dievaluasi melalui rancangan eksperimen "
-        "benchmark bertingkat yang tersusun atas tiga tingkatan model pembanding yang diuji pada dataset pengujian yang "
-        "sama persis. Struktur pembanding bertingkat ini memastikan bahwa klaim keunggulan performa model tidak sekadar "
-        "berasal dari perbandingan terhadap baseline acuan yang lemah, melainkan teruji terhadap praktik standar industri "
-        "maupun temuan penelitian terdahulu. Tier 1 memposisikan model LSTM dengan parameter konfigurasi default tanpa "
-        "intervensi, Tier 2 mereplikasi spesifikasi penalaan manual terbaik dari publikasi Khumaidi dkk. (2024), dan Tier "
-        "3 mengimplementasikan model hasil penalaan otomatis Optuna-TPE sebagaimana dirincikan pada Tabel 3.4 (Bouthillier "
-        "et al., 2020). Desain benchmark ini menyediakan landasan bukti empiris yang transparan atas efektivitas optimasi "
-        "probabilistik yang diusulkan (Makridakis et al., 2018)."
+        "Kinerja model usulan dievaluasi melalui matriks E0 sampai E7 yang dijalankan pada data uji yang sama persis. "
+        "Struktur ini memastikan klaim tidak hanya dibandingkan dengan konfigurasi yang lemah, tetapi diuji terhadap "
+        "baseline naif, kontrol default, replikasi literatur, dan ablasi faktor pelatihan. E0 adalah persistence, E1 "
+        "memakai konfigurasi default Tier 1, E2 mereplikasi penalaan manual Khumaidi dkk. (2024), dan E3 sampai E6 "
+        "membekukan parameter Tier 3 sambil memvariasikan loss serta scheduler dalam desain faktorial 2x2. E7 adalah "
+        "model usulan yang menjalani HPO penuh dengan Optuna-TPE, sehingga perbandingan E7 terhadap E6 mengisolasi nilai "
+        "tambah HPO itu sendiri (Bouthillier et al., 2021). Rincian setiap run disajikan pada Tabel 3.4 (Makridakis et "
+        "al., 2018)."
     )
 
-    # Tabel 3.4: Desain 3-Tier Benchmark
-    tier_headers = ["Tingkatan (Tier)", "Identitas Model", "Spesifikasi Konfigurasi Hyperparameter", "Tujuan dan Sasaran Pengujian"]
+    # Tabel 3.4: Matriks Eksperimen E0-E7
+    tier_headers = ["Run", "Model dan Konfigurasi", "Loss / Scheduler", "Peran dalam Matriks"]
     tier_rows = [
-        [
-            "Tier 1",
-            "LSTM Default\n(Baseline Kontrol)",
-            "Lookback=30, Units=50, Dropout=0.2, LR=0.001, Batch=32, Layers=1, Epoch=100",
-            "Menetapkan tolok ukur batas bawah performa arsitektur LSTM tanpa penalaan parameter"
-        ],
-        [
-            "Tier 2",
-            "LSTM Manual Tuning\n(Replikasi Khumaidi dkk., 2024)",
-            "Lookback=60, Units=128, Dropout=0.2, LR=0.001, Batch=10, Layers=1, Epoch=100, Split=85%",
-            "Menguji batas efektivitas metode coba-coba (trial-and-error) manual dari riset terdahulu"
-        ],
-        [
-            "Tier 3",
-            "LSTM Optuna-TPE\n(Model Usulan)",
-            "Konfigurasi hyperparameter ditentukan secara otomatis adaptif oleh Optuna-TPE (50 trials)",
-            "Membuktikan signifikansi keunggulan optimasi probabilistik terarah dibanding kedua baseline"
-        ],
+        ["E0", "Persistence (random walk)", "Tanpa pelatihan", "Baseline naif; ambang minimum"],
+        ["E1", "Tier 1 default: L30, U50, D0.20, LR0.001, B32, 1 layer", "MSE / tanpa", "Kontrol default"],
+        ["E2", "Tier 2 manual (Khumaidi dkk.): L60, U128, D0.20, LR0.001, B10, 1 layer", "MSE / tanpa", "Rujukan literatur"],
+        ["E3", "Parameter Tier 3 acuan: L22, U100, D0.10, LR0.001966, B16, 1 layer", "MSE / tanpa", "Referensi ablasi"],
+        ["E4", "Parameter Tier 3 acuan", "MAE / tanpa", "Ablasi loss"],
+        ["E5", "Parameter Tier 3 acuan", "MSE / plateau", "Ablasi scheduler"],
+        ["E6", "Parameter Tier 3 acuan", "MAE / plateau", "Ablasi gabungan"],
+        ["E7", "HPO Optuna-TPE: L7–30, U32–128, D0.10–0.40, LR5e-4–2e-3, B16/32/64, 1–2 layer", "MAE / plateau", "Model usulan"],
     ]
-    tier_widths = [Cm(1.4), Cm(3.0), Cm(4.8), Cm(4.0)]
-    add_styled_table(tier_headers, tier_rows, tier_widths, "Tabel 3.4 Desain Eksperimen Benchmark Bertingkat (3-Tier Evaluation)")
+    tier_widths = [Cm(0.9), Cm(7.1), Cm(2.6), Cm(3.2)]
+    add_styled_table(tier_headers, tier_rows, tier_widths, "Tabel 3.4 Matriks Eksperimen Terkontrol E0–E7")
+
+    add_paragraph(
+        "Keterangan: L = lookback (hari), U = hidden units, D = dropout, LR = learning rate, dan B = batch size. "
+        "E1 sampai E6 memakai konfigurasi tetap dan Early Stopping patience 12, sedangkan E7 memilih konfigurasi "
+        "melalui Optuna-TPE dengan ruang pencarian pada Tabel 3.3. Seluruh run memakai partisi, tanggal holdout, dan "
+        "protokol evaluasi yang identik agar perbedaan metrik hanya berasal dari perlakuan yang diuji."
+    )
 
     p_sp5 = doc.add_paragraph()
     p_sp5.paragraph_format.space_after = Pt(6)
@@ -691,7 +690,7 @@ def generate_bab3():
 
     # Paragraf 26 (SPECH: ~123 kata)
     add_paragraph(
-        "Kemampuan peramalan dari ketiga tingkatan model dievaluasi secara kuantitatif menggunakan tiga metrik "
+        "Kemampuan peramalan seluruh model dalam matriks E0–E7 dievaluasi secara kuantitatif menggunakan tiga metrik "
         "pengukuran galat komputasi standar, yaitu Root Mean Square Error (RMSE), Mean Absolute Error (MAE), serta "
         "Mean Absolute Percentage Error (MAPE). Mengandalkan satu metrik tunggal berpotensi menghasilkan kesimpulan yang "
         "bias karena setiap formulasi matematis memiliki sensitivitas yang berlainan terhadap magnitudo dan deviasi "
@@ -699,7 +698,11 @@ def generate_bab3():
         "besar, MAE mengukur deviasi rata-rata absolut linier yang intuitif, sedangkan MAPE merepresentasikan proporsi "
         "persentase kesalahan relatif terhadap nilai aktual harga (Willmott & Matsuura, 2005; Hyndman & Athanasopoulos, "
         "2018). Evaluasi multi-metrik ini dihitung secara eksklusif pada data pengujian out-of-sample untuk memastikan "
-        "akurasi penilaian generalisasi model (Gu et al., 2020)."
+        "akurasi penilaian generalisasi model (Gu et al., 2020). MAE ditetapkan sebagai metrik utama karena skalanya "
+        "langsung dapat dibaca dalam USD, sedangkan RMSE dan MAPE berfungsi sebagai pemeriksaan sensitivitas. Setiap "
+        "model dijalankan pada lima seed, dan interval kepercayaan 95% dihitung dengan moving-block bootstrap tujuh hari "
+        "sebanyak 2.000 resampel pada tanggal yang sama; perbedaan berpasangan baru disebut unggul bila selisih MAE "
+        "negatif dan seluruh intervalnya berada di bawah nol (Willmott & Matsuura, 2005; Tashman, 2000)."
     )
 
     # Persamaan (3.2): Improvement Percentage (borderless table, before sectPr)
@@ -725,11 +728,12 @@ def generate_bab3():
         "(Improvement Percentage) terhadap masing-masing baseline acuan sebagaimana dirumuskan pada Persamaan (3.2). "
         "Perbedaan nilai absolut error sering kali sulit diinterpretasikan antar-skenario pengujian yang berbeda, "
         "sehingga diperlukan standarisasi pengukuran penurunan error yang proporsional. Pada persamaan tersebut, "
-        "variabel $Error_{baseline}$ menyatakan nilai metrik galat (RMSE, MAE, atau MAPE) dari model pembanding Tier 1 "
-        "atau Tier 2, sedangkan $Error_{optimized}$ melambangkan nilai galat dari model usulan Tier 3 (Willmott & "
-        "Matsuura, 2005). Nilai persentase perbaikan yang bertanda positif membuktikan keberhasilan algoritma Optuna-TPE "
-        "dalam mereduksi kesalahan estimasi harga secara terukur dibandingkan model tanpa optimasi maupun model coba-coba "
-        "manual (Makridakis et al., 2018; Bouthillier et al., 2020)."
+        "variabel $Error_{baseline}$ menyatakan nilai metrik galat (RMSE, MAE, atau MAPE) dari model pembanding, "
+        "sedangkan $Error_{optimized}$ melambangkan nilai galat model yang dievaluasi (Willmott & Matsuura, 2005). "
+        "Nilai persentase perbaikan yang bertanda positif hanya bermakna bila arah selisih dan interval kepercayaan "
+        "berpasangan mendukungnya; angka persentase tunggal tidak dipakai sebagai bukti signifikansi. Dengan demikian, "
+        "efek HPO, loss, dan scheduler dibaca bersama variabilitas antar-seed, bukan hanya dari satu nilai terbaik "
+        "(Makridakis et al., 2018; Bouthillier et al., 2021)."
     )
 
     add_sub_heading("6. Alur Prosedur Penelitian Secara Keseluruhan")
@@ -741,10 +745,10 @@ def generate_bab3():
         "Penyusunan alur kerja yang terstandar menjamin bahwa seluruh proses manipulasi data dan eksekusi komputasi "
         "berjalan secara terkontrol tanpa distorsi metodologis. Tujuh tahapan kerja tersebut mencakup: akuisisi data "
         "historis via Binance API, audit kualitas dan normalisasi Min-Max, pemisahan partisi data in-sample dan "
-        "out-of-sample, penalaan 50 trials Optuna-TPE dengan Time-Series Split 5-fold, pelatihan arsitektur model "
-        "final, pengujian komparatif 3-Tier benchmark, serta analisis persentase penurunan error peramalan (Tabel 3.5) "
-        "(Creswell & Creswell, 2018; Tashman, 2000). Rangkaian tahapan ini menegakkan keterulangan empiris serta keabsahan "
-        "ilmiah dari model peramalan harga Bitcoin yang dikembangkan (Bouthillier et al., 2020)."
+        "out-of-sample, penalaan 50 trials Optuna-TPE dengan Time-Series Split 5-fold berpurge, pelatihan seluruh "
+        "model pada lima seed, pengujian matriks E0–E7, serta analisis residual, rezim, dan perbandingan berpasangan "
+        "(Tabel 3.5) (Creswell & Creswell, 2018; Tashman, 2000). Rangkaian tahapan ini menegakkan keterulangan empiris "
+        "serta keabsahan ilmiah dari model peramalan harga Bitcoin yang dikembangkan (Bouthillier et al., 2021)."
     )
 
     # Tabel 3.5: Ringkasan Alur Prosedur Penelitian
@@ -752,19 +756,18 @@ def generate_bab3():
     proc_rows = [
         ["1", "Pengumpulan Data Historis", "Dataset mentah BTC/USDT OHLCV (2.192 baris)", "Binance Public REST API, Requests"],
         ["2", "Audit & Prapemrosesan", "Data bersih ternormalisasi [0, 1] & tensor sekuen", "Pandas, NumPy, Scikit-learn"],
-        ["3", "Partisi Data Bebas Bocor", "Segmen In-Sample (80%) dan Out-of-Sample (20%)", "Python, Pandas, Slicing temporal"],
-        ["4", "Optimasi Hyperparameter", "Konfigurasi optimal hasil 50 trials & 5-fold CV", "Optuna, TPE Sampler, MedianPruner"],
-        ["5", "Pelatihan Model Terpilih", "Bobot arsitektur model LSTM terlatih final", "TensorFlow/Keras, EarlyStopping"],
-        ["6", "Evaluasi Out-of-Sample", "Nilai metrik RMSE, MAE, dan MAPE per tingkatan", "Scikit-learn, NumPy, Matplotlib"],
-        ["7", "Analisis Komparatif", "Tabel benchmark 3-Tier & persentase perbaikan", "Python, Formulasi Matematis Galat"],
+        ["3", "Partisi Data Bebas Bocor", "1.753 in-sample dan 439 out-of-sample", "Python, Pandas, Slicing temporal"],
+        ["4", "Optimasi Hyperparameter", "Konfigurasi E7 hasil 50 trials & 5-fold CV berpurge", "Optuna, TPE Sampler, MedianPruner"],
+        ["5", "Pelatihan Seluruh Model", "Bobot LSTM untuk E1–E7 pada lima seed", "TensorFlow/Keras, EarlyStopping"],
+        ["6", "Evaluasi Out-of-Sample", "Metrik RMSE, MAE, dan MAPE seluruh model", "Scikit-learn, NumPy, Matplotlib"],
+        ["7", "Analisis Komparatif", "Matriks E0–E7, CI bootstrap, dan analisis rezim", "Python, moving-block bootstrap"],
     ]
     proc_widths = [Cm(1.0), Cm(3.4), Cm(4.5), Cm(4.3)]
     add_styled_table(proc_headers, proc_rows, proc_widths, "Tabel 3.5 Ringkasan Alur Prosedur Pelaksanaan Penelitian")
 
     # ── Save Document ──
-    out_dir = os.path.join(r"d:\OneDrive\Desktop\jurnal", "03_Naskah_Skripsi")
-    os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, "BAB_3_METODE_PENELITIAN_ZAINI_LEON.docx")
+    out_dir = ensure_naskah_dir()
+    out_path = out_dir / "BAB_3_METODE_PENELITIAN_ZAINI_LEON.docx"
     doc.save(out_path)
     print(f"[SUCCESS] BAB 3 Generated successfully: {out_path}")
 

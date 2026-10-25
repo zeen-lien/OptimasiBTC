@@ -32,9 +32,19 @@ def assemble_full_skripsi():
     # 1. Regenerate all components to ensure fresh state
     print("[1/4] Memastikan seluruh komponen naskah terkompilasi...")
     import generate_front_matter
-    generate_front_matter.generate_front_matter()
-    
+    import generate_bab1
+    import generate_bab2
+    import generate_bab3
+    import generate_bab4
+    import generate_bab5
     import generate_back_matter
+
+    generate_front_matter.generate_front_matter()
+    generate_bab1.create_bab1_document()
+    generate_bab2.generate_enhanced_bab2()
+    generate_bab3.generate_bab3()
+    generate_bab4.generate_bab4()
+    generate_bab5.generate_bab5()
     generate_back_matter.generate_back_matter()
 
     workspace_root = os.path.abspath(os.path.join(generators_dir, "..", ".."))

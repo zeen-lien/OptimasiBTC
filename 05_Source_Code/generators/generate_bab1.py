@@ -5,6 +5,8 @@ from docx.enum.style import WD_STYLE_TYPE
 from docx.oxml import OxmlElement, parse_xml
 from docx.oxml.ns import nsdecls, qn
 
+from doc_paths import ensure_naskah_dir
+
 def create_bab1_document():
     doc = docx.Document()
 
@@ -65,7 +67,7 @@ def create_bab1_document():
         "sebagai aset digital dengan volume transaksi dan kapitalisasi pasar terbesar di dunia. Karakteristik "
         "data deret waktu (time series) Bitcoin memperlihatkan tingkat volatilitas ekstrem serta non-stasioneritas "
         "yang sangat dinamis akibat dipengaruhi oleh likuiditas global dan sentimen pasar (Lim & Zohren, 2021; "
-        "Aswadi & Ependi, 2022). Fluktuasi nilai tukar yang bergerak secara cepat dan tidak berpola linier "
+        "Aswadi & Ependi, 2025). Fluktuasi nilai tukar yang bergerak secara cepat dan tidak berpola linier "
         "tersebut menimbulkan tantangan komputasi yang rumit dalam bidang rekayasa kecerdasan buatan. "
         "Metode analisis statistik parametrik klasik seperti Autoregressive Integrated Moving Average (ARIMA) "
         "kerap mengalami degradasi performa karena ketidakmampuannya menangkap interaksi ketergantungan temporal "
@@ -95,7 +97,7 @@ def create_bab1_document():
         "pencarian (search space) multidimensi yang bersifat non-konveks dan saling berinteraksi secara rumit. "
         "Parameter arsitektur seperti panjang jendela historis (lookback window), jumlah neuron tersembunyi, "
         "dropout rate, serta parameter pelatihan seperti learning rate dan batch size memiliki sensitivitas "
-        "sangat tinggi terhadap performa konvergensi model (Goodfellow et al., 2016; Sakarya University, 2023). "
+        "sangat tinggi terhadap performa konvergensi model (Goodfellow et al., 2016; Kervancı & Akay, 2023). "
         "Pada praktiknya, sejumlah kajian peramalan Bitcoin, seperti riset yang dipublikasikan oleh Khumaidi dkk. "
         "(2024) pada jurnal terakreditasi SINTA 2, masih mengandalkan penyesuaian parameter secara manual "
         "(trial-and-error) dengan kombinasi nilai yang sangat terbatas. Pendekatan manual ini terbukti tidak efisien, "
@@ -109,12 +111,12 @@ def create_bab1_document():
     p4 = (
         "Metode pencarian hyperparameter otomatis konvensional yang kerap digunakan pada penelitian informatika "
         "meliputi Grid Search dan Random Search. Studi komprehensif oleh Feurer & Hutter (2019) serta evaluasi empiris "
-        "terkini pada instrumen aset kripto (JUTIF, 2026) mengungkapkan bahwa Grid Search menuntut biaya komputasi "
+        "terkini pada instrumen aset kripto (Aldo dkk., 2026) mengungkapkan bahwa Grid Search menuntut biaya komputasi "
         "yang sangat mahal secara eksponensial seiring bertambahnya dimensi parameter yang diuji. Di sisi lain, "
         "meskipun Random Search menawarkan efisiensi waktu yang lebih baik, algoritma ini mengevaluasi parameter "
         "secara acak tanpa memanfaatkan riwayat informasi keberhasilan iterasi sebelumnya. Akibatnya, pada data deret "
         "waktu dengan tingkat derau (noise) tinggi, Random Search menghasilkan variansi performa yang tidak konsisten "
-        "dan kerap berkinerja buruk (JUTIF, 2026). Oleh sebab itu, diperlukan algoritma optimasi cerdas berbasis "
+        "dan kerap berkinerja buruk (Aldo dkk., 2026). Oleh sebab itu, diperlukan algoritma optimasi cerdas berbasis "
         "probabilistik yang mampu memandu arah pencarian parameter secara terarah dan hemat sumber daya komputasi."
     )
     add_academic_paragraph(p4)
@@ -128,7 +130,7 @@ def create_bab1_document():
         "riwayat evaluasi konfigurasi parameter menjadi dua distribusi probabilitas kontinu guna menghitung kriteria "
         "Expected Improvement secara adaptif pada setiap langkah uji. Selain itu, fitur pemangkasan otomatis "
         "(Asynchronous MedianPruner) pada Optuna mampu menghentikan uji coba kandidat parameter yang berkinerja "
-        "buruk secara dini sebelum proses pelatihan selesai (Falkner et al., 2018; Li et al., 2017). Namun demikian, "
+        "buruk secara dini sebelum proses pelatihan selesai (Akiba et al., 2019). Namun demikian, "
         "keandalan konfigurasi parameter yang ditemukan oleh Optuna sangat dipengaruhi oleh integritas skema validasi data."
     )
     add_academic_paragraph(p5)
@@ -136,8 +138,8 @@ def create_bab1_document():
     # Paragraf 6: Masalah Validasi Statis & Solusi Walk-Forward (SPECH)
     p6 = (
         "Prosedur pembagian data statis (static train-test split) yang umum diterapkan pada penelitian deret waktu "
-        "memiliki kelemahan metodologis yang berpotensi menghasilkan kesimpulan semu. Riset mutakhir oleh BRIN "
-        "(Journal of Open Innovation, 2025) menegaskan bahwa optimasi parameter deret waktu finansial yang hanya "
+        "memiliki kelemahan metodologis yang berpotensi menghasilkan kesimpulan semu. Riset mutakhir oleh Wahyuddin dkk. "
+        "(2025) menegaskan bahwa optimasi parameter deret waktu finansial yang hanya "
         "bertumpu pada potongan data statis menimbulkan bias estimasi serta kebocoran informasi masa depan "
         "(temporal data leakage). Pada instrumen Bitcoin yang kerap mengalami pergeseran rezim tren (regime shift), "
         "parameter yang tampak prima pada data latih statis sering kali mengalami degradasi drastis saat diuji pada "
@@ -148,17 +150,18 @@ def create_bab1_document():
     )
     add_academic_paragraph(p6)
 
-    # Paragraf 7: Research Gap & 3-Tier Benchmark (SPECH)
+    # Paragraf 7: Research Gap & Matriks E0-E7 (SPECH)
     p7 = (
         "Kesenjangan penelitian (research gap) ini ditempatkan pada rekayasa optimasi hyperparameter otomatis "
-        "multi-dimensi model LSTM dengan menerapkan protokol validasi deret waktu yang ketat bebas kebocoran data. "
-        "Kajian terdahulu telah meneliti optimasi LSTM pada aset digital alternatif (JUTIF, 2026) dan penyetelan manual "
-        "pada Bitcoin (Khumaidi dkk., 2024), namun belum mengintegrasikan pencarian parameter terarah Optuna-TPE "
-        "berbasis time-series split. Penelitian ini merancang ruang pencarian gabungan yang mencakup parameter arsitektur "
-        "(lookback window, unit LSTM layer, dropout) dan pelatihan (learning rate, optimizer, batch size) secara terpadu. "
-        "Guna menjamin kontribusi positif yang objektif, pengujian empiris dirancang secara bertingkat (3-Tier Benchmark) "
-        "membandingkan model LSTM default, model replikasi manual, dan model teroptimasi Optuna-TPE. Evaluasi akurasi "
-        "diukur melalui tiga metrik standar informatika: RMSE, MAE, dan MAPE (Hyndman & Athanasopoulos, 2018; Willmott & Matsuura, 2005)."
+        "multi-dimensi model LSTM dengan protokol validasi deret waktu yang ketat dan bebas kebocoran data. "
+        "Kajian terdahulu telah meneliti optimasi LSTM pada aset digital alternatif (Aldo dkk., 2026) dan penyetelan manual "
+        "pada Bitcoin (Khumaidi dkk., 2024), tetapi belum mengintegrasikan pencarian parameter terarah Optuna-TPE "
+        "berbasis time-series split dengan baseline naif dan ablasi faktor pelatihan. Penelitian ini merancang ruang "
+        "pencarian gabungan yang mencakup parameter arsitektur (lookback window, unit LSTM, dropout, jumlah layer) dan "
+        "pelatihan (learning rate, batch size) secara terpadu. Pengujian empiris disusun sebagai matriks E0–E7 yang "
+        "memisahkan efek HPO, loss, dan scheduler pada tanggal holdout yang sama. Evaluasi akurasi diukur melalui tiga "
+        "metrik standar: RMSE, MAE, dan MAPE, dengan MAE sebagai metrik utama (Hyndman & Athanasopoulos, 2018; Willmott "
+        "& Matsuura, 2005)."
     )
     add_academic_paragraph(p7)
 
@@ -169,8 +172,9 @@ def create_bab1_document():
         "harga penutupan Bitcoin (BTC/USDT) yang bersumber langsung dari bursa resmi Binance API (2024) menyediakan "
         "dasar empiris yang objektif dan transparan. Melalui optimasi terarah berbasis Optuna-TPE, proses penentuan "
         "arsitektur jaringan saraf tidak lagi didasarkan pada intuisi coba-coba manusia yang memakan waktu, melainkan "
-        "berpijak pada pemodelan matematis probabilistik yang dapat dipertanggungjawabkan. Hasil pengujian ini diharapkan "
-        "membuktikan adanya penurunan nilai error yang signifikan dan konsisten melintasi berbagai periode pasar out-of-sample. "
+        "berpijak pada pemodelan matematis probabilistik yang dapat dipertanggungjawabkan. Hasil pengujian akan menunjukkan "
+        "apakah model teroptimasi benar-benar menurunkan galat dibandingkan baseline naif dan kontrol, bukan mengasumsikan "
+        "keunggulan sejak awal; bila tidak, temuan negatif tersebut dilaporkan sebagai bagian dari kontribusi ilmiah. "
         "Berdasarkan seluruh latar belakang dan urgensi ilmiah tersebut, penelitian ini dilaksanakan dengan judul "
         "\"Optimasi Hyperparameter Long Short-Term Memory Menggunakan Algoritma Optuna Pada Prediksi Harga Bitcoin\"."
     )
@@ -194,8 +198,8 @@ def create_bab1_document():
 
     rumusan_masalah_items = [
         "Bagaimana proses penentuan arsitektur dan konfigurasi hyperparameter optimal pada model Long Short-Term Memory (LSTM) menggunakan algoritma Optuna berbasis Tree-structured Parzen Estimator (TPE)?",
-        "Berapa persentase penurunan nilai error (RMSE, MAE, dan MAPE) yang berhasil dicapai oleh model LSTM teroptimasi Optuna dibandingkan dengan model baseline berkonfigurasi default maupun manual tuning?",
-        "Apakah konfigurasi hyperparameter hasil optimasi algoritma Optuna mampu mempertahankan stabilitas akurasi prediksi secara konsisten ketika dievaluasi pada berbagai pengujian data deret waktu out-of-sample?"
+        "Seberapa besar perbedaan nilai error (RMSE, MAE, dan MAPE) antara model LSTM teroptimasi Optuna dengan baseline persistence, model default, dan manual tuning, serta apakah perbedaan MAE tersebut didukung interval kepercayaan berpasangan?",
+        "Apakah konfigurasi hyperparameter hasil optimasi Optuna mampu mengalahkan baseline naif dan mempertahankan stabilitas akurasi ketika dievaluasi pada data holdout out-of-sample?"
     ]
 
     for idx, item in enumerate(rumusan_masalah_items, 1):
@@ -228,8 +232,8 @@ def create_bab1_document():
 
     tujuan_items = [
         "Menganalisis dan mengimplementasikan proses pencarian konfigurasi hyperparameter optimal pada model Long Short-Term Memory (LSTM) secara otomatis menggunakan kerangka kerja Optuna berbasis Tree-structured Parzen Estimator (TPE).",
-        "Mengukur dan membandingkan secara kuantitatif besaran penurunan nilai error (Root Mean Square Error, Mean Absolute Error, dan Mean Absolute Percentage Error) yang dihasilkan oleh model LSTM teroptimasi Optuna terhadap model baseline default dan manual tuning.",
-        "Mengevaluasi dan membuktikan tingkat ketahanan generalisasi model LSTM hasil optimasi Optuna ketika diuji melintasi berbagai periode data deret waktu finansial out-of-sample menggunakan skema Time-Series Split."
+        "Mengukur dan membandingkan secara kuantitatif nilai error (Root Mean Square Error, Mean Absolute Error, dan Mean Absolute Percentage Error) model LSTM teroptimasi Optuna terhadap baseline persistence, model default, dan manual tuning, termasuk interval kepercayaan berpasangan.",
+        "Mengevaluasi ketahanan generalisasi model LSTM hasil optimasi Optuna pada data holdout out-of-sample dan menetapkan verdict ilmiah secara eksplisit, termasuk bila hasilnya tidak lebih baik daripada baseline naif."
     ]
 
     for idx, item in enumerate(tujuan_items, 1):
@@ -352,7 +356,7 @@ def create_bab1_document():
         set_font(r_txt, "Times New Roman", 12, False, False)
 
     # Save document
-    filename = "BAB_1_PENDAHULUAN_ZAINI_LEON.docx"
+    filename = ensure_naskah_dir() / "BAB_1_PENDAHULUAN_ZAINI_LEON.docx"
     doc.save(filename)
     print(f"Successfully generated: {filename}")
 
