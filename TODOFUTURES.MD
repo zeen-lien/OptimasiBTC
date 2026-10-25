@@ -1,7 +1,7 @@
 # TODO Perbaikan Skripsi & Pipeline
 ## Optimasi Hyperparameter LSTM dengan Optuna — Prediksi Harga Bitcoin
 
-**Status dokumen (2026-10-26):** Fase 1–6 selesai dan diverifikasi; Fase 7 selesai sampai paket rilis, dengan empat item eksternal/tertunda (clean-room install, Turnitin, persetujuan pembimbing, backup cloud) dan tag `v1.0-final` menunggu commit akhir.  
+**Status dokumen (2026-10-26):** Fase 1–6 selesai dan diverifikasi; Fase 7 selesai sampai paket rilis dan tag `v1.0-final`, dengan empat item eksternal/tertunda (clean-room install, Turnitin, persetujuan pembimbing, backup cloud).  
 **Tujuan:** memperbaiki validitas ilmiah, konsistensi naskah, dan reproducibility dari awal sampai siap sidang.  
 **Prinsip:** bekukan bukti lama → perbaiki protokol → jalankan ulang → baru perbarui naskah dan referensi.  
 **Hasil akhir:** E7 tidak mengalahkan persistence (MAE 1.687,49 vs 1.579,80 USD; CI selisih seluruhnya di atas nol). E6 adalah LSTM terbaik (MAE 1.667,26 USD). Kontribusi di-reframe sebagai pipeline terkontrol + hasil negatif yang jujur.
@@ -758,8 +758,8 @@ Verdict otomatis: `proposed_not_better_than_persistence`; E7 MAE 1.687,49 USD le
   - daftar referensi yang sudah diverifikasi.
 - [ ] Backup ke media eksternal/cloud.
   - Status: eksternal; tidak dapat dilakukan dari repositori.
-- [ ] Tag Git final: `v1.0-final`.
-  - Menunggu commit akhir seluruh perubahan.
+- [x] Tag Git final: `v1.0-final`.
+  - Dibuat pada commit rilis akhir.
 
 ### Gate Fase 7 / Definition of Done
 
@@ -769,8 +769,7 @@ Verdict otomatis: `proposed_not_better_than_persistence`; E7 MAE 1.687,49 USD le
 - [x] Verifier konsistensi lulus.
 - [x] DOCX/PDF final siap sidang.
 - [x] Arsip final dan defense notes tersedia.
-- [ ] Tag `v1.0-final` dibuat.
-  - Menunggu commit akhir.
+- [x] Tag `v1.0-final` dibuat.
 
 ---
 
@@ -880,7 +879,7 @@ python 05_Source_Code/generators/verify_full_skripsi.py
 | 2026-10-25 | 1–4 | Snapshot, protokol, baseline, matriks, HPO, analisis | Selesai | Run `final_matrix_20261025`; semua stage `success` |
 | 2026-10-26 | 5–6 | Kunci angka, rewrite naskah, sinkronisasi generator, rebuild | Selesai | Verifier dan audit sitasi lulus; pagination Word 77 halaman |
 | 2026-10-26 | 7 | Audit referensi, laporan reproduksi, defense notes, paket rilis | Selesai sebagian | 32 referensi; PDF final; clean-room/Turnitin/backup eksternal tertunda |
-| 2026-10-26 | 7 | Tag `v1.0-final` | Menunggu | Setelah commit akhir |
+| 2026-10-26 | 7 | Tag `v1.0-final` | Selesai | Dibuat setelah commit rilis |
 
 ---
 
