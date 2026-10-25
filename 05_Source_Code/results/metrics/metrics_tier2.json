@@ -1,0 +1,18 @@
+{
+    "tier": "Tier 2 (LSTM Manual Tuning Khumaidi dkk.)",
+    "hyperparameters": {
+        "lookback": 60,
+        "units": 128,
+        "dropout": 0.2,
+        "learning_rate": 0.001,
+        "batch_size": 10,
+        "layers": 1,
+        "epochs_run": 18
+    },
+    "training_time_seconds": 35.19,
+    "metrics": {
+        "RMSE": 3904.15,
+        "MAE": 3182.86,
+        "MAPE": 3.16
+    }
+}

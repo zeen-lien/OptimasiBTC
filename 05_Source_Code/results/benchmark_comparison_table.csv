@@ -1,0 +1,4 @@
+Model Tier,Lookback,RMSE (USD),MAE (USD),MAPE (%),Imp RMSE vs T1,Imp MAE vs T1,Imp MAPE vs T1
+Tier 1: LSTM Default (Baseline),30,2947.6,2378.56,2.36,0.0%,0.0%,0.0%
+Tier 2: LSTM Manual (Khumaidi dkk.),60,3904.15,3182.86,3.16,-32.45%,-33.81%,-33.90%
+Tier 3: LSTM Optuna-TPE (Usulan),22,2338.22,1784.27,1.81,+20.67%,+24.99%,+23.31%

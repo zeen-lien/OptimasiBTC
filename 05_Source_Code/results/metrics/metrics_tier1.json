@@ -1,0 +1,18 @@
+{
+    "tier": "Tier 1 (LSTM Default)",
+    "hyperparameters": {
+        "lookback": 30,
+        "units": 50,
+        "dropout": 0.2,
+        "learning_rate": 0.001,
+        "batch_size": 32,
+        "layers": 1,
+        "epochs_run": 100
+    },
+    "training_time_seconds": 34.34,
+    "metrics": {
+        "RMSE": 2947.6,
+        "MAE": 2378.56,
+        "MAPE": 2.36
+    }
+}

@@ -1,0 +1,72 @@
+{
+    "tier1_baseline": {
+        "tier": "Tier 1 (LSTM Default)",
+        "hyperparameters": {
+            "lookback": 30,
+            "units": 50,
+            "dropout": 0.2,
+            "learning_rate": 0.001,
+            "batch_size": 32,
+            "layers": 1,
+            "epochs_run": 100
+        },
+        "training_time_seconds": 34.34,
+        "metrics": {
+            "RMSE": 2947.6,
+            "MAE": 2378.56,
+            "MAPE": 2.36
+        }
+    },
+    "tier2_manual": {
+        "tier": "Tier 2 (LSTM Manual Tuning Khumaidi dkk.)",
+        "hyperparameters": {
+            "lookback": 60,
+            "units": 128,
+            "dropout": 0.2,
+            "learning_rate": 0.001,
+            "batch_size": 10,
+            "layers": 1,
+            "epochs_run": 18
+        },
+        "training_time_seconds": 35.19,
+        "metrics": {
+            "RMSE": 3904.15,
+            "MAE": 3182.86,
+            "MAPE": 3.16
+        }
+    },
+    "tier3_optuna": {
+        "tier": "Tier 3 (LSTM Optuna-TPE)",
+        "hyperparameters": {
+            "lookback": 22,
+            "units": 100,
+            "dropout": 0.1,
+            "learning_rate": 0.001966341994199387,
+            "batch_size": 16,
+            "layers": 1,
+            "epochs_run": 46
+        },
+        "optimization_time_seconds": 1847.37,
+        "final_training_time_seconds": 20.97,
+        "total_trials": 50,
+        "best_trial_number": 36,
+        "best_cv_loss": 0.000771,
+        "metrics": {
+            "RMSE": 2338.22,
+            "MAE": 1784.27,
+            "MAPE": 1.81
+        }
+    },
+    "improvements": {
+        "tier3_vs_tier1": {
+            "RMSE": 20.673768489618677,
+            "MAE": 24.985285214583612,
+            "MAPE": 23.305084745762706
+        },
+        "tier3_vs_tier2": {
+            "RMSE": 40.10937079774087,
+            "MAE": 43.94129807782938,
+            "MAPE": 42.721518987341774
+        }
+    }
+}

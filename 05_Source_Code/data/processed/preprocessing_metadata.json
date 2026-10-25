@@ -1,0 +1,11 @@
+{
+    "total_observations": 2192,
+    "n_train_insample": 1753,
+    "n_test_outofsample": 439,
+    "train_start_date": "2020-01-01",
+    "train_end_date": "2024-10-18",
+    "test_start_date": "2024-10-19",
+    "test_end_date": "2025-12-31",
+    "scaler_min": 4800.0,
+    "scaler_max": 73072.41
+}

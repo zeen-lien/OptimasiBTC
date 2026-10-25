@@ -1,0 +1,22 @@
+{
+    "tier": "Tier 3 (LSTM Optuna-TPE)",
+    "hyperparameters": {
+        "lookback": 22,
+        "units": 100,
+        "dropout": 0.1,
+        "learning_rate": 0.001966341994199387,
+        "batch_size": 16,
+        "layers": 1,
+        "epochs_run": 46
+    },
+    "optimization_time_seconds": 1847.37,
+    "final_training_time_seconds": 20.97,
+    "total_trials": 50,
+    "best_trial_number": 36,
+    "best_cv_loss": 0.000771,
+    "metrics": {
+        "RMSE": 2338.22,
+        "MAE": 1784.27,
+        "MAPE": 1.81
+    }
+}
