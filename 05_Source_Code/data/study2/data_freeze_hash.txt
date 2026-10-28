@@ -1,0 +1,7 @@
+{
+  "daily_csv_sha256": "ec2e3fb42f9233b4e37f2f6a9a79cc0cd6a34e78c275c27b7e98e546e651e08b",
+  "raw_zips_manifest_sha256": "ac05de53c01c5657bbe0e36450b4f89854ff9ab0d757fbc9f57c8d5d7af0260f",
+  "protocol_sha256": "72c7588046b4ab644d814031e3329702ed884c6d9f0d0ff3c5d27660e36caba3",
+  "rows": 2464,
+  "window": "2020-01-01..2026-09-30"
+}
