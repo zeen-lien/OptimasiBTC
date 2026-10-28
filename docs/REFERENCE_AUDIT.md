@@ -1,5 +1,7 @@
 # AUDIT REFERENSI SKRIPSI
 
+> **Catatan cakupan:** Dokumen ini untuk **Study 1** (prediksi harga, 32 referensi). Untuk **Study 2** (volatilitas, 36 referensi), lihat `docs/REFERENCE_AUDIT_STUDY2.md`.
+
 **Tanggal audit:** 2026-10-26  
 **Cakupan:** 32 referensi pada DAFTAR PUSTAKA dan seluruh sitasi Bab I–V  
 **Sumber data:** `05_Source_Code/generators/reference_data.py`  

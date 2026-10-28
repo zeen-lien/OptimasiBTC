@@ -1,5 +1,7 @@
 # MASTER DAFTAR 32 REFERENSI SKRIPSI
 
+> **Catatan cakupan:** Daftar ini untuk **Study 1** (prediksi harga, 32 referensi). Untuk **Study 2** (volatilitas, 36 referensi), gunakan `03_Naskah_Skripsi/study2/DAFTAR_REFERENSI_STUDY2.md` dan lihat `docs/REFERENCE_AUDIT_STUDY2.md`. Jangan import daftar 32 ini ke Mendeley untuk Study 2.
+
 **Program Studi:** Teknik Informatika - FST UNISNU Jepara  
 **Topik Penelitian:** Optimasi Hyperparameter Long Short-Term Memory Menggunakan Algoritma Optuna Pada Prediksi Harga Bitcoin  
 **Tanggal audit:** 2026-10-26  

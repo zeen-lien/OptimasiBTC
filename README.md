@@ -16,6 +16,8 @@ Repositori ini memuat seluruh artefak komputasi, pipeline eksperimen, naskah aka
 >
 > **Draf naskah Study 2:** Bab 1–5 + 36 referensi di `03_Naskah_Skripsi/study2/` (Markdown = source of truth). DOCX: `SKRIPSI_STUDY2_DRAFT.docx`; kompilasi ulang dengan `python 05_Source_Code/generators/generate_skripsi_study2.py`.
 >
+> **Audit referensi Study 2:** `docs/REFERENCE_AUDIT_STUDY2.md` — 36 entri; 16 PDF tersedia, 4 buku/dokumen daring, 16 PDF belum tersedia. File `DAFTAR_32_REFERENSI_SKRIPSI.md` dan `references_manifest.csv` adalah arsip **Study 1**, bukan daftar referensi Study 2.
+>
 > **Peta repo & kebijakan penyimpanan:** lihat `PROJECT_STRUCTURE.md` (apa yang final, reproducible, historis, dan apa yang sengaja dihapus).
 
 ---
