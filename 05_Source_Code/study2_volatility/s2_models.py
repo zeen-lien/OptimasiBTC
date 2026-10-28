@@ -202,9 +202,8 @@ def garch_forecasts(
         am_full = arch_model(log_ret * 100.0, mean="Constant", vol="GARCH",
                              p=1, q=1, dist="normal")
         fixed = am_full.fix(res.params)
-        start_pos = int(np.searchsorted(log_ret.index.values,
-                                        month_first.asm8 if hasattr(month_first, "asm8")
-                                        else np.datetime64(month_first)))
+        # start at the cutoff day: its one-step row forecasts the 1st of month
+        start_pos = int(np.searchsorted(log_ret.index.values, np.datetime64(cutoff)))
         fc = fixed.forecast(horizon=1, start=start_pos, reindex=False)
         # row at position p forecasts variance of day p+1 (one step ahead)
         var_pct = fc.variance.iloc[:, 0].to_numpy()
