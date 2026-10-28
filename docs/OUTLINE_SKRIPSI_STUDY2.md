@@ -2,7 +2,7 @@
 
 **Judul:** Optimasi Hyperparameter LSTM Menggunakan Algoritma Optuna pada Prediksi Volatilitas Bitcoin
 **Fokus:** satu studi (Study 2). Study 1 hanya menjadi *pilot study* di Bab 1.
-**Status:** kerangka penulisan; angka final diambil dari run `20261028_101839_final_ab5d93`.
+**Status:** draf lengkap Bab 1–5 + daftar referensi selesai; DOCX dikompilasi dari Markdown. Angka final diambil dari run `20261028_101839_final_ab5d93`.
 
 ---
 

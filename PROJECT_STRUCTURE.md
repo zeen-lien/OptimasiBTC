@@ -10,7 +10,7 @@ ada file nyasar, dan tidak ada duplikasi berat.
 jurnal/
 ├── 01_Panduan_Kampus/        # panduan & template kampus (docx)
 ├── 02_Pengajuan_Judul/       # formulir pengajuan judul (Study 1 & Study 2)
-├── 03_Naskah_Skripsi/        # naskah BAB 1-5 (Study 1, docx)
+├── 03_Naskah_Skripsi/        # naskah BAB 1-5 (Study 1 & Study 2, md/docx)
 ├── 04_Referensi_Ilmiah/      # PDF referensi + manifest (41 MB, wajib)
 ├── 05_Source_Code/           # kode, data, hasil (Study 1 & Study 2)
 ├── archive/                  # arsip historis (gitignored, tidak dipakai klaim)
@@ -46,6 +46,10 @@ jurnal/
 | `05_Source_Code/data/study2/raw_zips_manifest.json` | hash 81 file Binance Vision | final |
 | `05_Source_Code/results/study2/runs/20261028_094124_optuna_hpo_5be039/` | HPO: 50 trial, best trial 26 | final |
 | `05_Source_Code/results/study2/runs/20261028_101839_final_ab5d93/` | final run + `results_analysis.json/md` | **final / verdict** |
+| `05_Source_Code/results/study2/figures/` | 5 figur Bab 4 (PNG) | final |
+| `03_Naskah_Skripsi/study2/` | draf lengkap Bab 1–5 + daftar referensi (Markdown) + DOCX | draf |
+| `05_Source_Code/study2_volatility/s2_figures.py` | generator figur Bab 4 dari artefak run | pendukung |
+| `05_Source_Code/generators/generate_skripsi_study2.py` | kompilator Markdown → DOCX (format UNISNU) | pendukung |
 
 **Zip mentah 1h tidak disimpan** (3.3 MB, re-downloadable dari Binance Vision);
 hash-nya sudah tercatat di `raw_zips_manifest.json`. Untuk rebuild:
