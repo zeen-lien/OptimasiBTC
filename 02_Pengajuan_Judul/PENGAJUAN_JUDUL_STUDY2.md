@@ -54,11 +54,13 @@ volatilitas.
 
 1. Bagaimana merancang pipeline optimasi hyperparameter LSTM berbasis Optuna
    yang bebas kebocoran data untuk prediksi *realized volatility* Bitcoin?
-2. Apakah model LSTM yang dioptimasi Optuna mampu mengungguli baseline
-   persistence dalam memprediksi *realized volatility* Bitcoin?
-3. Apakah model tersebut mampu menyaingi baseline ekonometrik HAR-RV dan
-   GARCH(1,1) pada periode uji eksternal?
-4. Apakah kinerja model konsisten pada periode uji eksternal 2026 yang tidak
+2. Sejauh mana model LSTM yang dioptimasi Optuna mampu mengungguli baseline
+   persistence dalam memprediksi *realized volatility* Bitcoin pada periode
+   uji eksternal 2026?
+3. Apakah model LSTM yang dioptimasi Optuna mampu menyaingi baseline
+   ekonometrik HAR-RV dan GARCH(1,1) pada periode uji eksternal?
+4. Bagaimana konsistensi kinerja model LSTM yang dioptimasi Optuna antara
+   periode validasi 2024–2025 dan periode uji eksternal 2026 yang tidak
    digunakan dalam pelatihan maupun optimasi?
 
 ## 3. Tujuan Penelitian

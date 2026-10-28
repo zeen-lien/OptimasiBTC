@@ -40,11 +40,12 @@ LATAR = [
 RUMUSAN = [
     "Bagaimana merancang pipeline optimasi hyperparameter LSTM berbasis Optuna yang bebas kebocoran data "
     "untuk prediksi realized volatility Bitcoin?",
-    "Apakah model LSTM yang dioptimasi Optuna mampu mengungguli baseline persistence dalam memprediksi "
-    "realized volatility Bitcoin?",
-    "Apakah model tersebut mampu menyaingi baseline ekonometrik HAR-RV dan GARCH(1,1) pada periode uji eksternal?",
-    "Apakah kinerja model konsisten pada periode uji eksternal 2026 yang tidak digunakan dalam pelatihan "
-    "maupun optimasi?",
+    "Sejauh mana model LSTM yang dioptimasi Optuna mampu mengungguli baseline persistence dalam memprediksi "
+    "realized volatility Bitcoin pada periode uji eksternal 2026?",
+    "Apakah model LSTM yang dioptimasi Optuna mampu menyaingi baseline ekonometrik HAR-RV dan GARCH(1,1) "
+    "pada periode uji eksternal?",
+    "Bagaimana konsistensi kinerja model LSTM yang dioptimasi Optuna antara periode validasi 2024–2025 dan "
+    "periode uji eksternal 2026 yang tidak digunakan dalam pelatihan maupun optimasi?",
 ]
 
 REFERENSI = [
