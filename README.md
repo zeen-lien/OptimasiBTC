@@ -13,6 +13,8 @@ Repositori ini memuat seluruh artefak komputasi, pipeline eksperimen, naskah aka
 > **Hasil utama (jujur):** persistence tetap unggul pada MAE (1.579,80 USD). Model usulan E7 mencapai MAE 1.687,49 USD dan **secara statistik lebih buruk** daripada persistence (selisih berpasangan +107,69 USD; CI 95% +50,82 s.d. +170,90 USD). E6 adalah LSTM terbaik (MAE 1.667,26 USD), tetapi juga tidak mengalahkan persistence. Kontribusi penelitian adalah pipeline evaluasi terkontrol dan pelaporan hasil negatif yang terverifikasi.
 >
 > **Study 2 (branch `study2-volatility`, aktif):** arah baru — peramalan **realized volatility harian Bitcoin** dari kline 1h (target `log_rv`), HPO Optuna leakage-free, test eksternal 2026-01-01..2026-09-30. Protokol pre-registered ber-hash (`docs/STUDY2_PROTOCOL.md`, SHA-256 `72c75880…ba3`), data dibekukan (`05_Source_Code/data/study2/`), endpoint QLIKE vs persistence & HAR-RV. Timeline provenance: `docs/STUDY2_PROVENANCE.md`. Study 1 pada `v1.0-final` tidak diubah.
+>
+> **Peta repo & kebijakan penyimpanan:** lihat `PROJECT_STRUCTURE.md` (apa yang final, reproducible, historis, dan apa yang sengaja dihapus).
 
 ---
 
