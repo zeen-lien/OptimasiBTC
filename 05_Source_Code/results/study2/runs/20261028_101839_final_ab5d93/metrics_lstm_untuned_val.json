@@ -1,0 +1,34 @@
+{
+  "model": "lstm_untuned",
+  "fit": "val",
+  "params": {
+    "lookback": 21,
+    "units": 64,
+    "dropout": 0.2,
+    "learning_rate": 0.001,
+    "batch_size": 32,
+    "layers": 1
+  },
+  "lookback": 21,
+  "n_train_fit": 1256,
+  "n_train_es": 140,
+  "n_eval": 731,
+  "window": "2024-01-01..2025-12-31",
+  "qlike_mean_forecast": 0.4323781219419465,
+  "qlike_per_seed": {
+    "42": 0.4422693418982402,
+    "123": 0.5161508618896558,
+    "2024": 0.4404075711420903,
+    "7": 0.43631730401318225,
+    "99": 0.44981312945559637
+  },
+  "best_epochs": [
+    1,
+    59,
+    16,
+    37,
+    1
+  ],
+  "MAE_logRV": 0.7227808267394992,
+  "RMSE_logRV": 0.924715896660521
+}
