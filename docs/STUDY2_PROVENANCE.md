@@ -53,8 +53,19 @@ yang dibuat setelah melihat hasil test.
    mean CV QLIKE 0.48937. Informasi dev saja.
 
 9. **Final run (5 seed × 2 fit × 2 model + baseline).** Prediksi 2026
-   dihasilkan di sini. Analisis one-shot (`s2_analyze.py`) dijalankan
-   SETELAH final run selesai; verdict mengikuti kriteria protokol §9.
+   dihasilkan di sini (run `20261028_101839_final_ab5d93`).
+
+10. **Analisis one-shot dijalankan SEKALI (10:18 UTC+7).** Test verdict sesuai
+    kriteria protokol §9: **`mixed_beats_but_not_significant`** —
+    - Optuna-LSTM vs persistence: ΔQLIKE −0.40188, DM p<0.0001,
+      boot CI [−0.55787, −0.22960] → kriteria terpenuhi penuh.
+    - Optuna-LSTM vs HAR-RV: ΔQLIKE −0.06513, DM p(one-sided) = **0.0534**
+      (di atas α=0.05), boot CI [−0.14468, −0.00840] (upper < 0) → kriteria DM GAGAL.
+    - Kesimpulan: point-wise mengalahkan kedua primary baseline, dua dari tiga
+      kriteria sukses terpenuhi; DM vs HAR meleset tipis → bukan "positive".
+    - Secondary: untuned LSTM (0.34422) lebih baik dari Optuna-LSTM (0.40333)
+      di test → HPO tidak menambah nilai vs default yang masuk akal (echo Study 1).
+    - **Setelah verdict ini, tidak ada konfigurasi yang diubah.**
 
 ## Aturan yang berlaku sejak langkah 4
 
