@@ -884,3 +884,53 @@ python 05_Source_Code/generators/verify_full_skripsi.py
 ---
 
 *Dokumen ini adalah rencana kerja. Setiap keputusan ilmiah tetap harus dikonsultasikan dengan dosen pembimbing.*
+
+---
+
+# STUDY 2 - LSTM + Optuna untuk Peramalan Realized Volatility Bitcoin
+
+**Status (2026-10-28):** aktif di branch `study2-volatility`; Study 1 tetap beku pada tag `v1.0-final` (commit `f3f9763`) dan tidak diubah.
+
+## Deskripsi
+
+Study 1 (harga harian) adalah negative result yang jujur: E7 tidak mengalahkan persistence. Study 2 pindah ke target dengan sinyal yang jauh lebih kuat: **daily realized variance Bitcoin dari kline 1h**, dengan HPO Optuna yang leakage-free dan test eksternal 2026 yang belum pernah dipakai.
+
+- Gap & protokol: `docs/STUDY2_GAP.md`, `docs/STUDY2_PROTOCOL.md`
+- Protokol di-hash SEBELUM data dibangun: SHA-256 `72c7588046b4ab644d814031e3329702ed884c6d9f0d0ff3c5d27660e36caba3`
+- Amandemen A1 (integritas data, dicatat sebelum ada statistik target): hari <20 bar dikeluarkan (2020-02-19, 19 bar); hari 20-23 bar dipertahankan; window validasi/test wajib 24 bar penuh.
+
+## Data (dibekukan)
+
+- Sumber: Binance Vision, kline bulanan 1h BTCUSDT, 2020-01 s.d. 2026-09 (81 file, semua HTTP 200).
+- 2.464 hari (2020-01-01 s.d. 2026-09-30) di `05_Source_Code/data/study2/btc_1h_daily_rv_2020_2026.csv`
+- SHA-256 CSV harian: `ec2e3fb42f9233b4e37f2f6a9a79cc0cd6a34e78c275c27b7e98e546e651e08b`
+- Target: `log_rv_{t+1}`; fitur (6, tetap): log_rv, log_range, log_volume, log_absret, rv_mean_5, rv_mean_22.
+
+## Split & endpoint (pre-registered)
+
+- Dev/HPO: 2020-2023 (purged rolling-origin CV, 5 fold, gap = lookback+1)
+- Validasi (checkpoint, tidak untuk seleksi): 2024-2025
+- Train pool refit final: 2020-2025
+- Test eksternal: 2026-01-01 s.d. 2026-09-30, dieksekusi sekali di akhir
+- Primary endpoint: QLIKE (log-variance, bentuk robust) seed-averaged Optuna-LSTM vs persistence & HAR-RV; DM one-sided p<0.05 (NW lag 5) + block bootstrap CI (block 20, 10k reps) upper<0
+- Baselines: persistence, HAR-RV (primary); GARCH(1,1), untuned LSTM (secondary)
+
+## Fase Study 2
+
+- [x] Gap + protokol ditulis & di-hash sebelum data 2026 diproses
+- [x] Fetch + agregasi + integrity check + freeze (hash di `data_freeze_hash.txt`)
+- [x] Modul: s2_stats (QLIKE/DM/bootstrap), s2_models (samples/LSTM/HAR/GARCH), s2_runlog, s2_optuna_search, s2_final_run, s2_analyze
+- [x] Smoke test pipeline (1 trial x 2 epoch; deterministik: dua run identik)
+- [x] 15 unit test Study 2 lulus (`tests/test_study2.py`)
+- [ ] HPO penuh 50 trial di dev 2020-2023 (berjalan)
+- [ ] Final run: 2 model x 5 seed x (fit dev->val, fit pool->test) + baseline
+- [ ] Analisis one-shot + verdict positive/mixed/negative
+- [ ] Update naskah/bab baru untuk Study 2 (jika verdict positif atau mixed)
+
+## Jaminan anti-p-hacking Study 2
+
+1. Protokol + kriteria sukses dikunci dan di-hash sebelum ada metrik yang dihitung.
+2. Amandemen data dicatat dengan konteks waktu (sebelum statistik target ada).
+3. Semua pilihan model/baseline/metri/test window tidak boleh berubah setelah hasil validasi/test terlihat.
+4. Test 2026 hanya diprediksi di `s2_final_run.py`; analisis one-shot di `s2_analyze.py`.
+5. Setiap run punya manifest (git commit, hash data, hash protokol, env).
