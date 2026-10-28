@@ -1,0 +1,29 @@
+{
+  "run_id": "20261028_094124_optuna_hpo_5be039",
+  "label": "optuna_hpo",
+  "created_utc": "2026-10-28T09:41:24.468432+00:00",
+  "git_commit": "5804a1dde44679ed41fcf535f81d6a3fe9fb6d07",
+  "protocol_sha256": "72c7588046b4ab644d814031e3329702ed884c6d9f0d0ff3c5d27660e36caba3",
+  "protocol_sha256_recorded": "72c7588046b4ab644d814031e3329702ed884c6d9f0d0ff3c5d27660e36caba3",
+  "data": {
+    "daily_csv_sha256": "ec2e3fb42f9233b4e37f2f6a9a79cc0cd6a34e78c275c27b7e98e546e651e08b",
+    "freeze": "{\n  \"daily_csv_sha256\": \"ec2e3fb42f9233b4e37f2f6a9a79cc0cd6a34e78c275c27b7e98e546e651e08b\",\n  \"raw_zips_manifest_sha256\": \"ac05de53c01c5657bbe0e36450b4f89854ff9ab0d757fbc9f57c8d5d7af0260f\",\n  \"protocol_sha256\": \"72c7588046b4ab644d814031e3329702ed884c6d9f0d0ff3c5d27660e36caba3\",\n  \"rows\": 2464,\n  \"window\": \"2020-01-01..2026-09-30\"\n}\n"
+  },
+  "env": {
+    "python": "3.14.7",
+    "packages": {
+      "tensorflow": "2.22.0rc0",
+      "optuna": "5.0.0",
+      "scikit-learn": "1.9.1",
+      "numpy": "2.5.3",
+      "pandas": "3.0.6",
+      "arch": "8.0.0",
+      "statsmodels": "0.15.0"
+    }
+  },
+  "extra": {
+    "n_trials": 50,
+    "max_epochs": 100,
+    "dev_only": true
+  }
+}

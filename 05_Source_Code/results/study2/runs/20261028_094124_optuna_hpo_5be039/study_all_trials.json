@@ -1,0 +1,652 @@
+[
+  {
+    "number": 0,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 17,
+      "units": 123,
+      "layers": 1,
+      "dropout": 0.1,
+      "learning_rate": 0.00040331697720604435,
+      "batch_size": 32
+    },
+    "value": 0.532531384806674
+  },
+  {
+    "number": 1,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 24,
+      "units": 18,
+      "layers": 1,
+      "dropout": 0.1,
+      "learning_rate": 0.00042357316154101863,
+      "batch_size": 64
+    },
+    "value": 0.5173337190507121
+  },
+  {
+    "number": 2,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 19,
+      "units": 48,
+      "layers": 1,
+      "dropout": 0.15000000000000002,
+      "learning_rate": 0.0006011321832885781,
+      "batch_size": 32
+    },
+    "value": 0.5161592562224248
+  },
+  {
+    "number": 3,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 20,
+      "units": 82,
+      "layers": 2,
+      "dropout": 0.1,
+      "learning_rate": 0.0003394046833983567,
+      "batch_size": 32
+    },
+    "value": 0.5515882407383339
+  },
+  {
+    "number": 4,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 16,
+      "units": 27,
+      "layers": 1,
+      "dropout": 0.05,
+      "learning_rate": 0.0007675414518149442,
+      "batch_size": 32
+    },
+    "value": 0.5363781378972481
+  },
+  {
+    "number": 5,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 23,
+      "units": 51,
+      "layers": 2,
+      "dropout": 0.1,
+      "learning_rate": 0.0018878631293435821,
+      "batch_size": 32
+    },
+    "value": 0.5744228905191081
+  },
+  {
+    "number": 6,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 22,
+      "units": 120,
+      "layers": 2,
+      "dropout": 0.05,
+      "learning_rate": 0.0005561139097048453,
+      "batch_size": 64
+    },
+    "value": 0.6061726209216816
+  },
+  {
+    "number": 7,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 17,
+      "units": 47,
+      "layers": 1,
+      "dropout": 0.35000000000000003,
+      "learning_rate": 0.0003455764840117075,
+      "batch_size": 16
+    },
+    "value": 0.5115105016380506
+  },
+  {
+    "number": 8,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 10,
+      "units": 108,
+      "layers": 2,
+      "dropout": 0.35000000000000003,
+      "learning_rate": 0.00034524491483136916,
+      "batch_size": 64
+    },
+    "value": 0.5838476656236721
+  },
+  {
+    "number": 9,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 23,
+      "units": 53,
+      "layers": 2,
+      "dropout": 0.15000000000000002,
+      "learning_rate": 0.0011974300768940165,
+      "batch_size": 32
+    },
+    "value": 0.5943559592897074
+  },
+  {
+    "number": 10,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 10,
+      "units": 33,
+      "layers": 1,
+      "dropout": 0.35000000000000003,
+      "learning_rate": 0.0016599080586967693,
+      "batch_size": 16
+    },
+    "value": 0.5653680211858048
+  },
+  {
+    "number": 11,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 16,
+      "units": 27,
+      "layers": 1,
+      "dropout": 0.4,
+      "learning_rate": 0.0003274886783263389,
+      "batch_size": 32
+    },
+    "value": 0.5458333741949765
+  },
+  {
+    "number": 12,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 11,
+      "units": 49,
+      "layers": 1,
+      "dropout": 0.2,
+      "learning_rate": 0.0003221941942161382,
+      "batch_size": 16
+    },
+    "value": 0.5414040268469497
+  },
+  {
+    "number": 13,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 17,
+      "units": 52,
+      "layers": 1,
+      "dropout": 0.35000000000000003,
+      "learning_rate": 0.00048560037741106354,
+      "batch_size": 64
+    },
+    "value": 0.5752710255938922
+  },
+  {
+    "number": 14,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 24,
+      "units": 76,
+      "layers": 1,
+      "dropout": 0.25,
+      "learning_rate": 0.00047042558368745423,
+      "batch_size": 16
+    },
+    "value": 0.5514498971285509
+  },
+  {
+    "number": 15,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 16,
+      "units": 49,
+      "layers": 1,
+      "dropout": 0.2,
+      "learning_rate": 0.0007912007874306494,
+      "batch_size": 32
+    },
+    "value": 0.5120690144075446
+  },
+  {
+    "number": 16,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 20,
+      "units": 54,
+      "layers": 1,
+      "dropout": 0.4,
+      "learning_rate": 0.0009176413931312733,
+      "batch_size": 16
+    },
+    "value": 0.5436820772035866
+  },
+  {
+    "number": 17,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 17,
+      "units": 23,
+      "layers": 1,
+      "dropout": 0.25,
+      "learning_rate": 0.0004763887025550356,
+      "batch_size": 16
+    },
+    "value": 0.4988423986559184
+  },
+  {
+    "number": 18,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 21,
+      "units": 23,
+      "layers": 1,
+      "dropout": 0.3,
+      "learning_rate": 0.0003423445258436821,
+      "batch_size": 16
+    },
+    "value": 0.497955856027737
+  },
+  {
+    "number": 19,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 14,
+      "units": 21,
+      "layers": 1,
+      "dropout": 0.25,
+      "learning_rate": 0.0004239457864082263,
+      "batch_size": 16
+    },
+    "value": 0.5470567843706002
+  },
+  {
+    "number": 20,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 27,
+      "units": 25,
+      "layers": 1,
+      "dropout": 0.25,
+      "learning_rate": 0.0006868496229039858,
+      "batch_size": 16
+    },
+    "value": 0.5184261645161548
+  },
+  {
+    "number": 21,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 10,
+      "units": 46,
+      "layers": 1,
+      "dropout": 0.25,
+      "learning_rate": 0.00047754882300294417,
+      "batch_size": 32
+    },
+    "value": 0.6071126383346787
+  },
+  {
+    "number": 22,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 15,
+      "units": 28,
+      "layers": 1,
+      "dropout": 0.4,
+      "learning_rate": 0.0005952921435923842,
+      "batch_size": 16
+    },
+    "value": 0.5223982500453823
+  },
+  {
+    "number": 23,
+    "state": "TrialState.PRUNED",
+    "params": {
+      "lookback": 23,
+      "units": 30,
+      "layers": 1,
+      "dropout": 0.3,
+      "learning_rate": 0.00033867068597936604,
+      "batch_size": 16
+    },
+    "value": 0.3730425281972801
+  },
+  {
+    "number": 24,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 17,
+      "units": 22,
+      "layers": 1,
+      "dropout": 0.35000000000000003,
+      "learning_rate": 0.00045012103460817174,
+      "batch_size": 16
+    },
+    "value": 0.5094183084617916
+  },
+  {
+    "number": 25,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 17,
+      "units": 27,
+      "layers": 1,
+      "dropout": 0.3,
+      "learning_rate": 0.0009232439795234455,
+      "batch_size": 16
+    },
+    "value": 0.5544241241984883
+  },
+  {
+    "number": 26,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 16,
+      "units": 22,
+      "layers": 1,
+      "dropout": 0.1,
+      "learning_rate": 0.000511707286331708,
+      "batch_size": 16
+    },
+    "value": 0.48936991919906864
+  },
+  {
+    "number": 27,
+    "state": "TrialState.PRUNED",
+    "params": {
+      "lookback": 20,
+      "units": 16,
+      "layers": 1,
+      "dropout": 0.05,
+      "learning_rate": 0.000726629193081251,
+      "batch_size": 16
+    },
+    "value": 0.3818146030097426
+  },
+  {
+    "number": 28,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 14,
+      "units": 24,
+      "layers": 1,
+      "dropout": 0.1,
+      "learning_rate": 0.0005905775530381296,
+      "batch_size": 16
+    },
+    "value": 0.5579544747918325
+  },
+  {
+    "number": 29,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 18,
+      "units": 34,
+      "layers": 1,
+      "dropout": 0.05,
+      "learning_rate": 0.000465815995783568,
+      "batch_size": 16
+    },
+    "value": 0.5226182095767292
+  },
+  {
+    "number": 30,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 22,
+      "units": 33,
+      "layers": 1,
+      "dropout": 0.05,
+      "learning_rate": 0.0006032148974339552,
+      "batch_size": 16
+    },
+    "value": 0.523697293686833
+  },
+  {
+    "number": 31,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 21,
+      "units": 38,
+      "layers": 1,
+      "dropout": 0.3,
+      "learning_rate": 0.0005716339476377894,
+      "batch_size": 16
+    },
+    "value": 0.5197452415456965
+  },
+  {
+    "number": 32,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 16,
+      "units": 28,
+      "layers": 1,
+      "dropout": 0.2,
+      "learning_rate": 0.0006893335376454249,
+      "batch_size": 16
+    },
+    "value": 0.5151967286542529
+  },
+  {
+    "number": 33,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 17,
+      "units": 21,
+      "layers": 1,
+      "dropout": 0.35000000000000003,
+      "learning_rate": 0.00037711218160554026,
+      "batch_size": 16
+    },
+    "value": 0.5547272948413756
+  },
+  {
+    "number": 34,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 26,
+      "units": 36,
+      "layers": 1,
+      "dropout": 0.4,
+      "learning_rate": 0.00030001975458804743,
+      "batch_size": 16
+    },
+    "value": 0.5424324197604756
+  },
+  {
+    "number": 35,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 15,
+      "units": 33,
+      "layers": 1,
+      "dropout": 0.15000000000000002,
+      "learning_rate": 0.00048185614829514566,
+      "batch_size": 16
+    },
+    "value": 0.5281393148215979
+  },
+  {
+    "number": 36,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 18,
+      "units": 36,
+      "layers": 1,
+      "dropout": 0.35000000000000003,
+      "learning_rate": 0.000453950046187411,
+      "batch_size": 16
+    },
+    "value": 0.5202914331220571
+  },
+  {
+    "number": 37,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 21,
+      "units": 50,
+      "layers": 1,
+      "dropout": 0.3,
+      "learning_rate": 0.0004057952890413498,
+      "batch_size": 16
+    },
+    "value": 0.5554202797081198
+  },
+  {
+    "number": 38,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 17,
+      "units": 35,
+      "layers": 1,
+      "dropout": 0.25,
+      "learning_rate": 0.00034953829031370107,
+      "batch_size": 16
+    },
+    "value": 0.5344699361290333
+  },
+  {
+    "number": 39,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 20,
+      "units": 32,
+      "layers": 1,
+      "dropout": 0.25,
+      "learning_rate": 0.0007067395580657149,
+      "batch_size": 16
+    },
+    "value": 0.5906496293763481
+  },
+  {
+    "number": 40,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 19,
+      "units": 24,
+      "layers": 1,
+      "dropout": 0.1,
+      "learning_rate": 0.0004085486575180973,
+      "batch_size": 16
+    },
+    "value": 0.5526481968265292
+  },
+  {
+    "number": 41,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 17,
+      "units": 46,
+      "layers": 1,
+      "dropout": 0.4,
+      "learning_rate": 0.0003088703083483682,
+      "batch_size": 16
+    },
+    "value": 0.5934908931443188
+  },
+  {
+    "number": 42,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 20,
+      "units": 26,
+      "layers": 1,
+      "dropout": 0.4,
+      "learning_rate": 0.0003977848984909145,
+      "batch_size": 16
+    },
+    "value": 0.4975462221695839
+  },
+  {
+    "number": 43,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 15,
+      "units": 48,
+      "layers": 1,
+      "dropout": 0.3,
+      "learning_rate": 0.0005180352683227591,
+      "batch_size": 16
+    },
+    "value": 0.5337757088707218
+  },
+  {
+    "number": 44,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 22,
+      "units": 31,
+      "layers": 1,
+      "dropout": 0.4,
+      "learning_rate": 0.00041235419410023423,
+      "batch_size": 16
+    },
+    "value": 0.5451852642436454
+  },
+  {
+    "number": 45,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 22,
+      "units": 18,
+      "layers": 1,
+      "dropout": 0.35000000000000003,
+      "learning_rate": 0.0003077912090375943,
+      "batch_size": 16
+    },
+    "value": 0.5121385062619309
+  },
+  {
+    "number": 46,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 18,
+      "units": 18,
+      "layers": 1,
+      "dropout": 0.35000000000000003,
+      "learning_rate": 0.0005453657193107595,
+      "batch_size": 16
+    },
+    "value": 0.4954853151888707
+  },
+  {
+    "number": 47,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 19,
+      "units": 47,
+      "layers": 1,
+      "dropout": 0.4,
+      "learning_rate": 0.000381753499122106,
+      "batch_size": 16
+    },
+    "value": 0.5152650599955464
+  },
+  {
+    "number": 48,
+    "state": "TrialState.PRUNED",
+    "params": {
+      "lookback": 21,
+      "units": 32,
+      "layers": 1,
+      "dropout": 0.4,
+      "learning_rate": 0.0005207238228133002,
+      "batch_size": 16
+    },
+    "value": 0.3689807608730074
+  },
+  {
+    "number": 49,
+    "state": "TrialState.COMPLETE",
+    "params": {
+      "lookback": 19,
+      "units": 33,
+      "layers": 1,
+      "dropout": 0.35000000000000003,
+      "learning_rate": 0.00037165019265029086,
+      "batch_size": 16
+    },
+    "value": 0.5105193772389759
+  }
+]
