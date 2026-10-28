@@ -925,7 +925,9 @@ Study 1 (harga harian) adalah negative result yang jujur: E7 tidak mengalahkan p
 - [x] HPO penuh 50 trial di dev 2020-2023 (best trial 26, mean CV QLIKE 0.48937)
 - [x] Final run: 2 model x 5 seed x (fit dev->val, fit pool->test) + baseline (run `20261028_101839_final_ab5d93`)
 - [x] Analisis one-shot + verdict: **mixed_beats_but_not_significant** (test 2026: beat persistence penuh p<0.0001 + CI<0; vs HAR-RV beat point-wise & CI<0 tapi DM p=0.0534 > 0.05; untuned LSTM 0.34422 lebih baik dari Optuna-LSTM 0.40333)
-- [ ] Update naskah/bab baru untuk Study 2 (verdict mixed: LSTM jelas membantu vs persistence; HPO tidak menambah nilai vs default)
+- [x] Draf lengkap Bab 1–5 + 36 referensi + DOCX (`03_Naskah_Skripsi/study2/SKRIPSI_STUDY2_DRAFT.docx`)
+- [ ] Front matter (abstrak, kata pengantar, daftar isi/tabel/gambar) dan lampiran
+- [ ] Verifikasi format akhir dan persetujuan pembimbing
 
 ## Jaminan anti-p-hacking Study 2
 

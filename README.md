@@ -14,6 +14,8 @@ Repositori ini memuat seluruh artefak komputasi, pipeline eksperimen, naskah aka
 >
 > **Study 2 (branch `study2-volatility`, aktif):** arah baru — peramalan **realized volatility harian Bitcoin** dari kline 1h (target `log_rv`), HPO Optuna leakage-free, test eksternal 2026-01-01..2026-09-30. Protokol pre-registered ber-hash (`docs/STUDY2_PROTOCOL.md`, SHA-256 `72c75880…ba3`), data dibekukan (`05_Source_Code/data/study2/`), endpoint QLIKE vs persistence & HAR-RV. Timeline provenance: `docs/STUDY2_PROVENANCE.md`. Study 1 pada `v1.0-final` tidak diubah.
 >
+> **Draf naskah Study 2:** Bab 1–5 + 36 referensi di `03_Naskah_Skripsi/study2/` (Markdown = source of truth). DOCX: `SKRIPSI_STUDY2_DRAFT.docx`; kompilasi ulang dengan `python 05_Source_Code/generators/generate_skripsi_study2.py`.
+>
 > **Peta repo & kebijakan penyimpanan:** lihat `PROJECT_STRUCTURE.md` (apa yang final, reproducible, historis, dan apa yang sengaja dihapus).
 
 ---
