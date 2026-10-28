@@ -14,3 +14,6 @@ archive/
 # OS/editor noise
 .DS_Store
 Thumbs.db
+
+# Study 2 raw zips: re-downloadable from Binance Vision; hashes recorded in raw_zips_manifest.json
+05_Source_Code/data/study2/raw_1h_monthly/
