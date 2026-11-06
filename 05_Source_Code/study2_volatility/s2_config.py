@@ -1,9 +1,9 @@
-"""
-s2_config.py - Constants, paths, and pre-registered settings for Study 2.
+"""[BAB 3 Â§3.1 | KONFIGURASI DAN PARAMETER RESMI STUDY 2]
 
-Study 2: LSTM + Optuna for daily Bitcoin realized-volatility forecasting.
-All values here mirror docs/STUDY2_PROTOCOL.md (frozen before any 2026 test).
-Study 1 lives in 05_Source_Code/model_experiment/ and must not be modified.
+Modul ini mendefinisikan konstanta, direktori berkas, dan konfigurasi praregistrasi
+untuk Study 2: Peramalan Realized Volatility Harian Bitcoin Menggunakan LSTM dan Optuna.
+Seluruh nilai mengacu pada protokol penelitian resmi (docs/STUDY2_PROTOCOL.md)
+yang telah dibekukan dan di-hash sebelum pengujian data eksternal.
 """
 
 from __future__ import annotations
@@ -12,7 +12,7 @@ import hashlib
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
-# Paths
+# [BAB 3 Â§3.2 | STRUKTUR DIREKTORI DAN REPRODUKSIBILITAS]
 # ---------------------------------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SOURCE_ROOT = PROJECT_ROOT / "05_Source_Code"
@@ -31,19 +31,19 @@ PROTOCOL_PATH = PROJECT_ROOT / "docs" / "STUDY2_PROTOCOL.md"
 PROTOCOL_HASH_PATH = PROJECT_ROOT / "docs" / "STUDY2_PROTOCOL_HASH.txt"
 
 # ---------------------------------------------------------------------------
-# Data window (pre-registered)
+# [BAB 3 Â§3.4 | PEMBAGIAN PERIODE TEMPORAL DAN AMANDEMEN A1]
 # ---------------------------------------------------------------------------
 DATA_START = "2020-01-01"
-DATA_END = "2026-09-30"          # 2026-10 zip not published yet (checked 2026-10-28)
+DATA_END = "2026-09-30"          # Berkas kline Binance Vision Oktober 2026 belum rilis
 DEV_START = "2020-01-01"
-DEV_END = "2023-12-31"           # HPO via purged rolling-origin CV
+DEV_END = "2023-12-31"           # Jendela HPO / cross-validation (4 tahun)
 VAL_START = "2024-01-01"
-VAL_END = "2025-12-31"           # checkpoint only; never used for selection
-TRAIN_POOL_END = "2025-12-31"    # final refit pool = DEV + VAL
+VAL_END = "2025-12-31"           # Jendela validasi internal / checkpoint
+TRAIN_POOL_END = "2025-12-31"    # Kumpulan data latih final (DEV + VAL)
 TEST_START = "2026-01-01"
-TEST_END = "2026-09-30"          # external test, executed once
+TEST_END = "2026-09-30"          # Jendela uji eksternal (out-of-sample)
 
-EXPECTED_TOTAL_DAYS = 2464       # 2465 calendar days minus 1 dropped (A1: 2020-02-19, 19 bars)
+EXPECTED_TOTAL_DAYS = 2464       # 2.465 hari kalender minus 1 hari dikeluarkan (A1: 2020-02-19)
 DROPPED_DAYS_A1 = ("2020-02-19",)
 BARS_PER_DAY = 24
 
@@ -58,14 +58,14 @@ MONTHS = [
 ]
 
 # ---------------------------------------------------------------------------
-# Target / features (pre-registered, section 2 of the protocol)
+# [BAB 3 Â§3.3 | TARGET DAN FITUR VOLATILITAS]
 # ---------------------------------------------------------------------------
 TARGET = "log_rv"
 FEATURES = ["log_rv", "log_range", "log_volume", "log_absret", "rv_mean_5", "rv_mean_22"]
 RV_EPS = 1e-12
 
 # ---------------------------------------------------------------------------
-# Optimization (pre-registered, sections 5-6)
+# [BAB 3 Â§3.6 | RUANG PENCARIAN HIPERPARAMETER DAN MULTI-SEED]
 # ---------------------------------------------------------------------------
 SEEDS = (42, 123, 2024, 7, 99)
 OPTUNA_SEED = 42
@@ -95,7 +95,7 @@ UNTUNED_LSTM = {
 }
 
 # ---------------------------------------------------------------------------
-# Statistics (pre-registered, section 8)
+# [BAB 3 Â§3.7 | PENGUJIAN INFERENSI STATISTIK]
 # ---------------------------------------------------------------------------
 DM_HAC_LAG = 5
 BOOTSTRAP_BLOCK = 20
@@ -110,9 +110,10 @@ MODELS = ("persistence", "har_rv", "garch11", "lstm_untuned", "lstm_optuna")
 
 
 # ---------------------------------------------------------------------------
-# Hash helpers
+# [BAB 3 Â§3.2 | HELPER HASH DAN INTEGRITAS BUKTI]
 # ---------------------------------------------------------------------------
 def sha256_file(path: Path, chunk_size: int = 1 << 20) -> str:
+    """Menghitung ringkasan SHA-256 berkas biner secara streaming."""
     h = hashlib.sha256()
     with open(path, "rb") as f:
         for chunk in iter(lambda: f.read(chunk_size), b""):
@@ -121,9 +122,10 @@ def sha256_file(path: Path, chunk_size: int = 1 << 20) -> str:
 
 
 def sha256_text(text: str) -> str:
+    """Menghitung ringkasan SHA-256 dari string teks UTF-8."""
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
 def protocol_hash() -> str:
-    """SHA-256 of the frozen protocol document."""
+    """Ringkasan SHA-256 berkas protokol praregistrasi resmi."""
     return sha256_file(PROTOCOL_PATH)

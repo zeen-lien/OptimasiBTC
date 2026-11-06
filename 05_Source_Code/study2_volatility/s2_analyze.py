@@ -1,15 +1,10 @@
-"""
-s2_analyze.py - One-shot analysis of the Study 2 final run (protocol section 9).
+"""[BAB 4 §4.1 | ANALISIS HASIL EVALUASI DAN PENILAIAN KRITERIA KESUKSESAN]
 
-Reads one final run directory, evaluates the pre-registered endpoints on the
-2026 test window, and writes:
-    results_analysis.json   - all metrics, DM tests, bootstrap CIs, verdict
-    results_analysis.md     - human-readable summary
-    PROVENANCE_NOTE.md      - what was seen when (smoke footnote)
-
-This script is run ONCE, after s2_final_run.py produced the full 5-seed run.
-Re-running with the same inputs is deterministic and harmless; what is
-forbidden is changing inputs after seeing results.
+Modul ini membaca berkas prediksi luaran dari `s2_final_run.py`, memverifikasi integritas
+penyelarasan data (alignment check), menghitung metrik performa komparatif (QLIKE, MAE, RMSE),
+menjalankan uji statistik Diebold-Mariano dan block bootstrap, serta menetapkan status verdict akhir:
+- `results_analysis.json`: Rekapitulasi kuantitatif lengkap seluruh metrik dan inferensi.
+- `results_analysis.md`: Ringkasan tabular ramah-baca untuk pelaporan Bab 4 skripsi.
 """
 
 from __future__ import annotations
@@ -33,7 +28,12 @@ from s2_stats import (
 )
 
 
-def load_preds(run_dir: Path, window: str) -> tuple[pd.DataFrame, pd.DataFrame]:
+def load_preds(run_dir: Path, window: str) -> tuple[dict[str, pd.DataFrame], pd.DataFrame]:
+    """
+    [BAB 4 §4.1 | PEMUATAN PREDIKSI MODEL]
+    Memuat berkas CSV prediksi LSTM (untuned & optuna) dan baseline (persistence, HAR, GARCH)
+    untuk jendela evaluasi yang diminta ('val' atau 'test').
+    """
     lstm = {}
     for name in ("untuned", "optuna"):
         df = pd.read_csv(run_dir / f"predictions_lstm_{name}_{window}.csv",
@@ -47,7 +47,11 @@ def load_preds(run_dir: Path, window: str) -> tuple[pd.DataFrame, pd.DataFrame]:
 def eval_pair(window: str, y_true: np.ndarray, dates: np.ndarray,
               pred_a: np.ndarray, label_a: str,
               pred_b: np.ndarray, label_b: str) -> dict:
-    """QLIKE both + DM + bootstrap on daily QLIKE differences (a vs b)."""
+    """
+    [BAB 4 §4.2 | EVALUASI KOMPARATIF BERPASANGAN]
+    Menghitung skor QLIKE kedua model, metrik MAE/RMSE, selisih loss harian (a - b),
+    uji satu-arah Diebold-Mariano, dan interval kepercayaan 95% moving-block bootstrap.
+    """
     qa = qlike_per_obs(y_true, pred_a)
     qb = qlike_per_obs(y_true, pred_b)
     res = {
@@ -62,10 +66,49 @@ def eval_pair(window: str, y_true: np.ndarray, dates: np.ndarray,
     return res
 
 
+def validate_prediction_alignment(frames: list[pd.DataFrame]) -> None:
+    """
+    [BAB 4 §4.1 | VALIDASI KESELARASAN PREDIKSI (FAIL-CLOSED)]
+    Menjamin integritas data evaluasi: menolak secara tegas bila terdapat tanggal duplikat,
+    tanggal hilang/berlebih, urutan tidak monoton meningkat, nilai NaN/tak-hingga,
+    atau bila deret nilai aktual y_true berbeda antar-model.
+    """
+    if not frames:
+        raise ValueError("No prediction frames supplied")
+    reference_dates: np.ndarray | None = None
+    reference_actual: np.ndarray | None = None
+    for index, frame in enumerate(frames):
+        if "date" not in frame.columns or "y_true" not in frame.columns:
+            raise ValueError(f"Prediction frame {index} lacks date or y_true")
+        if bool(frame["date"].isna().any()) or bool(frame["y_true"].isna().any()):
+            raise ValueError(f"Prediction frame {index} has null date or y_true")
+        if frame["date"].duplicated().any():
+            raise ValueError(f"Prediction frame {index} has duplicate dates")
+        dates = pd.to_datetime(frame["date"], errors="coerce")
+        if dates.isna().any() or not dates.is_monotonic_increasing:
+            raise ValueError(f"Prediction frame {index} dates are invalid or unsorted")
+        actual = frame["y_true"].to_numpy(dtype=float)
+        if not np.isfinite(actual).all():
+            raise ValueError(f"Prediction frame {index} has non-finite y_true")
+        if reference_dates is None:
+            reference_dates, reference_actual = dates.to_numpy(), actual
+        elif not np.array_equal(reference_dates, dates.to_numpy()):
+            raise ValueError(f"Prediction frame {index} date set/order differs")
+        elif not np.array_equal(reference_actual, actual):
+            raise ValueError(f"Prediction frame {index} y_true differs")
+
+
 def analyze_window(window: str, lstm: dict, baselines: pd.DataFrame) -> dict:
+    """
+    [BAB 4 §4.2 | ANALISIS JENDELA DAN PENETAPAN STATUS KESUKSESAN PROTOKOL]
+    Menggabungkan seluruh model pada tanggal evaluasi yang selaras sempurna.
+    Mengevaluasi komparasi primer (vs persistence dan HAR-RV) dan sekunder (vs GARCH dan LSTM-untuned).
+    Menentukan vonis praregistrasi pada jendela test: positive, mixed, atau negative.
+    """
     base = baselines
     optuna_df = lstm["optuna"]
     untuned_df = lstm["untuned"]
+    validate_prediction_alignment([optuna_df, untuned_df, base])
 
     merged = (optuna_df.merge(untuned_df, on="date", suffixes=("_opt", "_unt"))
               .merge(base, on="date"))
@@ -83,11 +126,11 @@ def analyze_window(window: str, lstm: dict, baselines: pd.DataFrame) -> dict:
     out["models"] = {k: {"qlike": qlike(y, v), **mae_rmse_logrv(y, v)}
                      for k, v in preds.items()}
 
-    # Primary comparisons (seed-averaged Optuna-LSTM vs primary baselines).
+    # Komparasi primer: Optuna-LSTM (rata-rata 5 seed) vs baseline primer (persistence & HAR-RV)
     for b in cfg.PRIMARY_BASELINES:
         out["comparisons"][f"lstm_optuna_vs_{b}"] = eval_pair(
             window, y, dates, preds["lstm_optuna"], "lstm_optuna", preds[b], b)
-    # Secondary.
+    # Komparasi sekunder
     for b in cfg.SECONDARY_BASELINES:
         out["comparisons"][f"lstm_optuna_vs_{b}"] = eval_pair(
             window, y, dates, preds["lstm_optuna"], "lstm_optuna", preds[b], b)
@@ -99,6 +142,7 @@ def analyze_window(window: str, lstm: dict, baselines: pd.DataFrame) -> dict:
         f"seed{s}": qlike(y, merged[f"y_hat_seed{s}_unt"].to_numpy())
         for s in cfg.SEEDS}
 
+    # Kriteria kesuksesan praregistrasi resmi (Protokol Bagian 9)
     if window == "test":
         prim = [out["comparisons"][f"lstm_optuna_vs_{b}"] for b in cfg.PRIMARY_BASELINES]
         beats = all(

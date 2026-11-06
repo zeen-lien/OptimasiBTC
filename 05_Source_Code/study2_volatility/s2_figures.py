@@ -1,7 +1,17 @@
-"""Generate figures for the Study 2 thesis (Bab 4).
+"""
+[BAB 4 §4.1 - §4.4 | GENERASI FIGUR SKRIPSI]
+Modul ini bertugas mereproduksi dan menghasilkan seluruh grafik/figur visualisasi
+ilmiah beresolusi tinggi untuk Bab 4 (Hasil dan Pembahasan) Skripsi Study 2.
 
-Reads frozen data and saved run artifacts only; does not recompute or alter
-any evaluation result. Output: 05_Source_Code/results/study2/figures/
+Prinsip Ilmiah:
+- Hanya membaca data beku (`btc_1h_daily_rv_2020_2026.csv`) dan artefak hasil run yang tersimpan.
+- Tidak melakukan komputasi ulang atau mengubah hasil evaluasi yang ada.
+- Output disimpan di: `05_Source_Code/results/study2/figures/`
+  1. Gambar 4.1: Deret waktu log RV harian 2020–2026 dan batas partisi temporal.
+  2. Gambar 4.2: Riwayat optimasi hyperparameter Optuna (50 trial TPE).
+  3. Gambar 4.3: Perbandingan prediksi model pada periode holdout test 2026.
+  4. Gambar 4.4: Diagram batang perbandingan metrik kerugian asimetris QLIKE.
+  5. Gambar 4.5: Selisih kerugian QLIKE kumulatif terhadap baseline persistence.
 """
 
 from __future__ import annotations

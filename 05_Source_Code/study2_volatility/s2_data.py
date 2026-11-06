@@ -1,16 +1,11 @@
-"""
-s2_data.py - Fetch, aggregate, verify, and freeze Study 2 data.
+"""[BAB 3 §3.2 | PENGAMBILAN DATA, AGREGASI, DAN INTEGRITAS DATA A1]
 
-Pipeline (pre-registered in docs/STUDY2_PROTOCOL.md, hashed 2026-10-28):
-1. Download Binance Vision monthly 1h klines BTCUSDT, 2020-01 .. 2026-09.
-2. Parse each zip (handles ms vs us timestamps and optional header rows).
-3. Aggregate to UTC-daily bars: exactly 24 hourly bars per day is REQUIRED.
-4. Compute rv, log_rv, and the six pre-registered features.
-5. Fail loudly on any integrity violation; then freeze CSV + hashes.
-
-Run:
-    python s2_data.py              # download if needed, build, verify, freeze
-    python s2_data.py --verify     # only re-verify frozen artifacts
+Pipeline rekayasa data Study 2 (Protokol Bagian 1 & 2 serta Amandemen A1):
+1. Mengunduh data kline 1 jam Binance Vision spot BTCUSDT periode 2020-01 s.d. 2026-09 (81 berkas zip).
+2. Mengekstrak dan menormalisasi stempel waktu mikrodetik/milidetik ke basis UTC harian.
+3. Agregasi bar harian UTC: memverifikasi kelengkapan 24 bar per hari.
+4. Menghitung realized volatility 1 jam (sum of squared log returns) dan 6 fitur input praregistrasi.
+5. Penegakan integritas fail-closed (Amandemen A1) dan pembekuan hash kriptografis SHA-256.
 """
 
 from __future__ import annotations
@@ -30,7 +25,7 @@ import s2_config as cfg
 
 
 # ---------------------------------------------------------------------------
-# Download
+# [BAB 3 §3.2 | PENGUNDUHAN KLINE BULANAN RESMI BINANCE VISION]
 # ---------------------------------------------------------------------------
 def download_month(month: str, dest_dir: Path, timeout: int = 120) -> dict:
     url = cfg.BINANCE_VISION_URL.format(month=month)
@@ -96,9 +91,14 @@ def load_month_zip(zip_path: Path) -> pd.DataFrame:
 
 
 # ---------------------------------------------------------------------------
-# Aggregation
+# [BAB 3 §3.2 | AGREGASI HARIAN UTC DAN INTEGRITAS AMANDEMEN A1]
 # ---------------------------------------------------------------------------
 def aggregate_daily(month_frames: dict[str, pd.DataFrame]) -> pd.DataFrame:
+    """
+    [BAB 3 §3.2 | AGREGASI OHLCV DAN FILTER AMANDEMEN A1]
+    Mengagregasi bar 1 jam menjadi bar harian UTC. Menolak hari dengan <20 bar (Amandemen A1),
+    memastikan jendela validasi dan uji 100% lengkap 24 bar, serta membentuk fitur volatilitas.
+    """
     parts = []
     for month, df in month_frames.items():
         utc_day = df["open_time"].dt.floor("D").dt.tz_localize(None)
@@ -167,7 +167,11 @@ def aggregate_daily(month_frames: dict[str, pd.DataFrame]) -> pd.DataFrame:
 
 
 def aggregate_rv(month_frames: dict[str, pd.DataFrame]) -> pd.Series:
-    """Daily realized variance = sum of squared hourly log(open->close) moves."""
+    """
+    [BAB 3 §3.3 | PERHITUNGAN REALIZED VARIANCE 1 JAM (ANDERSEN & BOLLERSLEV 1998)]
+    Realized variance harian dihitung sebagai penjumlahan kuadrat log-returns antar-jam:
+        rv_t = sum_{h=1}^{24} (log(close_{t,h}) - log(open_{t,h}))^2
+    """
     rows = []
     for _, df in month_frames.items():
         ret = np.log(df["close"]) - np.log(df["open"])

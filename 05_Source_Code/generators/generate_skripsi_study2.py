@@ -167,11 +167,15 @@ def latex_to_unicode(src: str) -> str:
     return s
 
 
-def set_run(run, size=12, bold=False, italic=False, font="Times New Roman"):
+def set_run(run, size=12, bold=False, italic=False, font="Times New Roman", subscript=False, superscript=False):
     run.font.name = font
     run.font.size = Pt(size)
     run.bold = bold
     run.italic = italic
+    if subscript:
+        run.font.subscript = True
+    if superscript:
+        run.font.superscript = True
     rpr = run._element.get_or_add_rPr()
     rfonts = rpr.find(qn("w:rFonts"))
     if rfonts is None:
@@ -179,6 +183,60 @@ def set_run(run, size=12, bold=False, italic=False, font="Times New Roman"):
         rpr.append(rfonts)
     for attr in ("w:ascii", "w:hAnsi", "w:eastAsia", "w:cs"):
         rfonts.set(qn(attr), font)
+
+
+def render_inline_math(par, math_expr: str, size=12, base_bold=False):
+    """Render inline math expressions cleanly as formatted runs in Word."""
+    s = math_expr.strip()
+    if s.startswith("$") and s.endswith("$"):
+        s = s[1:-1].strip()
+    elif s.startswith(r"\(") and s.endswith(r"\)"):
+        s = s[2:-2].strip()
+
+    s = s.replace(r"\_", "_")
+    s = re.sub(r"\\text\{([^}]+)\}", r"\1", s)
+    s = re.sub(r"\\mathrm\{([^}]+)\}", r"\1", s)
+    for k, v in GREEK.items():
+        s = s.replace(k, v)
+
+    # Prefix operators like log, ln, exp, max, min
+    for fn in ["log", "ln", "exp", "max", "min"]:
+        if s.startswith("\\" + fn + " ") or s.startswith(fn + " "):
+            r_fn = par.add_run(fn + " ")
+            set_run(r_fn, size=size, bold=base_bold, italic=False)
+            s = re.sub(r"^\\" + fn + r"\s+|^" + fn + r"\s+", "", s)
+            break
+
+    # Match base with optional subscript and superscript
+    m = re.search(r"^(.*?)_(?:\{([^}]+)\}|([a-zA-Z0-9+-]+))(?:\^\{([^}]+)\}|\^([a-zA-Z0-9+-]+))?$", s)
+    if not m:
+        m_sup = re.search(r"^(.*?)(?:\^\{([^}]+)\}|\^([a-zA-Z0-9+-]+))$", s)
+        if m_sup:
+            base = m_sup.group(1).replace("\\", "").strip()
+            sup = m_sup.group(2) or m_sup.group(3)
+            r_base = par.add_run(base)
+            set_run(r_base, size=size, bold=base_bold, italic=True)
+            r_sup = par.add_run(sup)
+            set_run(r_sup, size=size, bold=base_bold, italic=False, superscript=True)
+            return
+        r_plain = par.add_run(latex_to_unicode(s))
+        set_run(r_plain, size=size, bold=base_bold, italic=True)
+        return
+
+    base = m.group(1).replace("\\", "").strip()
+    sub = m.group(2) or m.group(3)
+    sup = m.group(4) or m.group(5)
+
+    r_b = par.add_run(base)
+    set_run(r_b, size=size, bold=base_bold, italic=True)
+
+    if sub:
+        r_sub = par.add_run(sub)
+        set_run(r_sub, size=size, bold=base_bold, italic=True, subscript=True)
+
+    if sup:
+        r_sup = par.add_run(sup)
+        set_run(r_sup, size=size, bold=base_bold, italic=False, superscript=True)
 
 
 def add_page_number(paragraph):
@@ -205,7 +263,7 @@ def add_page_number(paragraph):
 
 def add_inline(par, text, size=12, base_bold=False, base_italic=False):
     """Render a small subset of Markdown inline formatting."""
-    pattern = re.compile(r"(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|\\\(.+?\\\))")
+    pattern = re.compile(r"(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|\\\(.+?\\\)|(?<!\\)\$[^$\n]+?\$)")
     pos = 0
     for m in pattern.finditer(text):
         if m.start() > pos:
@@ -217,8 +275,8 @@ def add_inline(par, text, size=12, base_bold=False, base_italic=False):
             add_inline(par, tok[1:-1], size, base_bold, True)
         elif tok.startswith("`"):
             set_run(par.add_run(tok[1:-1]), size - 1, base_bold, base_italic, font="Consolas")
-        elif tok.startswith(r"\("):
-            set_run(par.add_run(latex_to_unicode(tok[2:-2])), size, base_bold, True)
+        elif tok.startswith(r"\(") or tok.startswith("$"):
+            render_inline_math(par, tok, size=size, base_bold=base_bold)
         pos = m.end()
     if pos < len(text):
         set_run(par.add_run(text[pos:]), size, base_bold, base_italic)

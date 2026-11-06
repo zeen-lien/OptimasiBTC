@@ -1,14 +1,11 @@
-"""
-s2_optuna_search.py - Pre-registered HPO for Study 2 (protocol section 5).
+"""[BAB 3 §3.6 | OPTIMASI HIPERPARAMETER DENGAN OPTUNA (TPE)]
 
-Optuna TPE (seed 42), 50 trials, MedianPruner; objective = mean CV QLIKE over
-5 purged rolling-origin folds on the dev window (2020-2023 only). The 2024+
-data is never loaded here. HPO-stage training always uses seed 42; multi-seed
-is applied only in the final refit (protocol section 6).
-
-Run:
-    python s2_optuna_search.py            # full 50-trial search
-    python s2_optuna_search.py --smoke    # 1 trial, 2 epochs (pipeline check)
+Modul pencarian hiperparameter resmi untuk model usulan Study 2 (Protokol Bagian 5):
+- Algoritma: Tree-structured Parzen Estimator (TPE, Bergstra et al. 2011) seed 42, 50 trials.
+- Mekanisme pemangkasan: MedianPruner (startup=10, warmup=2) untuk efisiensi komputasi.
+- Fungsi objektif: Rerata kerugian QLIKE (Patton 2011) pada 5 fold purged rolling-origin CV.
+- Isolasi ketat: Dilakukan HANYA pada jendela dev (2020-01-01 s.d. 2023-12-31).
+  Data 2024–2026 tidak pernah dimuat selama proses pencarian hiperparameter.
 """
 
 from __future__ import annotations
@@ -30,6 +27,12 @@ from s2_stats import qlike
 
 
 def sample_params(trial: optuna.Trial) -> dict:
+    """
+    [BAB 3 §3.6 | RUANG PENCARIAN HIPERPARAMETER]
+    Mengambil sampel nilai konfigurasi arsitektur dari search space praregistrasi:
+    lookback (10-30), units (16-128), layers (1-2), dropout (0.05-0.40),
+    learning rate (3e-4 s.d. 2e-3 log scale), dan batch size (16, 32, 64).
+    """
     ss = cfg.SEARCH_SPACE
     return {
         "lookback": trial.suggest_int("lookback", ss["lookback"]["low"], ss["lookback"]["high"]),
@@ -44,7 +47,11 @@ def sample_params(trial: optuna.Trial) -> dict:
 
 
 def cv_qlike(params: dict, dev: pd.DataFrame, max_epochs: int, verbose: bool = True):
-    """Mean QLIKE and per-fold details over cfg.N_CV_FOLDS purged folds (dev)."""
+    """
+    [BAB 3 §3.6 | CROSS-VALIDATION PURGED ROLLING-ORIGIN]
+    Mengevaluasi kombinasi hiperparameter pada 5 lipatan dev dengan TimeSeriesSplit.
+    Scaler fit murni pada lipatan train; prediksi di-inverse transform ke skala asli sebelum skor QLIKE dihitung.
+    """
     lookback = params["lookback"]
     X, y, _, tdates = sm.build_samples(dev, lookback=lookback)
     splitter = TimeSeriesSplit(n_splits=cfg.N_CV_FOLDS, gap=lookback + 1)

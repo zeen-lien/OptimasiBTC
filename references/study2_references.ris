@@ -1,0 +1,456 @@
+TY  - JOUR
+TI  - What can explain the price, volatility and trading volume of Bitcoin?
+AU  - Aalborg, Halvor Are
+AU  - Molnár, Peter
+AU  - de Vries, Jon Erik
+T2  - Finance Research Letters
+VL  - 29
+SP  - 255
+EP  - 265
+PY  - 2019
+DO  - 10.1016/j.frl.2018.08.010
+ER  - 
+
+TY  - CONF
+TI  - Optuna: A Next-generation Hyperparameter Optimization Framework
+AU  - Akiba, Takuya
+AU  - Sano, Shotaro
+AU  - Yanase, Toshihiko
+AU  - Ohta, Takeru
+AU  - Koyama, Masanori
+T2  - Proceedings of the 25th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining
+SP  - 2623
+EP  - 2631
+PY  - 2019
+DO  - 10.1145/3292500.3330701
+ER  - 
+
+TY  - JOUR
+TI  - Comparative Analysis of Hyperparameter Optimization Methods for LSTM in Cryptocurrency Price Prediction: An Application to TRX–USD
+AU  - Aldo, Dedy
+AU  - Firmansyah, M. Rizky
+AU  - Amrustian, M. Aldi
+T2  - Jurnal Teknik Informatika (JUTIF)
+VL  - 7
+IS  - 3
+SP  - 2340
+EP  - 2349
+PY  - 2026
+DO  - 10.52436/1.jutif.2026.7.3.5355
+ER  - 
+
+TY  - JOUR
+TI  - Answering the Skeptics: Yes, Standard Volatility Models Do Provide Accurate Forecasts
+AU  - Andersen, Torben G.
+AU  - Bollerslev, Tim
+T2  - International Economic Review
+VL  - 39
+IS  - 4
+SP  - 885
+EP  - 905
+PY  - 1998
+DO  - 10.2307/2527343
+ER  - 
+
+TY  - JOUR
+TI  - Modeling and Forecasting Realized Volatility
+AU  - Andersen, Torben G.
+AU  - Bollerslev, Tim
+AU  - Diebold, Francis X.
+AU  - Labys, Paul
+T2  - Econometrica
+VL  - 71
+IS  - 2
+SP  - 579
+EP  - 625
+PY  - 2003
+DO  - 10.1111/1468-0262.00418
+ER  - 
+
+TY  - JOUR
+TI  - Regime changes in Bitcoin GARCH volatility dynamics
+AU  - Ardia, David
+AU  - Bluteau, Keven
+AU  - Rüede, Maximilien
+T2  - Finance Research Letters
+VL  - 29
+SP  - 266
+EP  - 271
+PY  - 2019
+DO  - 10.1016/j.frl.2018.08.009
+ER  - 
+
+TY  - JOUR
+TI  - Predicting Bitcoin and Ethereum Prices Using the Long Short-Term Memory (LSTM) Model
+AU  - Aswadi, Muhammad
+AU  - Ependi, Usman
+T2  - Journal of Information Systems and Informatics
+VL  - 7
+IS  - 3
+SP  - 3046
+EP  - 3061
+PY  - 2025
+DO  - 10.51519/journalisi.v7i3.1228
+ER  - 
+
+TY  - JOUR
+TI  - Econometric analysis of realized volatility and its use in estimating stochastic volatility models
+AU  - Barndorff-Nielsen, Ole E.
+AU  - Shephard, Neil
+T2  - Journal of the Royal Statistical Society: Series B (Statistical Methodology)
+VL  - 64
+IS  - 2
+SP  - 253
+EP  - 280
+PY  - 2002
+DO  - 10.1111/1467-9868.00336
+ER  - 
+
+TY  - CONF
+TI  - Algorithms for Hyper-Parameter Optimization
+AU  - Bergstra, James
+AU  - Bardenet, Rémi
+AU  - Bengio, Yoshua
+AU  - Kégl, Balázs
+T2  - Advances in Neural Information Processing Systems
+VL  - 24
+SP  - 2546
+EP  - 2554
+PY  - 2011
+ER  - 
+
+TY  - ELEC
+TI  - Binance Vision: Public Market Data Archive
+AU  - Binance
+PY  - 2024
+UR  - https://data.binance.vision/
+ER  - 
+
+TY  - JOUR
+TI  - Generalized autoregressive conditional heteroskedasticity
+AU  - Bollerslev, Tim
+T2  - Journal of Econometrics
+VL  - 31
+IS  - 3
+SP  - 307
+EP  - 327
+PY  - 1986
+DO  - 10.1016/0304-4076(86)90063-1
+ER  - 
+
+TY  - JOUR
+TI  - Accounting for Variance in Machine Learning Benchmarks
+AU  - Bouthillier, Xavier
+AU  - Delaunay, Pierre
+AU  - Bronzi, Mirko
+AU  - Trofimov, Andrei
+AU  - Nichyporuk, Brennan
+AU  - Szeto, Justin
+AU  - Sepah, Nazanin
+AU  - Raff, Edward
+AU  - Madan, Kanika
+AU  - Voleti, Vikram
+AU  - Kahou, Samira E.
+AU  - Michalski, Vincent
+AU  - Serdyuk, Dmitriy
+AU  - Arbel, Tal
+AU  - Pal, Chris
+AU  - Varoquaux, Gaël
+AU  - Vincent, Pascal
+T2  - Proceedings of Machine Learning and Systems
+VL  - 3
+SP  - 747
+EP  - 769
+PY  - 2021
+DO  - 10.48550/arXiv.2103.03098
+ER  - 
+
+TY  - JOUR
+TI  - A Machine Learning Approach to Volatility Forecasting
+AU  - Christensen, Kim
+AU  - Siggaard, Mads
+AU  - Veliyev, Bezirgen
+T2  - Journal of Financial Econometrics
+VL  - 21
+IS  - 5
+SP  - 1680
+EP  - 1727
+PY  - 2023
+DO  - 10.1093/jjfinec/nbac020
+ER  - 
+
+TY  - JOUR
+TI  - Long- and Short-Term Cryptocurrency Volatility Components: A GARCH-MIDAS Analysis
+AU  - Conrad, Christian
+AU  - Custovic, Anja
+AU  - Ghysels, Eric
+T2  - Journal of Risk and Financial Management
+VL  - 11
+IS  - 2
+SP  - 23
+PY  - 2018
+DO  - 10.3390/jrfm11020023
+ER  - 
+
+TY  - JOUR
+TI  - A Simple Approximate Long-Memory Model of Realized Volatility
+AU  - Corsi, Fulvio
+T2  - Journal of Financial Econometrics
+VL  - 7
+IS  - 2
+SP  - 174
+EP  - 196
+PY  - 2009
+DO  - 10.1093/jjfinec/nbp001
+ER  - 
+
+TY  - JOUR
+TI  - Comparing Predictive Accuracy
+AU  - Diebold, Francis X.
+AU  - Mariano, Roberto S.
+T2  - Journal of Business & Economic Statistics
+VL  - 13
+IS  - 3
+SP  - 253
+EP  - 263
+PY  - 1995
+DO  - 10.1080/07350015.1995.10524599
+ER  - 
+
+TY  - JOUR
+TI  - Forecasting Bitcoin Price Prediction with Long Short-Term Memory Networks: Implementation and Applications Using Streamlit
+AU  - Fawzi, M. Ilham
+AU  - Ganesha, Tito
+AU  - Anugrah, P. Rizky
+AU  - Zhahran, M.
+AU  - Abimanyu, F. A.
+AU  - Bimantoro, H.
+T2  - Jurnal Teknik Informatika (JUTIF)
+VL  - 6
+IS  - 5
+SP  - 2940
+EP  - 2961
+PY  - 2025
+DO  - 10.52436/1.jutif.2025.6.5.5168
+ER  - 
+
+TY  - JOUR
+TI  - LSTM: A Search Space Odyssey
+AU  - Greff, Klaus
+AU  - Srivastava, Rupesh K.
+AU  - Koutník, Jan
+AU  - Steunebrink, Bas R.
+AU  - Schmidhuber, Jürgen
+T2  - IEEE Transactions on Neural Networks and Learning Systems
+VL  - 28
+IS  - 10
+SP  - 2222
+EP  - 2232
+PY  - 2017
+DO  - 10.1109/TNNLS.2016.2582924
+ER  - 
+
+TY  - JOUR
+TI  - Long Short-Term Memory
+AU  - Hochreiter, Sepp
+AU  - Schmidhuber, Jürgen
+T2  - Neural Computation
+VL  - 9
+IS  - 8
+SP  - 1735
+EP  - 1780
+PY  - 1997
+DO  - 10.1162/neco.1997.9.8.1735
+ER  - 
+
+TY  - JOUR
+TI  - Volatility estimation for Bitcoin: A comparison of GARCH models
+AU  - Katsiampa, Paraskevi
+T2  - Economics Letters
+VL  - 158
+SP  - 3
+EP  - 6
+PY  - 2017
+DO  - 10.1016/j.econlet.2017.06.023
+ER  - 
+
+TY  - JOUR
+TI  - LSTM Hyperparameters Optimization with Hparam Parameters for Bitcoin Price Prediction
+AU  - Kervancı, İhsan Said
+AU  - Akay, Mehmet Fatih
+T2  - Sakarya University Journal of Computer and Information Sciences
+VL  - 6
+IS  - 1
+SP  - 1
+EP  - 9
+PY  - 2023
+DO  - 10.35377/saucis...1172027
+ER  - 
+
+TY  - JOUR
+TI  - Optimizing Bitcoin Price Predictions Using Long Short-Term Memory Algorithm: A Deep Learning Approach
+AU  - Khumaidi, Ali
+AU  - Kusmanto, Priyo
+AU  - Hikmah, Nur
+T2  - ILKOM Jurnal Ilmiah
+VL  - 16
+IS  - 1
+SP  - 38
+EP  - 45
+PY  - 2024
+DO  - 10.33096/ilkom.v16i1.1831.38-45
+ER  - 
+
+TY  - JOUR
+TI  - Forecasting the volatility of stock price index: A hybrid model integrating LSTM with multiple GARCH-type models
+AU  - Kim, Ha Young
+AU  - Won, Chang Hyun
+T2  - Expert Systems with Applications
+VL  - 103
+SP  - 25
+EP  - 37
+PY  - 2018
+DO  - 10.1016/j.eswa.2018.03.002
+ER  - 
+
+TY  - JOUR
+TI  - Adam: A Method for Stochastic Optimization
+AU  - Kingma, Diederik P.
+AU  - Ba, Jimmy
+T2  - arXiv preprint arXiv:1412.6980
+PY  - 2014
+DO  - 10.48550/arXiv.1412.6980
+ER  - 
+
+TY  - JOUR
+TI  - The Jackknife and the Bootstrap for General Stationary Observations
+AU  - Künsch, Hans R.
+T2  - The Annals of Statistics
+VL  - 17
+IS  - 3
+SP  - 1217
+EP  - 1241
+PY  - 1989
+DO  - 10.1214/aos/1176347265
+ER  - 
+
+TY  - JOUR
+TI  - Time-series forecasting with deep learning: A survey
+AU  - Lim, Bryan
+AU  - Zohren, Stefan
+T2  - Philosophical Transactions of the Royal Society A: Mathematical, Physical and Engineering Sciences
+VL  - 379
+IS  - 2194
+SP  - 20200209
+PY  - 2021
+DO  - 10.1098/rsta.2020.0209
+ER  - 
+
+TY  - BOOK
+TI  - Advances in Financial Machine Learning
+AU  - López de Prado, Marcos
+PB  - John Wiley & Sons
+PY  - 2018
+ER  - 
+
+TY  - JOUR
+TI  - A Simple, Positive Semi-Definite, Heteroskedasticity and Autocorrelation Consistent Covariance Matrix
+AU  - Newey, Whitney K.
+AU  - West, Kenneth D.
+T2  - Econometrica
+VL  - 55
+IS  - 3
+SP  - 703
+EP  - 708
+PY  - 1987
+DO  - 10.2307/1913610
+ER  - 
+
+TY  - ELEC
+TI  - Optuna Documentation: Tree-structured Parzen Estimator and MedianPruner Algorithms
+AU  - Optuna Development Team
+PB  - Preferred Networks
+PY  - 2024
+UR  - https://optuna.readthedocs.io/
+ER  - 
+
+TY  - JOUR
+TI  - Volatility forecast comparison using imperfect volatility proxies
+AU  - Patton, Andrew J.
+T2  - Journal of Econometrics
+VL  - 160
+IS  - 1
+SP  - 246
+EP  - 256
+PY  - 2011
+DO  - 10.1016/j.jeconom.2010.03.034
+ER  - 
+
+TY  - JOUR
+TI  - Dropout: A Simple Way to Prevent Neural Networks from Overfitting
+AU  - Srivastava, Nitish
+AU  - Hinton, Geoffrey
+AU  - Krizhevsky, Alex
+AU  - Sutskever, Ilya
+AU  - Salakhutdinov, Ruslan
+T2  - Journal of Machine Learning Research
+VL  - 15
+IS  - 1
+SP  - 1929
+EP  - 1958
+PY  - 2014
+UR  - https://jmlr.org/papers/v15/srivastava14a.html
+ER  - 
+
+TY  - ELEC
+TI  - TensorFlow: Large-Scale Machine Learning on Heterogeneous Distributed Systems
+AU  - TensorFlow Developers
+PB  - Google LLC
+PY  - 2024
+UR  - https://www.tensorflow.org/
+ER  - 
+
+TY  - JOUR
+TI  - Comparing Long Short-Term Memory and Random Forest accuracy for Bitcoin price forecasting
+AU  - Ula, Mutammimul
+AU  - Ilhadi, Vina
+AU  - Sidek, Zainab M.
+T2  - MATRIK: Jurnal Manajemen, Teknik Informatika dan Rekayasa Komputer
+VL  - 23
+IS  - 2
+SP  - 259
+EP  - 272
+PY  - 2024
+DO  - 10.30812/matrik.v23i2.3267
+ER  - 
+
+TY  - JOUR
+TI  - Improved LSTM hyperparameters alongside sentiment walk-forward validation for time series prediction
+AU  - Wahyuddin, E. P.
+AU  - Caraka, R. E.
+AU  - Kurniawan, R.
+AU  - Caesarendra, W.
+AU  - Gio, P. U.
+AU  - Pardamean, B.
+T2  - Journal of Open Innovation: Technology, Market, and Complexity
+VL  - 11
+IS  - 1
+SP  - 100458
+PY  - 2025
+DO  - 10.1016/j.joitmc.2024.100458
+ER  - 
+
+TY  - JOUR
+TI  - Comparative Analysis of LSTM and GRU Models with Hyperparameter Optimization for Bitcoin Price Prediction
+AU  - Widad, M. Qais
+AU  - Parlika, Rizky
+AU  - Aditiawan, Fajar P.
+T2  - Bit-Tech (Binary Digital - Technology)
+VL  - 9
+IS  - 1
+SP  - 430
+EP  - 440
+PY  - 2026
+DO  - 10.32877/bt.v9i1.3887
+ER  - 
+

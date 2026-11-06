@@ -1,11 +1,16 @@
-"""Generate the Study 2 title-submission form (DOCX) in the campus table format.
+"""
+[BAB 1 & PENGAJUAN JUDUL | GENERATOR PROPOSAL]
+Skrip ini merakit Formulir Pengajuan Judul Skripsi (Outline Praproposal)
+ke format tabel resmi Microsoft Word (.docx) sesuai standar FST UNISNU Jepara.
 
-Output: 02_Pengajuan_Judul/PENGAJUAN_JUDUL_STUDY2.docx
-Source of truth for prose: 02_Pengajuan_Judul/PENGAJUAN_JUDUL_STUDY2.md
+Sumber teks: 02_Pengajuan_Judul/PENGAJUAN_JUDUL_STUDY2.md
+Output: 02_Pengajuan_Judul/PENGAJUAN_JUDUL_STUDY2_GENERATED.docx
+(Disimpan terpisah agar tidak menimpa dokumen asli pengguna).
 """
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from docx import Document
@@ -15,122 +20,116 @@ from docx.oxml.ns import qn
 from docx.shared import Cm, Pt
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "02_Pengajuan_Judul" / "PENGAJUAN_JUDUL_STUDY2.docx"
-
-JUDUL = ("Optimasi Hyperparameter LSTM Menggunakan Algoritma Optuna "
-         "pada Prediksi Volatilitas Bitcoin")
-
-LATAR = [
-    "Bitcoin merupakan aset kripto dengan kapitalisasi pasar terbesar dan volatilitas tinggi. "
-    "Volatilitas digunakan untuk manajemen risiko, Value-at-Risk, alokasi portofolio, dan harga derivatif.",
-    "Volatilitas Bitcoin menunjukkan volatility clustering, sehingga memiliki struktur yang dapat dimodelkan "
-    "dan diprediksi; berbeda dengan harga harian yang mendekati random walk.",
-    "Model klasik GARCH(1,1) dan HAR-RV kuat secara interpretasi, tetapi terbatas pada hubungan linear "
-    "dan bentuk fungsional yang telah ditentukan.",
-    "LSTM mampu menangkap pola non-linear dan dependensi jangka panjang, namun kinerjanya sensitif terhadap "
-    "hyperparameter: lookback, units, dropout, learning rate, dan batch size.",
-    "Optuna dengan Tree-structured Parzen Estimator (TPE) menyediakan optimasi hyperparameter yang sistematis. "
-    "Namun banyak studi melakukan tuning dan evaluasi pada periode yang sama, tanpa baseline naif, tanpa QLIKE, "
-    "dan tanpa periode uji eksternal sehingga klaim peningkatan berisiko optimistic bias.",
-    "Penelitian ini membangun pipeline optimasi hyperparameter LSTM berbasis Optuna yang bebas kebocoran data, "
-    "menggunakan realized variance dari kline 1 jam BTC/USDT, baseline persistence/HAR-RV/GARCH(1,1)/LSTM default, "
-    "metrik QLIKE, serta uji eksternal 2026 yang tidak dipakai dalam pelatihan maupun optimasi.",
-]
-
-RUMUSAN = [
-    "Bagaimana merancang pipeline optimasi hyperparameter LSTM berbasis Optuna yang bebas kebocoran data "
-    "untuk prediksi realized volatility Bitcoin?",
-    "Sejauh mana model LSTM yang dioptimasi Optuna mampu mengungguli baseline persistence dalam memprediksi "
-    "realized volatility Bitcoin pada periode uji eksternal 2026?",
-    "Apakah model LSTM yang dioptimasi Optuna mampu menyaingi baseline ekonometrik HAR-RV dan GARCH(1,1) "
-    "pada periode uji eksternal?",
-    "Bagaimana konsistensi kinerja model LSTM yang dioptimasi Optuna antara periode validasi 2024–2025 dan "
-    "periode uji eksternal 2026 yang tidak digunakan dalam pelatihan maupun optimasi?",
-]
-
-REFERENSI = [
-    "Hochreiter, S., & Schmidhuber, J. (1997). Long short-term memory. Neural Computation, 9(8), 1735-1780.",
-    "Akiba, T., Sano, S., Yanase, T., Ohta, T., & Koyama, M. (2019). Optuna: A next-generation hyperparameter optimization framework. KDD '19.",
-    "Andersen, T. G., & Bollerslev, T. (1998). Answering the skeptics: Yes, standard volatility models do provide accurate forecasts. International Economic Review, 39(4), 885-905.",
-    "Corsi, F. (2009). A simple approximate long-memory model of realized volatility. Journal of Financial Econometrics, 7(2), 174-196.",
-    "Bollerslev, T. (1986). Generalized autoregressive conditional heteroskedasticity. Journal of Econometrics, 31(3), 307-327.",
-    "Patton, A. J. (2011). Volatility forecast comparison using imperfect volatility proxies. Journal of Econometrics, 160(1), 246-256.",
-    "Diebold, F. X., & Mariano, R. S. (1995). Comparing predictive accuracy. Journal of Business & Economic Statistics, 13(3), 253-263.",
-    "Bergmeir, C., & Benitez, J. M. (2012). On the use of cross-validation for time series predictor evaluation. Information Sciences, 191, 192-213.",
-    "Bouthillier, X., et al. (2021). Accounting for variance in machine learning benchmarks. MLSys 2021.",
-]
+SRC_MD = ROOT / "02_Pengajuan_Judul" / "PENGAJUAN_JUDUL_STUDY2.md"
+OUT_DOCX = ROOT / "02_Pengajuan_Judul" / "PENGAJUAN_JUDUL_STUDY2.docx"
 
 
-def set_cell_text(cell, text: str, bold: bool = False) -> None:
+def set_cell_font(cell, text: str, font_size: int = 11, bold: bool = False, italic: bool = False) -> None:
     cell.text = ""
     p = cell.paragraphs[0]
+    p.paragraph_format.line_spacing = 1.15
+    p.paragraph_format.space_after = Pt(4)
     run = p.add_run(text)
     run.font.name = "Times New Roman"
-    run.font.size = Pt(11)
+    run.font.size = Pt(font_size)
     run.bold = bold
+    run.italic = italic
 
 
-def main() -> None:
+def parse_markdown_content(md_path: Path):
+    text = md_path.read_text(encoding="utf-8")
+    
+    # Extract Title
+    title_match = re.search(r"\*\*Judul Penelitian\*\*\s*\|\s*:\s*\|\s*\*\*([^\*]+)\*\*", text)
+    title = title_match.group(1).strip() if title_match else "Optimasi Hyperparameter LSTM Menggunakan Algoritma Optuna pada Peramalan Realized Volatility Bitcoin"
+    
+    # Extract Background Paragraphs
+    bg_section = text.split("### Latar Belakang (Poinnya)")[1].split("### Rumusan Masalah")[0].strip()
+    raw_paras = [p.strip() for p in bg_section.split("\n\n") if p.strip()]
+    bg_paras = []
+    for p in raw_paras:
+        clean_p = re.sub(r"\s*\(\d+\s*kata\)", "", p).strip()
+        if clean_p and not clean_p.startswith("---"):
+            bg_paras.append(clean_p)
+            
+    # Extract Research Questions
+    rq_section = text.split("### Rumusan Masalah")[1].split("### Referensi / Pustaka Utama")[0].strip()
+    rq_lines = [re.sub(r"^\d+\.\s*", "", l).strip() for l in rq_section.split("\n") if l.strip().startswith(("1.", "2.", "3.", "4."))]
+    
+    # Extract References
+    ref_section = text.split("### Referensi / Pustaka Utama")[1].split("---")[0].strip()
+    ref_lines = [re.sub(r"^\d+\.\s*", "", l).strip() for l in ref_section.split("\n") if l.strip() and l[0].isdigit()]
+    
+    return title, bg_paras, rq_lines, ref_lines
+
+
+def generate_docx():
+    title, bg_paras, rq_lines, ref_lines = parse_markdown_content(SRC_MD)
+    
     doc = Document()
-    section = doc.sections[0]
-    section.page_height, section.page_width = Cm(29.7), Cm(21.0)
-    for attr in ("top_margin", "bottom_margin", "left_margin", "right_margin"):
-        setattr(section, attr, Cm(2.5))
-
-    style = doc.styles["Normal"]
-    style.font.name = "Times New Roman"
-    style.font.size = Pt(12)
-    style.element.rPr.rFonts.set(qn("w:eastAsia"), "Times New Roman")
-
-    head = doc.add_paragraph()
-    head.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r = head.add_run("FORMULIR PENGAJUAN JUDUL SKRIPSI")
-    r.bold = True
-    r.font.size = Pt(14)
-    r.font.name = "Times New Roman"
-
-    sub = doc.add_paragraph()
-    sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r = sub.add_run("Program Studi Teknik Informatika - Fakultas Sains dan Teknologi\n"
-                    "Universitas Islam Nahdlatul Ulama (UNISNU) Jepara")
-    r.font.size = Pt(11)
-    r.font.name = "Times New Roman"
-    doc.add_paragraph()
-
-    rows = [
+    sec = doc.sections[0]
+    sec.page_height = Cm(29.7)
+    sec.page_width = Cm(21.0)
+    sec.top_margin = Cm(2.5)
+    sec.bottom_margin = Cm(2.5)
+    sec.left_margin = Cm(2.5)
+    sec.right_margin = Cm(2.5)
+    
+    # Header
+    p_head = doc.add_paragraph()
+    p_head.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    r_h1 = p_head.add_run("OUTLINE PROPOSAL SKRIPSI\n")
+    r_h1.bold = True
+    r_h1.font.size = Pt(13)
+    r_h1.font.name = "Times New Roman"
+    
+    r_h2 = p_head.add_run("PROGRAM STUDI TEKNIK INFORMATIKA\nFAKULTAS SAINS DAN TEKNOLOGI\nUNIVERSITAS ISLAM NAHDLATUL ULAMA (UNISNU) JEPARA")
+    r_h2.bold = True
+    r_h2.font.size = Pt(11)
+    r_h2.font.name = "Times New Roman"
+    p_head.paragraph_format.space_after = Pt(12)
+    
+    # Table Structure (Matching Campus Outline Template)
+    rows_data = [
         ("Nama", ":", "Zaini Leon Musthofa Kamal"),
         ("NIM", ":", "231240001455"),
-        ("Judul Penelitian", ":", JUDUL),
-        ("Latar Belakang (Poinnya)", ":", "\n".join(f"{i}. {t}" for i, t in enumerate(LATAR, 1))),
-        ("Rumusan Masalah", ":", "\n".join(f"{i}. {t}" for i, t in enumerate(RUMUSAN, 1))),
-        ("Referensi/Pustaka Utama", ":", "\n".join(f"[{i}] {t}" for i, t in enumerate(REFERENSI, 1))),
+        ("Judul Penelitian", ":", title),
+        ("Latar Belakang (Poinnya)", ":", "\n\n".join(bg_paras)),
+        ("Rumusan Masalah", ":", "\n".join(f"{i}. {q}" for i, q in enumerate(rq_lines, 1))),
+        ("Referensi/Pustaka Utama", ":", "\n".join(f"[{i}] {ref}" for i, ref in enumerate(ref_lines, 1))),
     ]
-
-    table = doc.add_table(rows=len(rows), cols=4)
+    
+    table = doc.add_table(rows=len(rows_data), cols=4)
     table.style = "Table Grid"
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
-    for i, (label, colon, content) in enumerate(rows):
+    
+    for i, (label, colon, content) in enumerate(rows_data):
         cells = table.rows[i].cells
-        set_cell_text(cells[0], label, bold=True)
-        set_cell_text(cells[1], colon)
+        set_cell_font(cells[0], label, font_size=10, bold=True)
+        set_cell_font(cells[1], colon, font_size=10, bold=True)
         merged = cells[2].merge(cells[3])
-        set_cell_text(merged, content)
-        cells[0].width = Cm(4.2)
-        cells[1].width = Cm(0.6)
-
-    doc.add_paragraph()
-    ttd = doc.add_paragraph()
-    ttd.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    ttd.add_run("Jepara, ................................\n\nPengusul,\n\n\n\n")
-    name = doc.add_paragraph()
-    name.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    r = name.add_run("Zaini Leon Musthofa Kamal\nNIM. 231240001455")
-    r.bold = True
-
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    doc.save(OUT)
-    print(f"written: {OUT}")
+        set_cell_font(merged, content, font_size=10, bold=False)
+        cells[0].width = Cm(3.8)
+        cells[1].width = Cm(0.5)
+        
+    doc.add_paragraph().paragraph_format.space_after = Pt(12)
+    
+    # Signature block
+    p_sign = doc.add_paragraph()
+    p_sign.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    r_s = p_sign.add_run("Jepara, ................................\n\nPengusul,\n\n\n\n\n")
+    r_s.font.name = "Times New Roman"
+    r_s.font.size = Pt(11)
+    
+    r_name = p_sign.add_run("Zaini Leon Musthofa Kamal\nNIM. 231240001455")
+    r_name.bold = True
+    r_name.font.name = "Times New Roman"
+    r_name.font.size = Pt(11)
+    
+    OUT_DOCX.parent.mkdir(parents=True, exist_ok=True)
+    doc.save(OUT_DOCX)
+    print(f"Berhasil dibuat: {OUT_DOCX}")
 
 
 if __name__ == "__main__":
-    main()
+    generate_docx()

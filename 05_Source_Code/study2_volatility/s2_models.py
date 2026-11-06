@@ -1,15 +1,15 @@
-"""
-s2_models.py - Sequence building, LSTM, and statistical model baselines.
+"""[BAB 3 §3.5 | PEMODELAN SEKUENS, ARSITEKTUR LSTM, DAN MODEL BASELINE]
 
-Shared by the untuned LSTM, the Optuna HPO loop, and the final run:
-- build_samples(): lookback windows over the frozen daily frame; windows are
-  only constructed when all days are calendar-contiguous and feature-complete
-  (protocol section 2 and amendment A1);
-- fit_scaler(): StandardScaler on training rows only (target included);
-- build_lstm_model(): small stack, MSE loss on standardized log-RV;
-- har_fit / har_predict(): HAR-RV via least squares (no intercept-free tricks);
-- garch_forecasts(): GARCH(1,1) QML on daily log returns x100, refit expanding
-  at the start of each month, one-step conditional variance in log scale.
+Modul inti untuk pemrosesan sekuens deret waktu dan pembangunan model Study 2:
+1. `build_samples()`: Pembentukan tensor sekuens 3D (sampel x lookback x fitur) dengan
+   penolakan tegas (fail-closed) terhadap jendela yang melintasi celah kalender (Amandemen A1).
+2. `fit_scaler()` & `transform_xy()`: Standarisasi z-score fit HANYA pada data latih fold.
+3. `build_lstm_model()` & `train_one()`: Arsitektur LSTM teregulasi dropout, loss MSE pada target
+   log-RV terstandarisasi, dan early stopping deterministik berbasis seed.
+4. `har_design()` & `har_fit_predict()`: Model ekonometrika Heterogeneous Autoregressive (HAR-RV Corsi 2009)
+   dengan estimasi parameter OLS tanpa bobot buatan.
+5. `garch_forecasts()`: Model GARCH(1,1) Bollerslev (1986) dengan estimasi QML dan skema expanding
+   window bulanan satu-langkah-ke-depan (one-step-ahead).
 """
 
 from __future__ import annotations
@@ -20,11 +20,11 @@ from sklearn.preprocessing import StandardScaler
 
 import s2_config as cfg
 
-os_environ_tf = None  # TF imported lazily in builders
+os_environ_tf = None  # TensorFlow diimpor secara dinamis saat pembangunan model
 
 
 # ---------------------------------------------------------------------------
-# Sample construction
+# [BAB 3 §3.3 | KONSTRUKSI JENDELA SAMPEL & INTEGRITAS CELAH KALENDER A1]
 # ---------------------------------------------------------------------------
 def build_samples(
     df: pd.DataFrame,
@@ -33,11 +33,17 @@ def build_samples(
     target_col: str = cfg.TARGET,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
-    Return (X, y, feature_end_dates, target_dates).
+    [BAB 3 §3.3 | KONSTRUKSI SAMPEL SEKUENS]
+    Membangun pasangan fitur sekuens X dan target y untuk peramalan 1 hari ke depan.
 
-    Sample for target day T uses features of the lookback days ending at T-1
-    (i.e., prediction of log_rv_{t+1} from day <= t). Windows are kept only if
-    every involved day exists, is contiguous, and has no NaN features/target.
+    Prinsip Kausalitas dan Anti-Leakage:
+    - Target hari T (log_rv_T) diramalkan murni dari fitur lookback hari sebelumnya:
+      rentang hari T-lookback sampai T-1 (fitur hari <= t meramalkan log_rv_{t+1}).
+    - Sesuai Amandemen Protokol A1, setiap jendela yang memuat nilai NaN atau melintasi
+      hari kalender yang hilang (misal maintenance Binance 2020-02-19) DITOLAK (dikeluarkan).
+
+    Returns:
+        tuple: (X [N, lookback, n_features], y [N], feature_end_dates [N], target_dates [N])
     """
     feature_cols = feature_cols or cfg.FEATURES
     dates = df["date"].to_numpy()
@@ -47,9 +53,9 @@ def build_samples(
     date_int = df["date"].map(pd.Timestamp.timestamp).to_numpy()
 
     X_list, y_list, fend_list, tdate_list = [], [], [], []
-    for i in range(n_days - lookback):          # window ends at i, target at i+1
-        j = i + lookback                        # target row index
-        # calendar contiguity across the whole window (feature days + target day)
+    for i in range(n_days - lookback):          # jendela fitur berakhir di i + lookback - 1
+        j = i + lookback                        # indeks baris target
+        # Kontiguitas kalender penuh: interval antar baris harus tepat 86.400 detik (1 hari)
         if not np.all(np.diff(date_int[i : j + 1]) == 86400.0):
             continue
         if np.isnan(feats[i:j]).any() or np.isnan(target[j]):
@@ -64,25 +70,43 @@ def build_samples(
     return X, y, np.asarray(fend_list), np.asarray(tdate_list)
 
 
+# ---------------------------------------------------------------------------
+# [BAB 3 §3.4 | ISOLASI STANDARISASI DATA LATIH]
+# ---------------------------------------------------------------------------
 def fit_scaler(X_train: np.ndarray, y_train: np.ndarray):
+    """
+    [BAB 3 §3.4 | STANDARISASI HANYA PADA DATA LATIH]
+    Mengepaskan StandardScaler (mean=0, std=1) HANYA pada partisi data latih (training fold/fit).
+    Mencegah kebocoran data (data leakage) dari partisi validasi atau uji ke dalam parameter skala.
+    """
     scaler_x = StandardScaler().fit(X_train.reshape(len(X_train), -1))
     scaler_y = StandardScaler().fit(y_train.reshape(-1, 1))
     return scaler_x, scaler_y
 
 
 def transform_xy(scaler_x, scaler_y, X: np.ndarray, y: np.ndarray):
+    """
+    [BAB 3 §3.4 | TRANSFORMASI SKALA DATA]
+    Menerapkan transformasi z-score pada fitur X dan target y menggunakan scaler yang telah di-fit.
+    """
     Xs = scaler_x.transform(X.reshape(len(X), -1)).reshape(X.shape)
     ys = scaler_y.transform(y.reshape(-1, 1)).reshape(-1)
     return Xs, ys
 
 
 # ---------------------------------------------------------------------------
-# LSTM
+# [BAB 3 §3.5 | ARSITEKTUR MODEL LSTM DAN PROSEDUR PELATIHAN]
 # ---------------------------------------------------------------------------
 def build_lstm_model(
     lookback: int, units: int, dropout: float, learning_rate: float,
     layers: int = 1, n_features: int | None = None,
 ):
+    """
+    [BAB 3 §3.5 | SPESIFIKASI ARSITEKTUR LSTM]
+    Membangun model Sequential Keras berisi 1 atau 2 layer LSTM, regulasi Dropout,
+    dan 1 unit Dense linear untuk regresi. Fungsi objektif loss menggunakan MSE
+    terhadap target log-RV yang terstandarisasi.
+    """
     import os
     os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
     os.environ.setdefault("TF_ENABLE_ONEDNN_OPTS", "0")
@@ -102,7 +126,7 @@ def build_lstm_model(
         optimizer=__import__("tensorflow").keras.optimizers.Adam(learning_rate),
         loss="mean_squared_error",
     )
-    _ = EarlyStopping  # referenced for API parity; actual callbacks built in train loop
+    _ = EarlyStopping
     return model
 
 
@@ -110,7 +134,12 @@ def train_one(
     X_train, y_train, X_val, y_val, params: dict, seed: int,
     max_epochs: int = cfg.MAX_EPOCHS, patience: int = cfg.EARLY_STOP_PATIENCE,
 ):
-    """Train one LSTM; deterministic for (seed, params, data)."""
+    """
+    [BAB 3 §3.5 | PELATIHAN DAN EARLY STOPPING DETERMINISTIK]
+    Melatih satu instans model LSTM secara deterministik untuk kombinasi (seed, params, data).
+    Memantau val_loss dengan EarlyStopping(patience=10, restore_best_weights=True).
+    Mengembalikan model berbobot optimal dan indeks epoch terbaik.
+    """
     import random
 
     import tensorflow as tf
@@ -141,54 +170,110 @@ def train_one(
 
 
 # ---------------------------------------------------------------------------
-# HAR-RV
+# [BAB 3 §3.5 | BASELINE PRIMARY: MODEL HAR-RV (CORSI 2009)]
 # ---------------------------------------------------------------------------
-def har_design(log_rv: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+def har_design(
+    log_rv: np.ndarray, dates: np.ndarray | None = None,
+) -> tuple[np.ndarray, np.ndarray]:
     """
-    Rows t = 21..n-2: target log_rv[t+1] from day-t information
-    [log_rv[t], mean(log_rv[t-6..t]), mean(log_rv[t-21..t]), 1].
+    [BAB 3 §3.5 | MATRIKS DESAIN HAR-RV]
+    Membangun matriks regresi HAR-RV:
+      log_rv_{t+1} = beta_0 + beta_d * log_rv_t + beta_w * mean(log_rv_{t-6..t}) + beta_m * mean(log_rv_{t-21..t}) + eps.
+    Jika dates disertakan, setiap baris yang rentang historisnya (22 hari) atau targetnya (t+1)
+    melintasi celah kalender (>1 hari) akan ditolak secara ketat.
     """
-    y = log_rv[22:]
-    daily = log_rv[21:-1]
-    weekly = np.array([log_rv[t - 6 : t + 1].mean() for t in range(21, len(log_rv) - 1)])
-    monthly = np.array([log_rv[t - 21 : t + 1].mean() for t in range(21, len(log_rv) - 1)])
-    X = np.column_stack([np.ones_like(daily), daily, weekly, monthly])
-    return X, y
+    log_rv = np.asarray(log_rv, dtype=float)
+    date_index = pd.DatetimeIndex(dates) if dates is not None else None
+    rows, targets = [], []
+    for t in range(21, len(log_rv) - 1):
+        if date_index is not None:
+            span = date_index[t - 21 : t + 2]
+            if len(span) != 23 or not np.all(np.diff(span.values) == np.timedelta64(1, "D")):
+                continue
+        vals = log_rv[t - 21 : t + 1]
+        if len(vals) != 22 or not np.isfinite(vals).all() or not np.isfinite(log_rv[t + 1]):
+            continue
+        rows.append([1.0, log_rv[t], log_rv[t - 6 : t + 1].mean(), vals.mean()])
+        targets.append(log_rv[t + 1])
+    return np.asarray(rows, dtype=float).reshape(-1, 4), np.asarray(targets, dtype=float)
 
 
 def har_fit_predict(log_rv: np.ndarray, dates: np.ndarray, train_end_ts: float):
-    """Fit HAR on rows whose TARGET day <= train_end; predict all later rows."""
-    X, y = har_design(log_rv)
-    target_dates = dates[22:]
-    beta, *_ = np.linalg.lstsq(X[target_dates <= train_end_ts],
-                               y[target_dates <= train_end_ts], rcond=None)
-    preds = X @ beta
-    return target_dates, preds, beta
+    """
+    [BAB 3 §3.5 | ESTIMASI PARAMETER OLS DAN PREDIKSI HAR-RV]
+    Mengepaskan koefisien beta OLS pada sampel valid dengan target_date <= train_end.
+    Menghasilkan vektor ramalan untuk seluruh baris sampel kontigu yang tersedia.
+    """
+    log_rv = np.asarray(log_rv, dtype=float)
+    date_index = pd.DatetimeIndex(dates)
+    X, y = har_design(log_rv, dates)
+    target_dates = np.asarray([
+        date_index[t + 1]
+        for t in range(21, len(log_rv) - 1)
+        if len(date_index[t - 21 : t + 2]) == 23
+        and np.all(np.diff(date_index[t - 21 : t + 2].values) == np.timedelta64(1, "D"))
+        and np.isfinite(log_rv[t - 21 : t + 2]).all()
+    ])
+    if len(target_dates) != len(y):
+        raise ValueError("HAR sample/date alignment invariant failed")
+    train_mask = pd.DatetimeIndex(target_dates) <= pd.Timestamp(train_end_ts)
+    if not train_mask.any():
+        raise ValueError("No valid HAR training samples before train_end")
+    beta, *_ = np.linalg.lstsq(X[train_mask], y[train_mask], rcond=None)
+    return target_dates, X @ beta, beta
 
 
 # ---------------------------------------------------------------------------
-# GARCH(1,1)
+# [BAB 3 §3.5 | BASELINE SECONDARY: MODEL GARCH(1,1) (BOLLERSLEV 1986)]
 # ---------------------------------------------------------------------------
+def daily_log_returns_after_last_gap(dates: np.ndarray, closes: np.ndarray) -> pd.Series:
+    """
+    [BAB 3 §3.5 | RETURN HARIAN BEBAS CELAH MULTI-HARI]
+    Mengekstrak log return harian dari segmen kontigu kalender terakhir.
+    Return multi-hari yang melintasi celah kalender dibuang agar tidak merusak estimasi varians.
+    """
+    idx = pd.DatetimeIndex(dates)
+    close_values = np.asarray(closes, dtype=float)
+    if idx.has_duplicates or not idx.is_monotonic_increasing:
+        raise ValueError("GARCH input dates must be unique and increasing")
+    if len(close_values) != len(idx) or not np.isfinite(close_values).all() or (close_values <= 0).any():
+        raise ValueError("GARCH closes must be finite, positive, and aligned with dates")
+    if len(idx) < 2:
+        return pd.Series(dtype=float, index=pd.DatetimeIndex([]))
+    contiguous = np.diff(idx.values) == np.timedelta64(1, "D")
+    gaps = np.flatnonzero(~contiguous)
+    first_return_pos = int(gaps[-1] + 1) if len(gaps) else 0
+    returns = np.diff(np.log(close_values))[first_return_pos:]
+    return_dates = idx[1:][first_return_pos:]
+    if len(return_dates) > 1 and not np.all(np.diff(return_dates.values) == np.timedelta64(1, "D")):
+        raise ValueError("GARCH final return segment is not calendar-contiguous")
+    return pd.Series(returns, index=return_dates)
+
+
 def garch_forecasts(
     dates: np.ndarray, closes: np.ndarray,
     window_start: str, window_end: str,
 ) -> pd.DataFrame:
     """
-    Walk-forward GARCH(1,1), one-step conditional variance per day.
-
-    For each calendar month inside [window_start, window_end]:
-      - refit (QML, Normal) expanding on all returns up to the last day of the
-        previous month;
-      - apply the fitted parameters to the full observed sample (arch .fix)
-        and extract the filtered one-step-ahead variance for every day of the
-        month (uses only returns up to each day t -> no leakage).
-    Returns DataFrame [date, log_var] for the requested window.
+    [BAB 3 §3.5 | PERAMALAN WALK-FORWARD GARCH(1,1) EXPANDING WINDOW]
+    Untuk setiap bulan kalender di dalam [window_start, window_end]:
+    1. Refit GARCH(1,1) QML Normal pada seluruh return hingga akhir bulan sebelumnya (cutoff).
+    2. Terapkan parameter pada deret data (.fix) untuk mengekstrak varians bersyarat 1-hari-ke-depan
+       secara kausal (tanpa kebocoran informasi masa depan).
+    3. Input dibatasi strictly <= window_end agar kebal terhadap celah kalender masa depan.
     """
+    date_idx = pd.DatetimeIndex(dates)
+    w_end_ts = pd.Timestamp(window_end)
+    valid_mask = date_idx <= w_end_ts
+    dates_causal = np.asarray(dates)[valid_mask]
+    closes_causal = np.asarray(closes)[valid_mask]
+    log_ret = daily_log_returns_after_last_gap(dates_causal, closes_causal)
+    if log_ret.empty:
+        raise ValueError("GARCH has no daily returns after calendar-gap handling")
+
     from arch import arch_model
 
-    idx = pd.DatetimeIndex(dates)
-    log_ret = pd.Series(np.diff(np.log(np.asarray(closes, float))),
-                        index=idx[1:]).dropna()
+    log_ret = log_ret.dropna()
     months = sorted({(d.year, d.month) for d in log_ret.index
                      if pd.Timestamp(window_start) <= d <= pd.Timestamp(window_end)})
 
@@ -202,10 +287,9 @@ def garch_forecasts(
         am_full = arch_model(log_ret * 100.0, mean="Constant", vol="GARCH",
                              p=1, q=1, dist="normal")
         fixed = am_full.fix(res.params)
-        # start at the cutoff day: its one-step row forecasts the 1st of month
+        # Mulai dari cutoff: baris one-step meramalkan tanggal 1 bulan target
         start_pos = int(np.searchsorted(log_ret.index.values, np.datetime64(cutoff)))
         fc = fixed.forecast(horizon=1, start=start_pos, reindex=False)
-        # row at position p forecasts variance of day p+1 (one step ahead)
         var_pct = fc.variance.iloc[:, 0].to_numpy()
         fc_days = log_ret.index[start_pos + 1 : start_pos + 1 + len(var_pct)]
         for d, v in zip(fc_days, var_pct):

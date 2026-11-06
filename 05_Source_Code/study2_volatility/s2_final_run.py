@@ -1,19 +1,13 @@
-"""
-s2_final_run.py - Final Study 2 model runs (protocol sections 4 & 6).
+"""[BAB 3 §3.5 | EKSEKUSI MODEL FINAL DAN BASELINE STUDY 2]
 
-For each of the two LSTM variants (untuned, optuna) x 5 seeds:
-  - "val" fit:   train on DEV (2020-2023) only, predict 2024-2025 (checkpoint);
-  - "test" fit:  train on the full pool (2020-2025), predict 2026 (external test).
-Early stopping uses the last 10% of the training samples (chronological,
-inside the training region only). Scalers are fit on training samples only.
-
-Baselines (persistence, HAR-RV, GARCH) get causal predictions for both windows.
-The 2026 test window is only *predicted* here; analysis is a separate script
-run once, after this run finishes (protocol section 10).
-
-Run:
-    python s2_final_run.py --hpo_run <run_dir_with_best_params.json>
-    python s2_final_run.py --hpo_run <...> --smoke   # 2 epochs, 2 seeds
+Modul eksekusi peramalan final untuk Study 2 (Protokol Bagian 4 & 6):
+1. Varian LSTM (untuned & optuna) x 5 seeds:
+   - Jendela 'val': Dilatih pada DEV (2020–2023), meramalkan 2024–2025 (checkpoint).
+   - Jendela 'test': Dilatih pada Pool (2020–2025), meramalkan 2026 (uji eksternal).
+   - Early stopping menggunakan 10% data akhir secara kronologis dari partisi latih.
+   - Scaler di-fit murni pada partisi latih (90%).
+2. Baseline komparatif (persistence, HAR-RV, GARCH) dieksekusi secara kausal
+   untuk kedua jendela evaluasi.
 """
 
 from __future__ import annotations
@@ -33,6 +27,7 @@ from s2_stats import mae_rmse_logrv, qlike
 
 
 def verify_gate() -> None:
+    """[BAB 3 §3.2 | VERIFIKASI GATE PROTOKOL DAN DATA]"""
     recorded = json.loads(cfg.S2_DATA_FREEZE_HASH.read_text(encoding="utf-8"))
     assert cfg.protocol_hash() == cfg.PROTOCOL_HASH_PATH.read_text().strip(), \
         "protokol berubah setelah dikunci"
@@ -42,6 +37,7 @@ def verify_gate() -> None:
 
 
 def load_best_params(hpo_run: Path) -> dict:
+    """[BAB 3 §3.6 | PEMUATAN HIPERPARAMETER TERBAIK OPTUNA]"""
     best = json.loads((hpo_run / "best_params.json").read_text(encoding="utf-8"))
     print(f"[hpo] best trial {best['best_trial']} value={best['best_value']:.5f} "
           f"params={best['best_params']}")
@@ -49,6 +45,10 @@ def load_best_params(hpo_run: Path) -> dict:
 
 
 def internal_val_split(n: int, frac: float = 0.10) -> tuple[np.ndarray, np.ndarray]:
+    """
+    [BAB 3 §3.4 | PEMBAGIAN VALIDASI INTERNAL KRONOLOGIS (90/10)]
+    Menyisihkan 10% observasi terakhir dari set latih untuk pemantauan early stopping.
+    """
     n_val = max(1, int(round(n * frac)))
     return np.arange(n - n_val), np.arange(n - n_val, n)
 
@@ -57,6 +57,7 @@ def run_lstm_variant(
     name: str, params: dict, df: pd.DataFrame, seeds: list[int], smoke: bool,
     run_dir: Path,
 ) -> None:
+    """[BAB 3 §3.5 | EKSEKUSI MODEL LSTM FINAL MULTI-SEED (5 SEED)]"""
     max_epochs = 2 if smoke else cfg.MAX_EPOCHS
     lookback = params["lookback"]
     dev = df[df["date"] <= cfg.DEV_END]
@@ -113,12 +114,30 @@ def run_lstm_variant(
               f"best_epochs={epochs_seen}")
 
 
+def persistence_predictions(dates: np.ndarray, values: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """
+    [BAB 3 §3.5 | BASELINE UTAMA: MODEL PERSISTENCE (RANDOM WALK)]
+    Meramalkan log_rv_{t+1} = log_rv_t hanya jika baris t tepat merupakan satu hari kalender sebelumnya.
+    Target hari yang melintasi celah kalender tidak diramalkan (dieksklusikan).
+    """
+    date_index = pd.DatetimeIndex(dates)
+    vals = np.asarray(values, dtype=float)
+    if len(date_index) != len(vals):
+        raise ValueError("Persistence values/dates length mismatch")
+    if date_index.has_duplicates or not date_index.is_monotonic_increasing:
+        raise ValueError("Persistence dates must be unique and increasing")
+    keep = np.diff(date_index.values) == np.timedelta64(1, "D")
+    return date_index[1:].to_numpy()[keep], vals[:-1][keep]
+
+
 def run_baselines(df: pd.DataFrame, run_dir: Path) -> None:
+    """
+    [BAB 3 §3.5 | EKSEKUSI PERAMALAN BASELINE KOMPARATIF]
+    Menjalankan model persistence, HAR-RV, dan GARCH(1,1) secara kausal untuk jendela val dan test.
+    """
     dates = df["date"].to_numpy()
     log_rv = df["log_rv"].to_numpy()
     closes = df["close"].to_numpy()
-    log_rv_s = pd.Series(log_rv, index=pd.DatetimeIndex(dates))
-
     windows = [("val", cfg.VAL_START, cfg.VAL_END, cfg.DEV_END),
                ("test", cfg.TEST_START, cfg.TEST_END, cfg.TRAIN_POOL_END)]
     for job, w_start, w_end, fit_end in windows:
@@ -126,8 +145,10 @@ def run_baselines(df: pd.DataFrame, run_dir: Path) -> None:
         w_dates = dates[w_mask]
         y_true = log_rv[w_mask]
 
-        persistence = log_rv_s.shift(1).reindex(pd.DatetimeIndex(w_dates)).to_numpy()
-        assert not np.isnan(persistence).any(), f"persistence NaN di {job}"
+        persistence_dates, persistence_values = persistence_predictions(dates, log_rv)
+        persistence = pd.Series(persistence_values, index=pd.DatetimeIndex(persistence_dates)).reindex(
+            pd.DatetimeIndex(w_dates)).to_numpy()
+        assert not np.isnan(persistence).any(), f"persistence lacks a contiguous prior day in {job}"
 
         td, har_pred, beta = sm.har_fit_predict(log_rv, dates, np.datetime64(fit_end))
         har_s = pd.Series(har_pred, index=pd.DatetimeIndex(td)).reindex(

@@ -1,8 +1,11 @@
 """
-s2_runlog.py - Minimal run manifests for Study 2 (git commit, env, hashes).
+[BAB 3 §3.1 & §3.7 | MANIFEST PROVENANCE & JEJAK AUDIT RUN]
+Modul ini bertugas mencatat manifest minimal untuk setiap proses komputasi Study 2,
+mencakup hash Git commit, lingkungan dependensi Python, stempel waktu UTC,
+dan hash data agar setiap hasil eksperimen dapat diaudit secara independen.
 
-Runs write to results/study2/runs/{run_id}/ with:
-    manifest.json, env.json, git_commit.txt, log.txt (caller appends)
+Setiap eksekusi membuat subdirektori di: `05_Source_Code/results/study2/runs/{run_id}/`
+yang memuat: `manifest.json`, `env.json`, `git_commit.txt`, dan `log.txt`.
 """
 
 from __future__ import annotations

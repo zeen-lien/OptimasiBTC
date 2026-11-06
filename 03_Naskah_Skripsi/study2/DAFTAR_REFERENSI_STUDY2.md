@@ -22,8 +22,6 @@ Binance. (2024). *Binance Vision: Public market data archive*. https://data.bina
 
 Bollerslev, T. (1986). Generalized autoregressive conditional heteroskedasticity. *Journal of Econometrics, 31*(3), 307–327. https://doi.org/10.1016/0304-4076(86)90063-1
 
-Boongasame, L., & Songram, P. (2023). Cryptocurrency price forecasting method using long short-term memory with time-varying parameters. *Indonesian Journal of Electrical Engineering and Computer Science, 30*(1), 435–443. https://doi.org/10.11591/ijeecs.v30.i1.pp435-443
-
 Bouthillier, X., Delaunay, P., Bronzi, M., Trofimov, A., Nichyporuk, B., Szeto, J., Sepah, N., Raff, E., Madan, K., Voleti, V., Kahou, S. E., Michalski, V., Serdyuk, D., Arbel, T., Pal, C., Varoquaux, G., & Vincent, P. (2021). Accounting for variance in machine learning benchmarks. *Proceedings of Machine Learning and Systems, 3*, 747–769. https://doi.org/10.48550/arXiv.2103.03098
 
 Christensen, K., Siggaard, M., & Veliyev, B. (2023). A machine learning approach to volatility forecasting. *Journal of Financial Econometrics, 21*(5), 1680–1727. https://doi.org/10.1093/jjfinec/nbac020

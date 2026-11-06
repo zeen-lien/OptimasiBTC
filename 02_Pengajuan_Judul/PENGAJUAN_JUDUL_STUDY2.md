@@ -1,144 +1,64 @@
-# FORMULIR PENGAJUAN JUDUL SKRIPSI (STUDY 2)
-
-**Program Studi:** S1 Teknik Informatika
-**Fakultas:** Sains dan Teknologi
-**Universitas:** Universitas Islam Nahdlatul Ulama (UNISNU) Jepara
-
-| Item | Isi |
-|---|---|
-| **Nama** | Zaini Leon Musthofa Kamal |
-| **NIM** | 231240001455 |
-| **Judul Penelitian** | **Optimasi Hyperparameter LSTM Menggunakan Algoritma Optuna pada Prediksi Volatilitas Bitcoin** |
-| **Bidang** | Kecerdasan Buatan / Pembelajaran Mesin |
-
-## 1. Latar Belakang
-
-Bitcoin merupakan aset kripto dengan kapitalisasi pasar terbesar dan salah satu
-aset dengan volatilitas tertinggi. Volatilitas bukan sekadar ukuran risiko:
-besaran ini dipakai untuk manajemen risiko, perhitungan Value-at-Risk (VaR),
-alokasi portofolio, hingga penentuan harga instrumen derivatif. Berbeda dengan
-asumsi volatilitas konstan, volatilitas Bitcoin menunjukkan *volatility
-clustering* — periode tenang dan periode gejolak cenderung mengelompok — sehingga
-volatilitas memiliki struktur yang dapat dimodelkan dan diprediksi.
-
-Pendekatan klasik untuk peramalan volatilitas adalah GARCH(1,1) dan model
-HAR-RV (*Heterogeneous Autoregressive Realized Volatility*). Keduanya kuat
-secara interpretasi, tetapi terbatas pada hubungan linear dan bentuk fungsional
-yang telah ditentukan. Di sisi lain, *Long Short-Term Memory* (LSTM) mampu
-menangkap pola non-linear dan dependensi jangka panjang dari data deret waktu.
-Namun, kinerja LSTM sangat sensitif terhadap hyperparameter — panjang
-*lookback*, jumlah unit, dropout, laju pembelajaran, dan ukuran batch — sehingga
-diperlukan strategi optimasi yang sistematis.
-
-Optuna dengan algoritma *Tree-structured Parzen Estimator* (TPE) adalah salah
-satu kerangka optimasi hyperparameter yang populer karena efisien dan mudah
-direproduksi. Meskipun demikian, banyak penelitian menerapkan optimasi dan
-evaluasi pada periode data yang sama, tanpa baseline naif, tanpa metrik yang
-sesuai untuk volatilitas, dan tanpa periode uji eksternal. Akibatnya, klaim
-peningkatan akurasi berisiko *optimistic bias* dan belum tentu bertahan pada
-data baru. Kesenjangan inilah yang menjadi fokus penelitian: membangun pipeline
-optimasi hyperparameter LSTM berbasis Optuna yang **bebas kebocoran data**,
-lalu menguji kinerjanya pada **periode eksternal 2026** yang tidak digunakan
-dalam pelatihan maupun optimasi.
-
-Penelitian ini menggunakan data kline 1 jam BTC/USDT dari Binance untuk
-mengestimasi *realized variance* (RV) harian, dengan target `log_rv_{t+1}`.
-Evaluasi utama memakai **QLIKE**, *loss* yang robust untuk peramalan variance,
-dilengkapi uji Diebold-Mariano dan *block bootstrap*. Baseline yang digunakan
-adalah persistence, HAR-RV, GARCH(1,1), dan LSTM tanpa optimasi. Dengan
-demikian, penelitian ini tidak hanya menghasilkan model, tetapi juga bukti
-empiris yang dapat diaudit tentang nilai optimasi hyperparameter pada target
-volatilitas.
-
-## 2. Rumusan Masalah
-
-1. Bagaimana merancang pipeline optimasi hyperparameter LSTM berbasis Optuna
-   yang bebas kebocoran data untuk prediksi *realized volatility* Bitcoin?
-2. Sejauh mana model LSTM yang dioptimasi Optuna mampu mengungguli baseline
-   persistence dalam memprediksi *realized volatility* Bitcoin pada periode
-   uji eksternal 2026?
-3. Apakah model LSTM yang dioptimasi Optuna mampu menyaingi baseline
-   ekonometrik HAR-RV dan GARCH(1,1) pada periode uji eksternal?
-4. Bagaimana konsistensi kinerja model LSTM yang dioptimasi Optuna antara
-   periode validasi 2024–2025 dan periode uji eksternal 2026 yang tidak
-   digunakan dalam pelatihan maupun optimasi?
-
-## 3. Tujuan Penelitian
-
-1. Merancang dan mengimplementasikan pipeline optimasi hyperparameter LSTM
-   berbasis Optuna dengan protokol validasi bebas kebocoran.
-2. Mengukur dan membandingkan akurasi model terhadap baseline persistence.
-3. Menilai daya saing model terhadap baseline HAR-RV dan GARCH(1,1).
-4. Menguji konsistensi kinerja model pada periode uji eksternal 2026.
-5. Sebagai analisis tambahan, mengevaluasi kontribusi optimasi hyperparameter
-   Optuna dibandingkan konfigurasi LSTM default.
-
-## 4. Hipotesis
-
-- **H1:** Model LSTM yang dioptimasi Optuna menghasilkan QLIKE lebih rendah
-  daripada baseline persistence pada periode uji 2026.
-- **H2:** Model LSTM yang dioptimasi Optuna menghasilkan QLIKE tidak lebih
-  buruk daripada baseline HAR-RV dan GARCH(1,1) pada periode uji 2026.
-- **H3:** Kinerja model pada periode uji eksternal 2026 konsisten dengan
-  kinerja pada periode validasi 2024–2025 (tidak terjadi degradasi ekstrem).
-
-## 5. Manfaat Penelitian
-
-**Teoretis:** memperkaya bukti empiris tentang penerapan LSTM dan optimasi
-hyperparameter pada target *realized volatility* aset kripto, serta menunjukkan
-pentingnya protokol evaluasi yang bebas kebocoran.
-
-**Praktis:** menyediakan pipeline yang dapat direproduksi untuk peramalan
-volatilitas Bitcoin, yang berguna untuk manajemen risiko dan analisis kuantitatif.
-
-**Metodologis:** menjadi contoh penerapan QLIKE, uji Diebold-Mariano, dan
-*block bootstrap* dalam evaluasi model volatilitas, termasuk penggunaan
-periode uji eksternal yang belum pernah dipakai.
-
-## 6. Batasan Masalah
-
-- Satu aset: BTC/USDT; satu sumber data: Binance Vision kline 1 jam.
-- Periode data 2020-01-01 s.d. 2026-09-30; uji eksternal 2026-01-01 s.d. 2026-09-30.
-- Target: `log_rv_{t+1}` (realized variance harian).
-- Model: LSTM dengan ruang hyperparameter yang telah ditetapkan; optimasi Optuna (TPE).
-- Baseline: persistence, HAR-RV, GARCH(1,1), LSTM default.
-- Metrik utama: QLIKE; metrik sekunder: MAE/RMSE pada `log_rv`.
-- Tidak mencakup strategi trading, portofolio multi-aset, data order book,
-  atau analisis faktor makroekonomi.
-
-## 7. Metodologi Ringkas
-
-1. **Data:** unduh kline 1 jam BTC/USDT (Binance Vision), agregasi per hari UTC,
-   hitung RV = Σ(log(close_h) − log(open_h))²; verifikasi 24 bar/hari.
-2. **Fitur (6):** `log_rv`, `log_range`, `log_volume`, `log_absret`,
-   `rv_mean_5`, `rv_mean_22`; target `log_rv_{t+1}`.
-3. **Split:** dev/HPO 2020–2023; validasi 2024–2025; uji eksternal 2026;
-   refit final pada 2020–2025.
-4. **Optimasi:** Optuna TPE, 50 trial, *purged rolling-origin* CV (5 fold,
-   gap = lookback), objective mean CV QLIKE.
-5. **Pelatihan final:** 5 seed (42, 123, 2024, 7, 99); prediksi = rata-rata seed.
-6. **Evaluasi:** QLIKE, MAE/RMSE `log_rv`; Diebold-Mariano (HAC lag 5) dan
-   *moving-block bootstrap* (block 20, 10.000 reps).
-7. **Reproducibility:** protokol dan data di-hash; setiap run memiliki manifest.
-
-## 8. Referensi/Pustaka Utama
-
-1. Hochreiter, S., & Schmidhuber, J. (1997). Long short-term memory. *Neural Computation*, 9(8), 1735–1780.
-2. Akiba, T., Sano, S., Yanase, T., Ohta, T., & Koyama, M. (2019). Optuna: A next-generation hyperparameter optimization framework. *KDD '19*.
-3. Andersen, T. G., & Bollerslev, T. (1998). Answering the skeptics: Yes, standard volatility models do provide accurate forecasts. *International Economic Review*, 39(4), 885–905.
-4. Corsi, F. (2009). A simple approximate long-memory model of realized volatility. *Journal of Financial Econometrics*, 7(2), 174–196.
-5. Bollerslev, T. (1986). Generalized autoregressive conditional heteroskedasticity. *Journal of Econometrics*, 31(3), 307–327.
-6. Patton, A. J. (2011). Volatility forecast comparison using imperfect volatility proxies. *Journal of Econometrics*, 160(1), 246–256.
-7. Diebold, F. X., & Mariano, R. S. (1995). Comparing predictive accuracy. *Journal of Business & Economic Statistics*, 13(3), 253–263.
-8. Bergmeir, C., & Benítez, J. M. (2012). On the use of cross-validation for time series predictor evaluation. *Information Sciences*, 191, 192–213.
-9. Bouthillier, X., et al. (2021). Accounting for variance in machine learning benchmarks. *MLSys 2021*.
+# OUTLINE PROPOSAL SKRIPSI
+## PROGRAM STUDI TEKNIK INFORMATIKA
+### FAKULTAS SAINS DAN TEKNOLOGI
+### UNIVERSITAS ISLAM NAHDLATUL ULAMA (UNISNU) JEPARA
 
 ---
 
-Jepara, ............................
+| Identitas | Tanda | Isi |
+|---|:---:|---|
+| **Nama** | : | Zaini Leon Musthofa Kamal |
+| **NIM** | : | 231240001455 |
+| **Judul Penelitian** | : | **Optimasi Hyperparameter LSTM Menggunakan Algoritma Optuna pada Peramalan Realized Volatility Bitcoin** |
+
+---
+
+### Latar Belakang (Poinnya)
+
+Pasar aset kripto, khususnya Bitcoin, memiliki karakteristik pergerakan harga yang sangat dinamis dan berisiko tinggi. Dalam bidang Teknik Informatika, data transaksi perdagangan ini terekam secara kronologis sebagai data deret waktu (*time series*). Sejumlah penelitian terdahulu di jurnal nasional mencoba memprediksi arah atau nominal harga penutupan Bitcoin menggunakan algoritma pembelajaran mendalam (*deep learning*), seperti penelitian Khumaidi dkk. (2024), Aswadi dan Ependi (2025), serta Ula dkk. (2024). Namun, memprediksi nominal harga secara langsung terbukti memiliki tingkat kesulitan yang sangat ekstrem karena harga aset pasar efisien mendekati pergerakan acak (*random walk*). Berbeda dengan tingkat harga, besaran gejolak atau volatilitas pasar menunjukkan pola pengelompokan (*volatility clustering*), di mana periode gejolak tinggi cenderung berkelompok mengikuti periode sebelumnya, sebagaimana dibuktikan oleh Andersen dkk. (2003). Karakteristik persistensi ini membuktikan bahwa volatilitas memiliki struktur informasi yang jauh lebih teratur untuk dimodelkan. *(133 kata)*
+
+Secara konvensional, pemodelan deret waktu volatilitas dianalisis menggunakan metode ekonometrika klasik, seperti model *Generalized Autoregressive Conditional Heteroskedasticity* atau GARCH(1,1) oleh Bollerslev (1986) serta *Heterogeneous Autoregressive of Realized Volatility* atau HAR-RV oleh Corsi (2009). Model HAR-RV membedah volatilitas menjadi komponen harian, mingguan, dan bulanan untuk mencerminkan perilaku beragam pelaku pasar yang heterogen. Walaupun model ekonometrika memiliki transparansi matematis yang tinggi, formulasinya terbatas pada asumsi kaku berupa hubungan linear. Di sisi lain, algoritma kecerdasan buatan *Long Short-Term Memory* (LSTM) yang dirintis oleh Hochreiter dan Schmidhuber (1997) memiliki keunggulan komputasi dalam menangkap hubungan non-linear yang kompleks dan dependensi temporal jangka panjang tanpa batasan asumsi distribusi. Kemampuan sel memori internal LSTM menjadikannya pendekatan yang sangat potensial untuk memodelkan dinamika volatilitas aset digital yang rumit secara adaptif. *(122 kata)*
+
+Meskipun LSTM memiliki potensi pemodelan yang kuat, kinerja model ini sangat sensitif terhadap penentuan *hyperparameter*, yaitu parameter konfigurasi eksternal model seperti panjang jendela historis (*lookback*), jumlah neuron (*units*), tingkat regulasi *dropout*, laju pembelajaran (*learning rate*), dan ukuran *batch*. Studi optimasi LSTM pada aset kripto oleh Aldo dkk. (2026) dan Kervanci dan Akay (2023) menunjukkan bahwa penalaan parameter secara manual atau menggunakan pencarian acak (*random search*) memerlukan biaya komputasi besar dan tidak menjamin tercapainya konfigurasi optimal. Untuk mengatasi kendala tersebut, algoritma *Tree-structured Parzen Estimator* (TPE) yang diintegrasikan dalam kerangka kerja Optuna oleh Akiba dkk. (2019) menawarkan solusi optimasi terpandu Bayesian. Algoritma ini memodelkan probabilitas keberhasilan konfigurasi masa lalu secara probabilistik, sehingga proses penalaan ruang *hyperparameter* berjalan jauh lebih efisien, terarah, dan adaptif. *(121 kata)*
+
+Kelemahan paling mendasar yang ditemukan pada riset peramalan berbasis kecerdasan buatan sebelumnya adalah masalah kebocoran data (*data leakage*) dan bias pemilihan metrik. Banyak studi membagi data latih dan uji secara acak atau melakukan normalisasi skala data pada keseluruhan dataset, yang secara tidak sadar memasukkan informasi masa depan ke masa lalu. Buku pedoman rekayasa finansial kuantitatif oleh Lopez de Prado (2018) menegaskan bahwa data deret waktu finansial wajib divalidasi menggunakan *Purged Cross-Validation* dengan menyisipkan jeda pemisah (*purge gap*) guna mencegah kebocoran informasi temporal. Selain itu, penggunaan metrik kesalahan simetris seperti *Mean Squared Error* (MSE) terbukti memberikan evaluasi yang bias. Patton (2011) membuktikan secara matematis bahwa evaluasi volatilitas memerlukan fungsi kerugian asimetris *Quasi-Likelihood* (QLIKE) yang tahan terhadap derau proksi dan memberikan penalti realistis terhadap risiko finansial. *(124 kata)*
+
+Bertolak dari kesenjangan penelitian (*research gap*) tersebut, penelitian ini bertujuan membangun pipeline komputasi peramalan *realized volatility* harian Bitcoin yang utuh, terstandarisasi, dan bebas kebocoran data. Data mentah bersumber dari arsip kline 1 jam Binance Vision (2024) periode 2020 hingga 2026 yang diagregasi menjadi *realized variance* harian UTC. Model LSTM dioptimasi menggunakan algoritma Optuna-TPE dengan skema 5-fold *Purged Cross-Validation* pada data pengembangan 2020–2023, divalidasi pada periode 2024–2025, dan diuji secara ketat pada data uji eksternal tahun 2026. Kinerja model dievaluasi menggunakan loss function QLIKE serta diuji signifikansinya terhadap baseline pembanding *persistence*, HAR-RV, dan GARCH(1,1) melalui uji statistik Diebold dan Mariano (1995). Melalui pendekatan komputasi yang terstandarisasi ini, penelitian diharapkan memberikan kontribusi nyata dalam penerapan *machine learning* yang bebas kebocoran pada ranah volatilitas aset kripto. *(123 kata)*
+
+---
+
+### Rumusan Masalah
+
+1. **Bagaimana** merancang arsitektur model *Long Short-Term Memory* (LSTM) teroptimasi Optuna dengan skema *Purged Cross-Validation* untuk mencegah kebocoran data (*data leakage*) pada peramalan *realized volatility* Bitcoin?
+2. **Sejauh mana** peningkatan akurasi peramalan yang dihasilkan oleh model LSTM teroptimasi Optuna dibandingkan dengan *baseline persistence* berdasarkan fungsi kerugian asimetris *Quasi-Likelihood* (QLIKE) pada data uji eksternal 2026?
+3. **Apakah** model LSTM teroptimasi Optuna mampu menyaingi performa model ekonometrika klasik *Heterogeneous Autoregressive of Realized Volatility* (HAR-RV) dan GARCH(1,1) dalam memproyeksikan volatilitas pasar kripto?
+
+---
+
+### Referensi / Pustaka Utama
+
+1. Akiba, T., Sano, S., Yanase, T., Ohta, T., & Koyama, M. (2019). Optuna: A next-generation hyperparameter optimization framework. In *Proceedings of the 25th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining* (pp. 2623–2631). https://doi.org/10.1145/3292500.3330701
+2. Aldo, D., Firmansyah, M. R., & Amrustian, M. A. (2026). Comparative analysis of hyperparameter optimization methods for LSTM in cryptocurrency price prediction: An application to TRX–USD. *Jurnal Teknik Informatika (JUTIF)*, 7(3), 2340–2349. https://doi.org/10.52436/1.jutif.2026.7.3.5355
+3. Andersen, T. G., Bollerslev, T., Diebold, F. X., & Labys, P. (2003). Modeling and forecasting realized volatility. *Econometrica*, 71(2), 579–625. https://doi.org/10.1111/1468-0262.00418
+4. Aswadi, & Ependi, U. (2025). Predicting Bitcoin and Ethereum prices using the Long Short-Term Memory (LSTM) model. *Journal of Information Systems and Informatics*, 7(3), 1228–1243. https://doi.org/10.51519/journalisi.v7i3.1228
+5. Binance. (2024). *Binance Vision: Public market data archive*. https://data.binance.vision/
+6. Bollerslev, T. (1986). Generalized autoregressive conditional heteroskedasticity. *Journal of Econometrics*, 31(3), 307–327. https://doi.org/10.1016/0304-4076(86)90063-1
+7. Corsi, F. (2009). A simple approximate long-memory model of realized volatility. *Journal of Financial Econometrics*, 7(2), 174–196. https://doi.org/10.1093/jjfinec/nbp001
+8. Diebold, F. X., & Mariano, R. S. (1995). Comparing predictive accuracy. *Journal of Business & Economic Statistics*, 13(3), 253–263. https://doi.org/10.1080/07350015.1995.10524599
+9. Hochreiter, S., & Schmidhuber, J. (1997). Long short-term memory. *Neural Computation*, 9(8), 1735–1780. https://doi.org/10.1162/neco.1997.9.8.1735
+10. Kervancı, A., & Akay, M. F. (2023). LSTM hyperparameters optimization with Hparam parameters for Bitcoin price prediction. *Sakarya University Journal of Computer and Information Sciences*, 6(1), 1–9. https://doi.org/10.35377/saucis...1172027
+11. Khumaidi, A., Kusmanto, P., & Hikmah, N. (2024). Optimizing Bitcoin price predictions using Long Short-Term Memory algorithm: A deep learning approach. *ILKOM Jurnal Ilmiah*, 16(1), 38–45. https://doi.org/10.33096/ilkom.v16i1.1831.38-45
+12. López de Prado, M. (2018). *Advances in financial machine learning*. John Wiley & Sons.
+13. Patton, A. J. (2011). Volatility forecast comparison using imperfect volatility proxies. *Journal of Econometrics*, 160(1), 246–256. https://doi.org/10.1016/j.jeconom.2010.03.034
+14. Ula, M., Sariah, Ilhadi, V., & Sidek, Z. M. (2024). Comparing Long Short-Term Memory and Random Forest accuracy for Bitcoin price forecasting. *MATRIK: Jurnal Manajemen, Teknik Informatika dan Rekayasa Komputer*, 23(2), 259–272. https://doi.org/10.30812/matrik.v23i2.3267
+
+---
+
+Jepara, ................................
 
 Pengusul,
 
 
-Zaini Leon Musthofa Kamal
+
+**Zaini Leon Musthofa Kamal**  
 NIM. 231240001455

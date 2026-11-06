@@ -1,78 +1,69 @@
-# PROJECT STRUCTURE - Skripsi LSTM + Optuna (Study 1 & Study 2)
+# PROJECT STRUCTURE - Skripsi Volatilitas Bitcoin (Study 2)
 
-Peta ini menjelaskan apa yang ada di repo, mana yang **final**, mana yang
-**reproducible**, dan mana yang **historis**. Tujuan: tracking mudah, tidak
-ada file nyasar, dan tidak ada duplikasi berat.
+Repositori ini difokuskan penuh pada **Study 2**: *Optimasi Hyperparameter LSTM Menggunakan Algoritma Optuna pada Prediksi Volatilitas Bitcoin*. Seluruh artefak historis dari **Study 1** (prediksi tingkat harga) telah dipindahkan dan disimpan secara aman di direktori `archive/study1/`.
 
-## 1. Peta tingkat atas
+---
+
+## 1. Peta Direktori Utama
 
 ```
 jurnal/
-├── 01_Panduan_Kampus/        # panduan & template kampus (docx)
-├── 02_Pengajuan_Judul/       # formulir pengajuan judul (Study 1 & Study 2)
-├── 03_Naskah_Skripsi/        # naskah BAB 1-5 (Study 1 & Study 2, md/docx)
-├── 04_Referensi_Ilmiah/      # PDF referensi + manifest (41 MB, wajib)
-├── 05_Source_Code/           # kode, data, hasil (Study 1 & Study 2)
-├── archive/                  # arsip historis (gitignored, tidak dipakai klaim)
-├── docs/                     # protokol, audit, catatan, outline Study 2
-├── release/final_20261026/   # paket rilis Study 1 (DOCX/PDF/hashes)
-├── tests/                    # test Study 1 + Study 2
-├── README.md                 # ringkasan proyek
-├── TODOFUTURES.MD            # status & keputusan per fase
-└── requirements.txt
+├── 01_Panduan_Kampus/        # Pedoman skripsi & template resmi FST UNISNU Jepara
+├── 02_Pengajuan_Judul/       # Berkas pengajuan judul Study 2 (MD & DOCX)
+├── 03_Naskah_Skripsi/        # Naskah akademik Study 2 (Bab 1–5 Markdown & draft DOCX)
+│   └── study2/
+├── 04_Referensi_Ilmiah/      # Koleksi PDF referensi ilmiah terverifikasi (19 PDF lokal)
+├── 05_Source_Code/           # Kode, data, dan hasil eksperimen Study 2
+│   ├── data/study2/          # Data Realized Volatility harian (2020–2026) & manifest SHA-256
+│   ├── generators/           # Skrip kompilasi naskah Study 2 ke format DOCX standar UNISNU
+│   ├── results/study2/       # Hasil HPO Optuna, final run, metrik, dan figur Bab 4
+│   └── study2_volatility/    # Modul aktif peramalan volatilitas (Bahasa Indonesia & tag bab)
+├── archive/
+│   └── study1/               # Seluruh kode, data, naskah, dan tes Study 1 (prediksi harga)
+├── docs/                     # Protokol pre-registered, audit numerik, matriks gap & keterlacakan
+├── references/               # Paket bibliografi Mendeley (RIS, BibTeX, matriks 36 paper, panduan)
+├── release/                  # Arsip rilis historis
+├── tests/                    # 34 unit test sintetis & validasi kontrak Study 2 (100% PASS)
+├── PROJECT_STRUCTURE.md      # Peta struktur repositori aktif
+├── README.md                 # Dokumentasi utama proyek skripsi
+├── requirements.txt          # Dependensi Python
+└── pytest.ini                # Konfigurasi pengujian pytest
 ```
 
-## 2. Study 1 (`v1.0-final`, beku)
+---
 
-| Lokasi | Isi | Status |
+## 2. Struktur Modul & Naskah Study 2 (Aktif)
+
+| Kebutuhan Akademik | Berkas / Direktori Sumber | Deskripsi |
 |---|---|---|
-| `05_Source_Code/model_experiment/` | pipeline harga harian (Tier 1-3, Optuna, analisis) | **final, jangan diubah** |
-| `05_Source_Code/data/raw/BTCUSDT_daily_2020_2025.csv` | data harian 2.192 baris | final |
-| `05_Source_Code/results/summary_final.json` | angka final Study 1 | final |
-| `05_Source_Code/results/runs/final_matrix_20261025/` | run final: metrics, predictions, figures, logs, manifest | final (bobot model dihapus, lihat `MODELS_REMOVED.md`) |
-| `release/final_20261026/` | DOCX/PDF + manifest + SHA-256 | **paket rilis** |
-| `03_Naskah_Skripsi/` | BAB 1-5 + full naskah | final |
-| `docs/PROTOCOL.md`, `NUMBER_AUDIT.md`, dll. | audit Study 1 | final |
+| **Pengajuan Judul** | `02_Pengajuan_Judul/PENGAJUAN_JUDUL_STUDY2.md` | Formulir resmi pengajuan judul, latar belakang, rumusan masalah, hipotesis, dan metodologi ringkas. |
+| **SEMPRO (Bab 1–3)** | `03_Naskah_Skripsi/study2/BAB_1_PENDAHULUAN.md`<br>`03_Naskah_Skripsi/study2/BAB_2_LANDASAN_TEORI.md`<br>`03_Naskah_Skripsi/study2/BAB_3_METODE_PENELITIAN.md` | Fondasi teoretis (RV, GARCH, HAR-RV, LSTM/BiLSTM, Optuna, QLIKE), perancangan data Binance Vision 1 jam, dan protokol evaluasi bebas bocor. |
+| **SEMHAS (Bab 4–5)** | `03_Naskah_Skripsi/study2/BAB_4_HASIL_DAN_PEMBAHASAN.md`<br>`03_Naskah_Skripsi/study2/BAB_5_PENUTUP.md`<br>`03_Naskah_Skripsi/study2/DAFTAR_REFERENSI_STUDY2.md` | Analisis hasil empiris: QLIKE out-of-sample 2026, uji Diebold-Mariano, moving-block bootstrap, interpretasi hasil mixed, dan kontribusi ilmiah. |
+| **Naskah Lengkap (DOCX)** | `03_Naskah_Skripsi/study2/SKRIPSI_STUDY2_DRAFT.docx` | Draf naskah gabungan Bab 1–5 berformat UNISNU (Margins 4-4-3-3, TNR 12 pt, 1.5 spasi). |
+| **Koleksi Mendeley** | `references/study2_references.ris`<br>`references/study2_references.bib`<br>`references/README_MENDELEY.md` | Berkas siap impor ke Mendeley Reference Manager / Mendeley Desktop beserta 19 PDF lokal. |
 
-## 3. Study 2 (branch `study2-volatility`, target: volatilitas)
+---
 
-| Lokasi | Isi | Status |
-|---|---|---|
-| `docs/STUDY2_PROTOCOL.md` + `STUDY2_PROTOCOL_HASH.txt` | protokol pre-registered + hash `72c75880…` | **beku** |
-| `docs/STUDY2_GAP.md` | gap & arah penelitian | final |
-| `docs/STUDY2_PROVENANCE.md` | timeline apa-dilihat-kapan | final |
-| `05_Source_Code/study2_volatility/` | kode: config, data, stats, models, HPO, final run, analyze | final |
-| `05_Source_Code/data/study2/btc_1h_daily_rv_2020_2026.csv` | 2.464 hari RV harian | **beku** (hash `ec2e3fb4…`) |
-| `05_Source_Code/data/study2/raw_zips_manifest.json` | hash 81 file Binance Vision | final |
-| `05_Source_Code/results/study2/runs/20261028_094124_optuna_hpo_5be039/` | HPO: 50 trial, best trial 26 | final |
-| `05_Source_Code/results/study2/runs/20261028_101839_final_ab5d93/` | final run + `results_analysis.json/md` | **final / verdict** |
-| `05_Source_Code/results/study2/figures/` | 5 figur Bab 4 (PNG) | final |
-| `03_Naskah_Skripsi/study2/` | draf lengkap Bab 1–5 + daftar referensi (Markdown) + DOCX | draf |
-| `05_Source_Code/study2_volatility/s2_figures.py` | generator figur Bab 4 dari artefak run | pendukung |
-| `05_Source_Code/generators/generate_skripsi_study2.py` | kompilator Markdown → DOCX (format UNISNU) | pendukung |
+## 3. Modul Komputasi (`05_Source_Code/study2_volatility/`)
 
-**Zip mentah 1h tidak disimpan** (3.3 MB, re-downloadable dari Binance Vision);
-hash-nya sudah tercatat di `raw_zips_manifest.json`. Untuk rebuild:
-`python 05_Source_Code/study2_volatility/s2_data.py`.
+Seluruh kode aktif telah diberi komentar bahasa Indonesia dan tag keterlacakan bab skripsi `[BAB 3 §3.x]` dan `[BAB 4 §4.x]`:
 
-## 4. Cara verifikasi cepat
+- `s2_config.py`: Definisi parameter path, split temporal (2020-2023 dev, 2024-2025 val, 2026 test), dan hyperparameter baseline.
+- `s2_data.py`: Pengunduhan kline 1 jam Binance Vision, agregasi realized variance harian UTC, dan pembersihan amandemen A1.
+- `s2_models.py`: Arsitektur model LSTM/BiLSTM PyTorch, baseline HAR-RV (OLS), GARCH(1,1) rolling origin, dan Naive Persistence.
+- `s2_stats.py`: Perhitungan kerugian asimetris QLIKE, uji signifikansi Diebold-Mariano dengan estimasi HAC Newey-West, dan Moving-Block Bootstrap.
+- `s2_optuna_search.py`: Optimasi hyperparameter Optuna (TPE Sampler & MedianPruner) berbasis 5-fold Purged TimeSeriesSplit.
+- `s2_final_run.py`: Runner evaluasi final multi-seed (5 seed acak) pada holdout out-of-sample 2026.
+- `s2_analyze.py`: Validasi integritas metrik, penyusunan tabel komparasi, dan verifikasi alignment tanggal target.
 
-```powershell
-# Study 2: protokol + data + hasil
-python 05_Source_Code/study2_volatility/s2_data.py --verify
-python -m pytest tests/test_study2.py -q
+---
 
-# Study 1 (jika perlu)
-python -m pytest tests -q
-```
+## 4. Lokasi Arsip Historis Study 1 (`archive/study1/`)
 
-## 5. Kebijakan penyimpanan
-
-- **Disimpan:** kode, protokol, hash, data turunan (CSV), prediksi, metrik,
-  figur, manifest, naskah, referensi.
-- **Dihapus:** cache (`__pycache__`, `.pytest_cache`), run smoke/scratch,
-  bobot model Study 1 (17.6 MB, dapat dilatih ulang deterministik), zip mentah
-  Study 2 (re-downloadable).
-- **Diarsipkan (gitignored):** dokumen historis pra-perbaikan di `archive/`.
-- **Tidak pernah ditulis ulang:** history git Study 1 (agar tag `v1.0-final`
-  dan hash rilis tetap valid).
+Semua artefak yang terkait dengan eksperimen awal prediksi harga penutupan Bitcoin telah diamankan pada:
+- `archive/study1/02_Pengajuan_Judul/`
+- `archive/study1/03_Naskah_Skripsi/`
+- `archive/study1/04_Referensi_Ilmiah/`
+- `archive/study1/05_Source_Code/` (berisi `model_experiment/`, `models/`, `data/raw/`, `data/processed/`, `results/`, `generators/`)
+- `archive/study1/docs/`
+- `archive/study1/tests/`
