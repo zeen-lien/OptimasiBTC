@@ -1,4 +1,4 @@
-# DAFTAR REFERENSI
+# DAFTAR PUSTAKA
 
 Aalborg, H. A., Molnár, P., & de Vries, J. E. (2019). What can explain the price, volatility and trading volume of Bitcoin? *Finance Research Letters, 29*, 255–265. https://doi.org/10.1016/j.frl.2018.08.010
 
@@ -31,6 +31,8 @@ Conrad, C., Custovic, A., & Ghysels, E. (2018). Long- and short-term cryptocurre
 Corsi, F. (2009). A simple approximate long-memory model of realized volatility. *Journal of Financial Econometrics, 7*(2), 174–196. https://doi.org/10.1093/jjfinec/nbp001
 
 Diebold, F. X., & Mariano, R. S. (1995). Comparing predictive accuracy. *Journal of Business & Economic Statistics, 13*(3), 253–263. https://doi.org/10.1080/07350015.1995.10524599
+
+Engle, R. F. (1982). Autoregressive conditional heteroscedasticity with estimates of the variance of United Kingdom inflation. *Econometrica, 50*(4), 987–1007. https://doi.org/10.2307/1912773
 
 Fawzi, M. I., Ganesha, T., Anugrah, P. R., Zhahran, M., Abimanyu, F. A., & Bimantoro, H. (2025). Forecasting Bitcoin price prediction with Long Short-Term Memory networks: Implementation and applications using Streamlit. *Jurnal Teknik Informatika (JUTIF), 6*(5), 2940–2961. https://doi.org/10.52436/1.jutif.2025.6.5.5168
 

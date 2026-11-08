@@ -1,5 +1,7 @@
 # Temuan Audit Study 2 — 2026-10-29
 
+> **Pembaruan 2026-11-08:** Dokumen ini mempertahankan temuan historis per 2026-10-29. Angka inventaris referensi di bawah (16/31 PDF) sudah tidak berlaku. Inventaris terkini yang telah diverifikasi ulang: **36 referensi**, **33 PDF aktif**, **0 referensi tanpa PDF**, **3 dokumentasi daring**, dan **4 PDF arsip**. Patton (2011), Christensen et al. (2023), dan Bollerslev (1986) sudah diganti dengan salinan yang benar; Aalborg et al. (2019) tersedia sebagai accepted version SSRN, Engle (1982) sebagai scan JSTOR, dan Kim & Won (2018) sebagai accepted manuscript Elsevier; dua PDF Kim & Won yang salah isi dan Boongasame (tidak dipakai) telah diarsipkan. Rincian ada di `docs/REFERENCE_AUDIT_STUDY2.md`. Hitungan tes pada bagian verifikasi juga historis; suite Study 2 yang aktif saat ini berjumlah **34 tes**.
+
 ## Cakupan dan batas
 
 Audit read-only atas protokol, kode, dokumen provenance, dan struktur artefak. Tidak menjalankan HPO, runner final, analyzer, atau statistik test 2026. Tidak mengubah protokol/hash maupun hasil historis. Perubahan user pada berkas skripsi dan pengajuan tetap dipertahankan.

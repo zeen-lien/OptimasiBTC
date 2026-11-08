@@ -9,7 +9,7 @@ SP  - 255
 EP  - 265
 PY  - 2019
 DO  - 10.1016/j.frl.2018.08.010
-ER  - 
+ER  -
 
 TY  - CONF
 TI  - Optuna: A Next-generation Hyperparameter Optimization Framework
@@ -23,7 +23,7 @@ SP  - 2623
 EP  - 2631
 PY  - 2019
 DO  - 10.1145/3292500.3330701
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Comparative Analysis of Hyperparameter Optimization Methods for LSTM in Cryptocurrency Price Prediction: An Application to TRX–USD
@@ -37,7 +37,7 @@ SP  - 2340
 EP  - 2349
 PY  - 2026
 DO  - 10.52436/1.jutif.2026.7.3.5355
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Answering the Skeptics: Yes, Standard Volatility Models Do Provide Accurate Forecasts
@@ -50,7 +50,7 @@ SP  - 885
 EP  - 905
 PY  - 1998
 DO  - 10.2307/2527343
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Modeling and Forecasting Realized Volatility
@@ -65,7 +65,7 @@ SP  - 579
 EP  - 625
 PY  - 2003
 DO  - 10.1111/1468-0262.00418
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Regime changes in Bitcoin GARCH volatility dynamics
@@ -78,7 +78,7 @@ SP  - 266
 EP  - 271
 PY  - 2019
 DO  - 10.1016/j.frl.2018.08.009
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Predicting Bitcoin and Ethereum Prices Using the Long Short-Term Memory (LSTM) Model
@@ -91,7 +91,7 @@ SP  - 3046
 EP  - 3061
 PY  - 2025
 DO  - 10.51519/journalisi.v7i3.1228
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Econometric analysis of realized volatility and its use in estimating stochastic volatility models
@@ -104,7 +104,7 @@ SP  - 253
 EP  - 280
 PY  - 2002
 DO  - 10.1111/1467-9868.00336
-ER  - 
+ER  -
 
 TY  - CONF
 TI  - Algorithms for Hyper-Parameter Optimization
@@ -117,14 +117,14 @@ VL  - 24
 SP  - 2546
 EP  - 2554
 PY  - 2011
-ER  - 
+ER  -
 
 TY  - ELEC
 TI  - Binance Vision: Public Market Data Archive
 AU  - Binance
 PY  - 2024
 UR  - https://data.binance.vision/
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Generalized autoregressive conditional heteroskedasticity
@@ -136,7 +136,7 @@ SP  - 307
 EP  - 327
 PY  - 1986
 DO  - 10.1016/0304-4076(86)90063-1
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Accounting for Variance in Machine Learning Benchmarks
@@ -163,7 +163,7 @@ SP  - 747
 EP  - 769
 PY  - 2021
 DO  - 10.48550/arXiv.2103.03098
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - A Machine Learning Approach to Volatility Forecasting
@@ -177,7 +177,7 @@ SP  - 1680
 EP  - 1727
 PY  - 2023
 DO  - 10.1093/jjfinec/nbac020
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Long- and Short-Term Cryptocurrency Volatility Components: A GARCH-MIDAS Analysis
@@ -190,7 +190,7 @@ IS  - 2
 SP  - 23
 PY  - 2018
 DO  - 10.3390/jrfm11020023
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - A Simple Approximate Long-Memory Model of Realized Volatility
@@ -202,7 +202,7 @@ SP  - 174
 EP  - 196
 PY  - 2009
 DO  - 10.1093/jjfinec/nbp001
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Comparing Predictive Accuracy
@@ -215,7 +215,19 @@ SP  - 253
 EP  - 263
 PY  - 1995
 DO  - 10.1080/07350015.1995.10524599
-ER  - 
+ER  -
+
+TY  - JOUR
+TI  - Autoregressive Conditional Heteroscedasticity with Estimates of the Variance of United Kingdom Inflation
+AU  - Engle, Robert F.
+T2  - Econometrica
+VL  - 50
+IS  - 4
+SP  - 987
+EP  - 1007
+PY  - 1982
+DO  - 10.2307/1912773
+ER  -
 
 TY  - JOUR
 TI  - Forecasting Bitcoin Price Prediction with Long Short-Term Memory Networks: Implementation and Applications Using Streamlit
@@ -232,7 +244,7 @@ SP  - 2940
 EP  - 2961
 PY  - 2025
 DO  - 10.52436/1.jutif.2025.6.5.5168
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - LSTM: A Search Space Odyssey
@@ -248,7 +260,7 @@ SP  - 2222
 EP  - 2232
 PY  - 2017
 DO  - 10.1109/TNNLS.2016.2582924
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Long Short-Term Memory
@@ -261,7 +273,7 @@ SP  - 1735
 EP  - 1780
 PY  - 1997
 DO  - 10.1162/neco.1997.9.8.1735
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Volatility estimation for Bitcoin: A comparison of GARCH models
@@ -272,7 +284,7 @@ SP  - 3
 EP  - 6
 PY  - 2017
 DO  - 10.1016/j.econlet.2017.06.023
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - LSTM Hyperparameters Optimization with Hparam Parameters for Bitcoin Price Prediction
@@ -285,7 +297,7 @@ SP  - 1
 EP  - 9
 PY  - 2023
 DO  - 10.35377/saucis...1172027
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Optimizing Bitcoin Price Predictions Using Long Short-Term Memory Algorithm: A Deep Learning Approach
@@ -299,7 +311,7 @@ SP  - 38
 EP  - 45
 PY  - 2024
 DO  - 10.33096/ilkom.v16i1.1831.38-45
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Forecasting the volatility of stock price index: A hybrid model integrating LSTM with multiple GARCH-type models
@@ -311,7 +323,7 @@ SP  - 25
 EP  - 37
 PY  - 2018
 DO  - 10.1016/j.eswa.2018.03.002
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Adam: A Method for Stochastic Optimization
@@ -320,7 +332,7 @@ AU  - Ba, Jimmy
 T2  - arXiv preprint arXiv:1412.6980
 PY  - 2014
 DO  - 10.48550/arXiv.1412.6980
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - The Jackknife and the Bootstrap for General Stationary Observations
@@ -332,7 +344,7 @@ SP  - 1217
 EP  - 1241
 PY  - 1989
 DO  - 10.1214/aos/1176347265
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Time-series forecasting with deep learning: A survey
@@ -344,14 +356,14 @@ IS  - 2194
 SP  - 20200209
 PY  - 2021
 DO  - 10.1098/rsta.2020.0209
-ER  - 
+ER  -
 
 TY  - BOOK
 TI  - Advances in Financial Machine Learning
 AU  - López de Prado, Marcos
 PB  - John Wiley & Sons
 PY  - 2018
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - A Simple, Positive Semi-Definite, Heteroskedasticity and Autocorrelation Consistent Covariance Matrix
@@ -364,7 +376,7 @@ SP  - 703
 EP  - 708
 PY  - 1987
 DO  - 10.2307/1913610
-ER  - 
+ER  -
 
 TY  - ELEC
 TI  - Optuna Documentation: Tree-structured Parzen Estimator and MedianPruner Algorithms
@@ -372,7 +384,7 @@ AU  - Optuna Development Team
 PB  - Preferred Networks
 PY  - 2024
 UR  - https://optuna.readthedocs.io/
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Volatility forecast comparison using imperfect volatility proxies
@@ -384,7 +396,7 @@ SP  - 246
 EP  - 256
 PY  - 2011
 DO  - 10.1016/j.jeconom.2010.03.034
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Dropout: A Simple Way to Prevent Neural Networks from Overfitting
@@ -400,7 +412,7 @@ SP  - 1929
 EP  - 1958
 PY  - 2014
 UR  - https://jmlr.org/papers/v15/srivastava14a.html
-ER  - 
+ER  -
 
 TY  - ELEC
 TI  - TensorFlow: Large-Scale Machine Learning on Heterogeneous Distributed Systems
@@ -408,7 +420,7 @@ AU  - TensorFlow Developers
 PB  - Google LLC
 PY  - 2024
 UR  - https://www.tensorflow.org/
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Comparing Long Short-Term Memory and Random Forest accuracy for Bitcoin price forecasting
@@ -422,7 +434,7 @@ SP  - 259
 EP  - 272
 PY  - 2024
 DO  - 10.30812/matrik.v23i2.3267
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Improved LSTM hyperparameters alongside sentiment walk-forward validation for time series prediction
@@ -438,7 +450,7 @@ IS  - 1
 SP  - 100458
 PY  - 2025
 DO  - 10.1016/j.joitmc.2024.100458
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Comparative Analysis of LSTM and GRU Models with Hyperparameter Optimization for Bitcoin Price Prediction
@@ -452,5 +464,5 @@ SP  - 430
 EP  - 440
 PY  - 2026
 DO  - 10.32877/bt.v9i1.3887
-ER  - 
+ER  -
 

@@ -440,7 +440,8 @@ def render_file(doc, path: Path, first_chapter: bool):
                 if not first_chapter:
                     doc.add_page_break()
                 chapter_started = True
-            add_heading_chapter(doc, stripped[2:])
+            title = "DAFTAR PUSTAKA" if stripped[2:].strip() == "DAFTAR PUSTAKA" else stripped[2:]
+            add_heading_chapter(doc, title)
             i += 1
             continue
 

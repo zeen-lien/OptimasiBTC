@@ -9,9 +9,11 @@ ke dalam satu berkas Microsoft Word (.docx) resmi sesuai pedoman FST UNISNU Jepa
 - DAFTAR TABEL (Halaman vi) dengan titik-titik pemimpin
 - DAFTAR GAMBAR (Halaman vii) dengan titik-titik pemimpin
 - BAB I PENDAHULUAN (A. Latar Belakang s.d. F. Sistematika Penulisan)
-- BAB II KAJIAN PUSTAKA (A. Landasan Teori s.d. F. Kesimpulan Kajian Pustaka, Tabel 2.1, Gambar 2.1 & 2.2)
-- BAB III METODOLOGI PENELITIAN (A. Jenis Penelitian s.d. K. Jadwal Penelitian, Tabel 3.1 - 3.6, Gambar 3.1)
-- DAFTAR PUSTAKA (35 referensi APA 7th Edition dengan 1 cm hanging indent)
+- BAB II LANDASAN TEORI (A. Volatilitas dan Realized Volatility s.d. I. Hipotesis Penelitian,
+  Tabel 2.1, Gambar 2.1 & 2.2)
+- BAB III METODE PENELITIAN (A. Jenis dan Desain Penelitian s.d. K. Jadwal Penelitian,
+  Tabel 3.1 - 3.6, Gambar 3.1)
+- DAFTAR PUSTAKA (36 referensi APA 7th Edition dengan 1 cm hanging indent)
 
 Identitas Resmi Pengusul:
 Nama : ZAINI LEON MUSTHOFA KAMAL
@@ -23,6 +25,7 @@ Output: 03_Naskah_Skripsi/study2/PROPOSAL_SEMPRO_BAB_I_III.docx
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
@@ -45,6 +48,66 @@ CHAPTER_FILES = [
     SRC_DIR / "BAB_3_METODE_PENELITIAN.md",
     SRC_DIR / "DAFTAR_REFERENSI_STUDY2.md",
 ]
+
+# Pemetaan nomor halaman untuk DAFTAR ISI / TABEL / GAMBAR.
+# Berkas ini dihasilkan oleh update_toc_pages_sempro.ps1 (Word COM).
+# Bila belum ada, generator menulis tanda "?" agar tetap bisa dijalankan.
+PAGE_MAP_PATH = Path(__file__).resolve().parent / "toc_pages_sempro.json"
+TOC_KEYS_PATH = Path(__file__).resolve().parent / "toc_keys_sempro.json"
+
+
+def load_page_map():
+    if PAGE_MAP_PATH.exists():
+        try:
+            return json.loads(PAGE_MAP_PATH.read_text(encoding="utf-8-sig"))
+        except json.JSONDecodeError:
+            return {}
+    return {}
+
+
+def page_of(page_map, key, default="?"):
+    return str(page_map.get(key, default))
+
+
+def heading_entries():
+    """Ambil struktur bab/subbab langsung dari Markdown agar DAFTAR ISI
+    selalu sinkron dengan naskah."""
+    entries = []
+    for ch_file in CHAPTER_FILES:
+        for raw in ch_file.read_text(encoding="utf-8").splitlines():
+            line = raw.rstrip()
+            if line.startswith("# BAB "):
+                title = line[2:].strip()
+                entries.append((0, title, title.split(" ", 2)[-1]))
+            elif line.startswith("# DAFTAR PUSTAKA"):
+                entries.append((0, "DAFTAR PUSTAKA", "DAFTAR PUSTAKA"))
+            elif line.startswith("## "):
+                title = line[3:].strip()
+                entries.append((1, title, title))
+            elif line.startswith("### "):
+                title = line[4:].strip()
+                entries.append((2, title, title))
+    return entries
+
+
+def table_captions():
+    caps = []
+    for ch_file in CHAPTER_FILES:
+        for raw in ch_file.read_text(encoding="utf-8").splitlines():
+            line = raw.strip()
+            if line.startswith("**Tabel ") and line.endswith("**"):
+                caps.append(line[2:-2].strip())
+    return caps
+
+
+def figure_captions():
+    caps = []
+    for ch_file in CHAPTER_FILES:
+        for raw in ch_file.read_text(encoding="utf-8").splitlines():
+            m = re.match(r"!\[([^\]]+)\]\(", raw.strip())
+            if m:
+                caps.append(m.group(1).strip())
+    return caps
 
 GREEK = {
     r"\alpha": "α", r"\beta": "β", r"\gamma": "γ", r"\delta": "δ",
@@ -118,9 +181,24 @@ def replace_fractions(text: str) -> str:
     return text
 
 
+def preprocess_latex(s: str) -> str:
+    """Normalisasi perintah LaTeX yang tidak tertangani konverter utama."""
+    s = s.replace(r"\qquad", "      ").replace(r"\quad", "   ")
+    s = s.replace(r"\dots", "…").replace(r"\ldots", "…")
+    s = s.replace(r"\ell", "ℓ")
+    s = s.replace(r"\overline{\log RV}", "log RV̅")
+    s = re.sub(r"\\overline\{([^{}]+)\}", lambda m: m.group(1) + "\u0305", s)
+    s = re.sub(r"\\hat\{([^{}]+)\}", lambda m: m.group(1) + "\u0302", s)
+    s = re.sub(r"\\bar\{([^{}]+)\}", lambda m: m.group(1) + "\u0304", s)
+    s = re.sub(r"\\tilde\{([^{}]+)\}", lambda m: m.group(1) + "\u0303", s)
+    s = s.replace(r"\tanh", "tanh").replace(r"\max", "max").replace(r"\min", "min")
+    return s
+
+
 def latex_to_unicode_display(src: str) -> str:
     s = src.strip()
     s = s.replace(r"\left", "").replace(r"\right", "")
+    s = preprocess_latex(s)
     
     # Handle cases environment
     cases_match = re.search(r"\\begin\{cases\}(.*?)\\end\{cases\}", s, re.DOTALL)
@@ -153,7 +231,6 @@ def latex_to_unicode_display(src: str) -> str:
     s = s.replace(r"\widehat{\text{Var}}", "Var̂").replace(r"\widehat{Var}", "Var̂")
     s = re.sub(r"\\widehat\{([^}]+)\}", r"\1̂", s)
     s = s.replace(r"\bar{d}", "d̄").replace(r"\tilde{c}", "c̃")
-    s = s.replace(r"\overline{\log RV}", "log RV̅")
 
     for k, v in GREEK.items():
         s = s.replace(k, v)
@@ -181,6 +258,7 @@ def render_inline_math(p, math_expr: str, default_size=12, base_bold=False):
 
     s = re.sub(r"\\text\{([^}]+)\}", r"\1", s)
     s = re.sub(r"\\mathrm\{([^}]+)\}", r"\1", s)
+    s = preprocess_latex(s)
     s = s.replace(r"\ln", "ln").replace(r"\log", "log").replace(r"\odot", "⊙").replace(r"\cdot", "·")
     s = s.replace(r"\ge", "≥").replace(r"\le", "≤").replace(r"\approx", "≈").replace(r"\propto", "∝")
     s = s.replace(r"\lvert", "|").replace(r"\rvert", "|").replace(r"\mid", "|")
@@ -513,6 +591,8 @@ def add_leader_entry(doc, title: str, page_str: str, bold=False, italic=False, s
 
 
 def add_table_of_contents(doc):
+    page_map = load_page_map()
+
     p_title = doc.add_paragraph()
     p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_title.paragraph_format.space_before = Pt(0)
@@ -523,54 +603,36 @@ def add_table_of_contents(doc):
     add_leader_entry(doc, "Halaman Judul", "i", bold=True, space_after=2)
     add_leader_entry(doc, "PERSETUJUAN PEMBIMBING", "ii", bold=True, space_after=2)
     add_leader_entry(doc, "DAFTAR ISI", "iii", bold=True, space_after=2)
-    add_leader_entry(doc, "DAFTAR TABEL", "vi", bold=True, space_after=2)
-    add_leader_entry(doc, "DAFTAR GAMBAR", "vii", bold=True, space_after=6)
+    add_leader_entry(doc, "DAFTAR TABEL", page_of(page_map, "DAFTAR TABEL", "iv"), bold=True, space_after=2)
+    add_leader_entry(doc, "DAFTAR GAMBAR", page_of(page_map, "DAFTAR GAMBAR", "v"), bold=True, space_after=6)
 
-    add_leader_entry(doc, "BAB I PENDAHULUAN", "1", bold=True, space_before=4, space_after=2)
-    add_leader_entry(doc, "A. Latar Belakang", "1", indent_cm=0.5)
-    add_leader_entry(doc, "B. Rumusan Masalah", "4", indent_cm=0.5)
-    add_leader_entry(doc, "C. Batasan Masalah", "5", indent_cm=0.5)
-    add_leader_entry(doc, "D. Tujuan Penelitian", "6", indent_cm=0.5)
-    add_leader_entry(doc, "E. Manfaat Penelitian", "6", indent_cm=0.5)
-    add_leader_entry(doc, "1. Manfaat Teoretis", "6", indent_cm=1.0, italic=True)
-    add_leader_entry(doc, "2. Manfaat Praktis", "7", indent_cm=1.0, italic=True)
-    add_leader_entry(doc, "3. Manfaat Metodologis", "7", indent_cm=1.0, italic=True)
-    add_leader_entry(doc, "F. Sistematika Penulisan", "7", indent_cm=0.5, space_after=6)
-
-    add_leader_entry(doc, "BAB II KAJIAN PUSTAKA", "8", bold=True, space_before=4, space_after=2)
-    add_leader_entry(doc, "A. Landasan Teori", "8", indent_cm=0.5)
-    add_leader_entry(doc, "1. Karakteristik Pasar Kripto dan Data Deret Waktu Bitcoin", "8", indent_cm=1.0, italic=True)
-    add_leader_entry(doc, "2. Teori Volatilitas Finansial dan Sifat Khasnya", "9", indent_cm=1.0, italic=True)
-    add_leader_entry(doc, "3. Proksi Realized Variance dan Transformasi Logaritmik", "10", indent_cm=1.0, italic=True)
-    add_leader_entry(doc, "4. Model Ekonometrika Runtun Waktu Klasik (Baseline)", "11", indent_cm=1.0, italic=True)
-    add_leader_entry(doc, "5. Arsitektur Deep Learning Long Short-Term Memory (LSTM)", "13", indent_cm=1.0, italic=True)
-    add_leader_entry(doc, "6. Optimasi Hyperparameter Berbasis Bayesian dan Kerangka Optuna", "15", indent_cm=1.0, italic=True)
-    add_leader_entry(doc, "7. Evaluasi Peramalan dan Inferensi Statistik", "17", indent_cm=1.0, italic=True)
-    add_leader_entry(doc, "B. Penelitian Terdahulu", "20", indent_cm=0.5)
-    add_leader_entry(doc, "C. Sintesis Penelitian dan Posisi Riset", "23", indent_cm=0.5)
-    add_leader_entry(doc, "D. Kerangka Pemikiran", "24", indent_cm=0.5)
-    add_leader_entry(doc, "E. Hipotesis Penelitian", "26", indent_cm=0.5)
-    add_leader_entry(doc, "F. Kesimpulan Kajian Pustaka", "26", indent_cm=0.5, space_after=6)
-
-    add_leader_entry(doc, "BAB III METODOLOGI PENELITIAN", "27", bold=True, space_before=4, space_after=2)
-    add_leader_entry(doc, "A. Jenis dan Desain Penelitian", "27", indent_cm=0.5)
-    add_leader_entry(doc, "B. Data Penelitian dan Pra-Pemrosesan", "28", indent_cm=0.5)
-    add_leader_entry(doc, "C. Pengembangan Fitur dan Target Peramalan", "30", indent_cm=0.5)
-    add_leader_entry(doc, "D. Pembagian Data Temporal Kronologis (Temporal Window)", "32", indent_cm=0.5)
-    add_leader_entry(doc, "E. Pemodelan Usulan (LSTM) dan Optimasi Hyperparameter Optuna", "34", indent_cm=0.5)
-    add_leader_entry(doc, "F. Pelatihan Model Final dan Protokol Multi-Seed", "37", indent_cm=0.5)
-    add_leader_entry(doc, "G. Implementasi Model Baseline Pembanding", "38", indent_cm=0.5)
-    add_leader_entry(doc, "H. Protokol Evaluasi dan Inferensi Statistik", "41", indent_cm=0.5)
-    add_leader_entry(doc, "I. Validitas dan Pengendalian Kebocoran Data", "43", indent_cm=0.5)
-    add_leader_entry(doc, "J. Robustness, Reproduksibilitas, dan Alur Penelitian", "45", indent_cm=0.5)
-    add_leader_entry(doc, "K. Jadwal Penelitian", "47", indent_cm=0.5, space_after=6)
-
-    add_leader_entry(doc, "DAFTAR PUSTAKA", "49", bold=True, space_before=4, space_after=2)
+    for level, title, search_key in heading_entries():
+        if level == 0:
+            add_leader_entry(
+                doc,
+                title,
+                page_of(page_map, search_key),
+                bold=True,
+                space_before=4,
+                space_after=2,
+            )
+        elif level == 1:
+            add_leader_entry(doc, title, page_of(page_map, search_key), indent_cm=0.5)
+        else:
+            add_leader_entry(
+                doc,
+                title,
+                page_of(page_map, search_key),
+                indent_cm=1.0,
+                italic=True,
+            )
 
     doc.add_page_break()
 
 
 def add_list_of_tables(doc):
+    page_map = load_page_map()
+
     p_title = doc.add_paragraph()
     p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_title.paragraph_format.space_before = Pt(0)
@@ -578,18 +640,15 @@ def add_list_of_tables(doc):
     r_t = p_title.add_run("DAFTAR TABEL")
     set_run_font(r_t, size=14, bold=True)
 
-    add_leader_entry(doc, "Tabel 2.1 Matriks Sintesis Penelitian Terdahulu", "21")
-    add_leader_entry(doc, "Tabel 3.1 Definisi Fitur Masukan Teknikal Kausal", "31")
-    add_leader_entry(doc, "Tabel 3.2 Pembagian Temporal Window Dataset", "33")
-    add_leader_entry(doc, "Tabel 3.3 Ruang Pencarian Hyperparameter Model LSTM", "35")
-    add_leader_entry(doc, "Tabel 3.4 Konfigurasi Spesifikasi Model Baseline Pembanding", "39")
-    add_leader_entry(doc, "Tabel 3.5 Protokol Evaluasi dan Kriteria Inferensi Statistik", "42")
-    add_leader_entry(doc, "Tabel 3.6 Matriks Jadwal Pelaksanaan Penelitian", "48")
+    for caption in table_captions():
+        add_leader_entry(doc, caption, page_of(page_map, caption))
 
     doc.add_page_break()
 
 
 def add_list_of_figures(doc):
+    page_map = load_page_map()
+
     p_title = doc.add_paragraph()
     p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_title.paragraph_format.space_before = Pt(0)
@@ -597,61 +656,20 @@ def add_list_of_figures(doc):
     r_t = p_title.add_run("DAFTAR GAMBAR")
     set_run_font(r_t, size=14, bold=True)
 
-    add_leader_entry(doc, "Gambar 2.1 Arsitektur dan Mekanisme Gerbang Sel LSTM", "14")
-    add_leader_entry(doc, "Gambar 2.2 Alur Kerangka Pemikiran Konseptual Penelitian", "25")
-    add_leader_entry(doc, "Gambar 3.1 Alur Tahapan Penelitian Komputasional", "46")
+    for caption in figure_captions():
+        add_leader_entry(doc, caption, page_of(page_map, caption))
 
     doc.add_page_break()
 
 
-def generate_sempro_bundle():
-    doc = Document()
-    
-    # Section 1: Front Matter (Cover, Sampul Dalam, Lembar Persetujuan, Daftar Isi, Tabel, Gambar)
-    sec1 = doc.sections[0]
-    sec1.page_width = Cm(21.0)
-    sec1.page_height = Cm(29.7)
-    sec1.top_margin = Cm(4.0)
-    sec1.left_margin = Cm(4.0)
-    sec1.bottom_margin = Cm(3.0)
-    sec1.right_margin = Cm(3.0)
+def render_markdown_files(doc, chapter_files):
+    """Render daftar berkas Markdown ke dalam objek Document.
 
-    # Set page number format to roman lower for sec1
-    secPr1 = sec1._sectPr
-    pgNumType1 = OxmlElement('w:pgNumType')
-    pgNumType1.set(qn('w:fmt'), 'lowerRoman')
-    secPr1.append(pgNumType1)
-
-    style = doc.styles["Normal"]
-    style.font.name = "Times New Roman"
-    style.font.size = Pt(12)
-    style.paragraph_format.line_spacing = 1.5
-    style.paragraph_format.space_after = Pt(4)
-
-    # Build Front Matter
-    add_cover_page(doc)
-    add_inner_title_page(doc)
-    add_approval_page(doc)
-    add_table_of_contents(doc)
-    add_list_of_tables(doc)
-    add_list_of_figures(doc)
-
-    # Section 2: Body (Bab I, Bab II, Bab III, Daftar Pustaka)
-    sec2 = doc.add_section()
-    sec2.top_margin = Cm(4.0)
-    sec2.left_margin = Cm(4.0)
-    sec2.bottom_margin = Cm(3.0)
-    sec2.right_margin = Cm(3.0)
-
-    secPr2 = sec2._sectPr
-    pgNumType2 = OxmlElement('w:pgNumType')
-    pgNumType2.set(qn('w:start'), '1')
-    pgNumType2.set(qn('w:fmt'), 'decimal')
-    secPr2.append(pgNumType2)
-
+    Dipakai ulang oleh generator proposal maupun generator bab tunggal.
+    """
     md_combined_blocks = []
 
-    for ch_idx, ch_file in enumerate(CHAPTER_FILES):
+    for ch_idx, ch_file in enumerate(chapter_files):
         text = ch_file.read_text(encoding="utf-8")
         lines = text.split("\n")
         in_references = (ch_file.name == "DAFTAR_REFERENSI_STUDY2.md")
@@ -666,11 +684,11 @@ def generate_sempro_bundle():
                 continue
 
             # Bab / Main Heading
-            if line.startswith("# BAB ") or line.startswith("# DAFTAR REFERENSI"):
+            if line.startswith("# BAB ") or line.startswith("# DAFTAR PUSTAKA"):
                 if ch_idx > 0 and i == 0:
                     doc.add_page_break()
 
-                if line.startswith("# DAFTAR REFERENSI"):
+                if line.startswith("# DAFTAR PUSTAKA"):
                     p = doc.add_paragraph()
                     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
                     p.paragraph_format.space_before = Pt(0)
@@ -872,11 +890,67 @@ def generate_sempro_bundle():
             add_inline_formatting(p, line)
             i += 1
 
+    return md_combined_blocks
+
+
+def generate_sempro_bundle():
+    doc = Document()
+
+    # Section 1: Front Matter (Cover, Sampul Dalam, Lembar Persetujuan, Daftar Isi, Tabel, Gambar)
+    sec1 = doc.sections[0]
+    sec1.page_width = Cm(21.0)
+    sec1.page_height = Cm(29.7)
+    sec1.top_margin = Cm(4.0)
+    sec1.left_margin = Cm(4.0)
+    sec1.bottom_margin = Cm(3.0)
+    sec1.right_margin = Cm(3.0)
+
+    # Set page number format to roman lower for sec1
+    secPr1 = sec1._sectPr
+    pgNumType1 = OxmlElement('w:pgNumType')
+    pgNumType1.set(qn('w:fmt'), 'lowerRoman')
+    secPr1.append(pgNumType1)
+
+    style = doc.styles["Normal"]
+    style.font.name = "Times New Roman"
+    style.font.size = Pt(12)
+    style.paragraph_format.line_spacing = 1.5
+    style.paragraph_format.space_after = Pt(4)
+
+    # Build Front Matter
+    add_cover_page(doc)
+    add_inner_title_page(doc)
+    add_approval_page(doc)
+    add_table_of_contents(doc)
+    add_list_of_tables(doc)
+    add_list_of_figures(doc)
+
+    # Section 2: Body (Bab I, Bab II, Bab III, Daftar Pustaka)
+    sec2 = doc.add_section()
+    sec2.top_margin = Cm(4.0)
+    sec2.left_margin = Cm(4.0)
+    sec2.bottom_margin = Cm(3.0)
+    sec2.right_margin = Cm(3.0)
+
+    secPr2 = sec2._sectPr
+    pgNumType2 = OxmlElement('w:pgNumType')
+    pgNumType2.set(qn('w:start'), '1')
+    pgNumType2.set(qn('w:fmt'), 'decimal')
+    secPr2.append(pgNumType2)
+
+    md_combined_blocks = render_markdown_files(doc, CHAPTER_FILES)
+
     # Save Bundled DOCX
     doc.core_properties.title = "PROPOSAL SKRIPSI (BAB I - III) - Zaini Leon Musthofa Kamal"
     doc.core_properties.author = "Zaini Leon Musthofa Kamal"
     doc.save(OUT_DOCX)
     print(f"[OK] Berhasil menghasilkan berkas proposal Sempro: {OUT_DOCX}")
+
+    # Kunci pencarian untuk penghitung nomor halaman DAFTAR ISI (Word COM)
+    keys = [{"key": k, "scope": "front"} for k in ("DAFTAR TABEL", "DAFTAR GAMBAR")]
+    keys += [{"key": search_key, "scope": "body"} for _, _, search_key in heading_entries()]
+    keys += [{"key": cap, "scope": "body"} for cap in table_captions() + figure_captions()]
+    TOC_KEYS_PATH.write_text(json.dumps(keys, ensure_ascii=False, indent=2), encoding="utf-8")
 
     # Save Bundled Markdown
     OUT_MD.write_text("\n\n---\n\n".join(md_combined_blocks), encoding="utf-8")

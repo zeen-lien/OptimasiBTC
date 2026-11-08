@@ -169,8 +169,10 @@ def aggregate_daily(month_frames: dict[str, pd.DataFrame]) -> pd.DataFrame:
 def aggregate_rv(month_frames: dict[str, pd.DataFrame]) -> pd.Series:
     """
     [BAB 3 §3.3 | PERHITUNGAN REALIZED VARIANCE 1 JAM (ANDERSEN & BOLLERSLEV 1998)]
-    Realized variance harian dihitung sebagai penjumlahan kuadrat log-returns antar-jam:
+    Realized variance harian dihitung sebagai penjumlahan kuadrat log-return intra-bar
+    (open-to-close) untuk setiap bar jam pada hari tersebut:
         rv_t = sum_{h=1}^{24} (log(close_{t,h}) - log(open_{t,h}))^2
+    Catatan: return dihitung di dalam bar jam, bukan selisih close antar-jam berurutan.
     """
     rows = []
     for _, df in month_frames.items():

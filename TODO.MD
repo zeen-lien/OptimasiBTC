@@ -9,13 +9,13 @@
 - [x] **Pembersihan Repositori:** Seluruh modul, hasil, naskah, generator, data, release, dan konfigurasi Study 1 (prediksi harga) telah dipindahkan ke `archive/study1/`.
 - [x] **Integritas Kode Eksperimen:** 9 modul aktif di `05_Source_Code/study2_volatility/` telah memiliki komentar Bahasa Indonesia, perbaikan kausalitas kalender, dan penandaan bab skripsi `[BAB 3 §3.x]` & `[BAB 4 §4.x]`.
 - [x] **Verifikasi Unit Test:** 34/34 unit test di `tests/` lulus 100% (isolasi scaler, kausalitas, purged gap CV, dan evaluasi alignment).
-- [x] **Status Hasil Eksperimen:** Hasil holdout 2026 telah beku dan terkunci (`results/study2/`):
+- [x] **Status Hasil Eksperimen:** Hasil uji eksternal 2026 telah beku dan terkunci (`results/study2/`); status paparan operasional dibahas di Bab IV:
   - QLIKE LSTM-Optuna: **0,40333**
   - QLIKE HAR-RV: **0,46846** (LSTM unggul point estimate ~13,9%; DM $p = 0,05344$)
   - QLIKE GARCH(1,1): **0,44898** (LSTM unggul point estimate)
   - QLIKE Persistence: **0,80521** (LSTM unggul telak; DM $p = 5,18 \times 10^{-6}$)
   - QLIKE LSTM Untuned: **0,34422** (Selisih tidak signifikan dua-sisi; fenomena *selection noise* & *regime shift*)
-- [x] **Inventaris Pustaka:** 35 referensi resmi (31 file PDF lokal terverifikasi di `04_Referensi_Ilmiah/` + 4 dokumen resmi/buku). Telah dibedah secara mendalam di 6 klaster.
+- [x] **Inventaris Pustaka:** 36 referensi resmi (33 PDF lokal terverifikasi di `04_Referensi_Ilmiah/` + 0 referensi yang menunggu akses kampus + 3 dokumen resmi/daring). Telah dibedah secara mendalam di 6 klaster.
 
 ---
 
@@ -47,19 +47,19 @@
 - [x] **2.7.** Kompilasi berkas resmi Word `BAB_2_LANDASAN_TEORI.docx` via `05_Source_Code/generators/generate_bab2_study2.py` (tabel formal shading, rumus matematis rapi, dan gambar diagram otomatis tersemat).
 - [x] **2.8.** Sinkronkan draf naskah gabungan `SKRIPSI_STUDY2_DRAFT.docx`.
   - Inferensi Statistik: Uji Diebold-Mariano (1995), Koreksi HAC Newey-West (1987), Moving-Block Bootstrap (Künsch 1989), dan Variabilitas Multi-seed (Bouthillier et al. 2021).
-- [ ] **2.5.** Perbarui Tabel Sintesis Penelitian Terdahulu (Tabel Matriks Gap) memuat studi global (Christensen 2023, Katsiampa 2017, Ardia 2019, Conrad 2018, Kim & Won 2018) dan studi nasional SINTA (Khumaidi 2024, Aldo 2026, Aswadi 2025, Fawzi 2025, Widad 2026, Ula 2024, Boongasame 2023, Wahyuddin 2025).
+- [ ] **2.5.** Perbarui Tabel Sintesis Penelitian Terdahulu (Tabel Matriks Gap) memuat studi global (Christensen 2023, Katsiampa 2017, Ardia 2019, Conrad 2018, Kim & Won 2018) dan studi nasional SINTA (Khumaidi 2024, Aldo 2026, Aswadi 2025, Fawzi 2025, Widad 2026, Ula 2024, Wahyuddin 2025).
 - [ ] **2.6.** Rumuskan Kerangka Berpikir dan Hipotesis Penelitian yang kokoh.
 
 #### C. Bab 3: Metode Penelitian
 - [x] **2.7.** Perbarui `BAB_3_METODE_PENELITIAN.md` (10 subbab standar panduan FST UNISNU: 3.1 Jenis dan Rancangan Penelitian, 3.2 Data Penelitian dan Pra-Pemrosesan, 3.3 Pengembangan Fitur dan Target, 3.4 Pembagian Data Temporal Kronologis, 3.5 Optimasi Hyperparameter LSTM Berbasis Optuna, 3.6 Pelatihan Model Final dan Multi-Seed, 3.7 Implementasi Baseline Pembanding, 3.8 Protokol Evaluasi dan Inferensi Statistik, 3.9 Validitas dan Pengendalian Data Leakage, 3.10 Robustness, Reproduksibilitas, dan Alur Penelitian).
-- [x] **2.8.** Verifikasi 68 paragraf isi Bab 3 (100% memenuhi 110–140 kata per paragraf dan minimal 1 sitasi terverifikasi per paragraf dalam *prospective tense*).
+- [x] **2.8.** Verifikasi isi dan konsistensi paragraf Bab 3; kalimat template terpotong dibersihkan dan sitasi terverifikasi dicek.
 - [x] **2.9.** Sediakan skrip Mermaid draw.io Gambar 3.1 (Alur Tahapan Penelitian Komputasional) pada `03_Naskah_Skripsi/study2/figures/KODE_DIAGRAM_DRAWIO.md` dan hasilkan gambar 300 DPI di `figures/gambar_3_1_alur_penelitian.png`.
 - [x] **2.10.** Kompilasi berkas resmi Word `BAB_3_METODE_PENELITIAN.docx` via `05_Source_Code/generators/generate_bab3_study2.py` (5 tabel formal, 15 persamaan display, diagram tersemat rapi).
 - [x] **2.11.** Sinkronkan draf naskah gabungan `SKRIPSI_STUDY2_DRAFT.docx` (1.458 KB, Bab I–V lengkap).
 
 #### D. Sinkronisasi Daftar Pustaka Sempro
-- [x] **2.12.** Sinkronkan `03_Naskah_Skripsi/study2/DAFTAR_REFERENSI_STUDY2.md` tepat menjadi 35 referensi terverifikasi (100% dikutip di Bab 1–3).
-- [x] **2.13.** Sinkronkan file Mendeley `references/study2_references.ris` dan `references/study2_references.bib` (35 entri terverifikasi, siap impor 1-klik).
+- [x] **2.12.** Sinkronkan `03_Naskah_Skripsi/study2/DAFTAR_REFERENSI_STUDY2.md` tepat menjadi 36 referensi terverifikasi (100% dikutip di Bab 1–5).
+- [x] **2.13.** Sinkronkan file Mendeley `references/study2_references.ris` dan `references/study2_references.bib` (36 entri terverifikasi, siap impor 1-klik).
 - [x] **2.14.** Bundel resmi naskah Sempro `03_Naskah_Skripsi/study2/PROPOSAL_SEMPRO_BAB_I_III.docx` (Cover + Bab 1 + Bab 2 + Bab 3 + Daftar Pustaka).
 
 ---
@@ -93,7 +93,7 @@
 - [ ] **4.1.** Jalankan pengujian ulang suite test `pytest tests/` memastikan tidak ada regresi logika.
 - [ ] **4.2.** Jalankan `s2_figures.py` untuk memastikan seluruh 5 figur PNG di Bab 4 telah ter-render tajam dan presisi.
 - [ ] **4.3.** Verifikasi format kompilator naskah di `05_Source_Code/generators/generate_skripsi_study2.py`.
-- [ ] **4.4.** Lakukan audit silang sitasi dua arah (memastikan setiap sitasi di naskah ada di daftar pustaka 35 referensi, dan sebaliknya).
+- [ ] **4.4.** Lakukan audit silang sitasi dua arah (memastikan setiap sitasi di naskah ada di daftar pustaka 36 referensi, dan sebaliknya).
 - [ ] **4.5.** Periksa status git bersih (`git diff --check`, tanpa menimpa berkas terproteksi).
 
 ---

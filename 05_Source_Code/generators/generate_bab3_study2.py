@@ -1,6 +1,6 @@
 """
 [BAB 3 | GENERATOR DOKUMEN DOCX RESMI]
-Skrip ini merakit BAB 3 METODOLOGI PENELITIAN ke format Microsoft Word (.docx)
+Skrip ini merakit BAB 3 METODE PENELITIAN ke format Microsoft Word (.docx)
 sesuai pedoman resmi penulisan skripsi FST UNISNU Jepara:
 - Kertas A4, Margin: Atas 4 cm, Kiri 4 cm, Bawah 3 cm, Kanan 3 cm
 - Font Times New Roman 12 pt, Spasi 1.5, First Line Indent 1 cm
@@ -266,7 +266,7 @@ def generate_bab3_docx():
             p2.paragraph_format.space_before = Pt(0)
             p2.paragraph_format.space_after = Pt(18)
             p2.paragraph_format.line_spacing = 1.15
-            run2 = p2.add_run("METODOLOGI PENELITIAN")
+            run2 = p2.add_run("METODE PENELITIAN")
             set_run_font(run2, size=14, bold=True)
             i += 1
             continue
@@ -442,7 +442,7 @@ def generate_bab3_docx():
         add_inline_formatting(p, line, default_size=12)
         i += 1
 
-    doc.core_properties.title = "BAB III METODOLOGI PENELITIAN - Skripsi Study 2"
+    doc.core_properties.title = "BAB III METODE PENELITIAN - Skripsi Study 2"
     doc.core_properties.author = "Zaini Leon Musthofa Kamal"
     doc.core_properties.subject = "Optimasi Hyperparameter LSTM Menggunakan Algoritma Optuna pada Peramalan Realized Volatility Bitcoin"
     doc.save(OUT_DOCX)

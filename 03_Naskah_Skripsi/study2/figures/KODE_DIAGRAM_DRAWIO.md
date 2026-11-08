@@ -1,5 +1,14 @@
 # PANDUAN IMPORT DIAGRAM DRAW.IO (VERSI 100% SEBARIS & LEBAR LEGA)
 
+> **STATUS: ARSIP / LEGACY — JANGAN DIPAKAI UNTUK GAMBAR FINAL.**
+> Sejak 8 November 2026 seluruh gambar skripsi Study 2 dihasilkan ulang sebagai
+> figur Matplotlib native (Times New Roman, 300 DPI) melalui
+> `05_Source_Code/generators/generate_study2_figures.py`. Berkas Mermaid di bawah
+> hanya disimpan sebagai jejak historis dan tidak lagi menjadi sumber gambar pada
+> `figures/gambar_2_1_arsitektur_lstm.png`,
+> `figures/gambar_2_2_kerangka_pemikiran.png`, dan
+> `figures/gambar_3_1_alur_penelitian.png`.
+
 File ini berisi kode Mermaid yang telah dirancang khusus agar:
 - **TIDAK ADA TEKS ATAU RUMUS YANG MENUMPUK KE BAWAH**.
 - Semua rumus (`f_t = σ(...)`, `c_t = ...`, dll.) **berdiri tegak dalam 1 baris utuh** menggunakan tag `min-width` dan `white-space:nowrap`.
@@ -124,7 +133,7 @@ graph TD
         d1["Data Mentah: 2.464 hari bar kline 1 jam BTC/USDT (1 Jan 2020 – 30 Sep 2026)"]:::step2
         d2["Target Terukur: Realized Variance harian (24 bar intra-day) → log RV_{t+1}"]:::step2
         d3["6 Fitur Kausal: log RV_t, log range_t, log volume_t, log absret_t, MA-5, dan MA-22"]:::step2
-        d4["Partisi Kronologis: Pengembangan 2020–2023 | Validasi 2024–2025 | Uji Holdout 2026"]:::step2
+        d4["Partisi Kronologis: Pengembangan 2020–2023 | Validasi 2024–2025 | Uji Eksternal 2026"]:::step2
     end
 
     subgraph T3 ["3. PEMODELAN USULAN VS BASELINE PEMBANDING"]
@@ -138,7 +147,7 @@ graph TD
     end
 
     subgraph T5 ["5. LUARAN ILMIAH & KESIMPULAN AKADEMIK"]
-        c1["Menjawab Rumusan Masalah 1, 2, 3 & Membuktikan Hipotesis H1, H2, H3 Bebas P-Hacking"]:::step6
+        c1["Menjawab Rumusan Masalah 1, 2, 3, 4 & Membuktikan Hipotesis H1, H2, H3 Bebas P-Hacking"]:::step6
     end
 
     T1 --> T2
@@ -181,7 +190,7 @@ graph TD
     subgraph S3 ["3. PARTISI TEMPORAL KRONOLOGIS DATASET"]
         c1["Jendela Pengembangan (2020–2023 | 1.460 Hari): Ruang Uji Optimasi HPO Cross-Validation"]:::step3
         c2["Jendela Validasi Internal (2024–2025 | 731 Hari): Checkpoint Kalibrasi Baseline Tanpa Polusi HPO"]:::step3
-        c3["Jendela Uji Eksternal (1 Jan – 30 Sep 2026 | 273 Hari): Evaluasi Akhir Out-of-Sample Murni"]:::step3
+        c3["Jendela Uji Eksternal (1 Jan – 30 Sep 2026 | 273 Hari): Evaluasi Out-of-Sample (status paparan di Bab IV)"]:::step3
     end
 
     subgraph S4 ["4. OPTIMASI HYPERPARAMETER LSTM BERBASIS OPTUNA"]

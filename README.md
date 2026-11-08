@@ -80,12 +80,12 @@ jurnal/
 ├── 01_Panduan_Kampus/           # Pedoman skripsi UNISNU & template pengajuan judul
 ├── 02_Pengajuan_Judul/          # Formulir pengajuan judul Study 2
 ├── 03_Naskah_Skripsi/study2/    # Naskah Bab 1–5 (Markdown + DOCX draft)
-├── 04_Referensi_Ilmiah/         # 19 PDF referensi ilmiah terverifikasi
+├── 04_Referensi_Ilmiah/         # 33 PDF aktif terverifikasi + 4 arsip; 0 referensi via akses kampus
 ├── 05_Source_Code/
 │   ├── data/study2/             # Data RV harian beku (2.464 hari) + manifest hash
 │   ├── generators/              # Kompilator Markdown → DOCX format UNISNU
 │   ├── results/study2/          # Hasil HPO, final run, metrik, dan figur Bab 4
-│   └── study2_volatility/       # Modul aktif: config, data, models, stats, HPO, final run, analyze
+│   └── study2_volatility/       # 9 modul aktif: config, data, models, stats, HPO, final run, analyze, figures, runlog
 ├── archive/study1/              # Arsip lengkap Study 1 (prediksi harga) — tidak aktif
 ├── docs/                        # Protokol, audit, gap, provenance, keterlacakan
 ├── references/                  # Paket Mendeley (RIS/BibTeX), matriks literatur 36 paper

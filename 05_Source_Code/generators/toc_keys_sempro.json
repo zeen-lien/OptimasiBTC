@@ -1,0 +1,366 @@
+[
+  {
+    "key": "DAFTAR TABEL",
+    "scope": "front"
+  },
+  {
+    "key": "DAFTAR GAMBAR",
+    "scope": "front"
+  },
+  {
+    "key": "PENDAHULUAN",
+    "scope": "body"
+  },
+  {
+    "key": "A. Latar Belakang",
+    "scope": "body"
+  },
+  {
+    "key": "B. Rumusan Masalah",
+    "scope": "body"
+  },
+  {
+    "key": "C. Batasan Masalah",
+    "scope": "body"
+  },
+  {
+    "key": "D. Tujuan Penelitian",
+    "scope": "body"
+  },
+  {
+    "key": "E. Manfaat Penelitian",
+    "scope": "body"
+  },
+  {
+    "key": "1. Manfaat Teoretis",
+    "scope": "body"
+  },
+  {
+    "key": "2. Manfaat Praktis",
+    "scope": "body"
+  },
+  {
+    "key": "3. Manfaat Metodologis",
+    "scope": "body"
+  },
+  {
+    "key": "F. Sistematika Penulisan",
+    "scope": "body"
+  },
+  {
+    "key": "LANDASAN TEORI",
+    "scope": "body"
+  },
+  {
+    "key": "A. Volatilitas dan Realized Volatility",
+    "scope": "body"
+  },
+  {
+    "key": "1. Karakteristik Pasar Kripto dan Data Deret Waktu Bitcoin",
+    "scope": "body"
+  },
+  {
+    "key": "2. Teori Volatilitas Finansial dan Sifat Khasnya",
+    "scope": "body"
+  },
+  {
+    "key": "3. Proksi Realized Variance dan Transformasi Logaritmik",
+    "scope": "body"
+  },
+  {
+    "key": "B. Model GARCH(1,1)",
+    "scope": "body"
+  },
+  {
+    "key": "C. Model HAR-RV",
+    "scope": "body"
+  },
+  {
+    "key": "D. Arsitektur Long Short-Term Memory (LSTM)",
+    "scope": "body"
+  },
+  {
+    "key": "1. Keterbatasan RNN Konvensional dan Masalah Vanishing Gradient",
+    "scope": "body"
+  },
+  {
+    "key": "2. Anatomi Mekanisme Gerbang Sel LSTM",
+    "scope": "body"
+  },
+  {
+    "key": "3. Algoritma Optimasi Adam dan Regularisasi Dropout",
+    "scope": "body"
+  },
+  {
+    "key": "E. Optimasi Hyperparameter Berbasis Bayesian dengan Optuna",
+    "scope": "body"
+  },
+  {
+    "key": "1. Paradigma Hyperparameter Optimization (HPO)",
+    "scope": "body"
+  },
+  {
+    "key": "2. Algoritma Tree-structured Parzen Estimator (TPE)",
+    "scope": "body"
+  },
+  {
+    "key": "3. Kerangka Kerja Optuna dan Mekanisme MedianPruner",
+    "scope": "body"
+  },
+  {
+    "key": "F. Evaluasi Peramalan dan Inferensi Statistik",
+    "scope": "body"
+  },
+  {
+    "key": "1. Validasi Temporal dan Pengendalian Kebocoran Data (Purged Cross-Validation)",
+    "scope": "body"
+  },
+  {
+    "key": "2. Fungsi Kerugian Asimetris Quasi-Likelihood (QLIKE)",
+    "scope": "body"
+  },
+  {
+    "key": "3. Uji Signifikansi Asimtotik Diebold-Mariano (Koreksi HAC Newey-West)",
+    "scope": "body"
+  },
+  {
+    "key": "4. Estimasi Non-Parametrik Moving-Block Bootstrap",
+    "scope": "body"
+  },
+  {
+    "key": "5. Pengendalian Variabilitas Multi-Seed",
+    "scope": "body"
+  },
+  {
+    "key": "G. Penelitian Terdahulu",
+    "scope": "body"
+  },
+  {
+    "key": "1. Sintesis Penelitian dan Posisi Riset",
+    "scope": "body"
+  },
+  {
+    "key": "H. Kerangka Pemikiran",
+    "scope": "body"
+  },
+  {
+    "key": "I. Hipotesis Penelitian",
+    "scope": "body"
+  },
+  {
+    "key": "METODE PENELITIAN",
+    "scope": "body"
+  },
+  {
+    "key": "A. Jenis dan Desain Penelitian",
+    "scope": "body"
+  },
+  {
+    "key": "1. Pendekatan dan Desain Eksperimental Komputasional",
+    "scope": "body"
+  },
+  {
+    "key": "2. Objek Penelitian dan Ruang Lingkup",
+    "scope": "body"
+  },
+  {
+    "key": "B. Data Penelitian dan Pra-Pemrosesan",
+    "scope": "body"
+  },
+  {
+    "key": "1. Sumber dan Pengumpulan Data",
+    "scope": "body"
+  },
+  {
+    "key": "2. Audit Kualitas dan Integritas Data",
+    "scope": "body"
+  },
+  {
+    "key": "3. Normalisasi Timestamp dan Agregasi Bar Harian UTC",
+    "scope": "body"
+  },
+  {
+    "key": "C. Pengembangan Fitur dan Target Peramalan",
+    "scope": "body"
+  },
+  {
+    "key": "1. Kalkulasi Realized Variance dan Transformasi Logaritmik",
+    "scope": "body"
+  },
+  {
+    "key": "2. Pembentukan Enam Fitur Masukan Teknikal Kausal",
+    "scope": "body"
+  },
+  {
+    "key": "3. Skalasi Fitur Tanpa Kebocoran (StandardScaler Fold-Specific)",
+    "scope": "body"
+  },
+  {
+    "key": "D. Pembagian Data Temporal Kronologis (Temporal Window)",
+    "scope": "body"
+  },
+  {
+    "key": "1. Pembagian Dataset: Pengembangan, Validasi, dan Uji Eksternal",
+    "scope": "body"
+  },
+  {
+    "key": "2. Pembentukan Sampel Sekuensial Sliding Window",
+    "scope": "body"
+  },
+  {
+    "key": "E. Pemodelan Usulan (LSTM) dan Optimasi Hyperparameter Optuna",
+    "scope": "body"
+  },
+  {
+    "key": "1. Arsitektur Jaringan Vanilla LSTM Multivariat-Sekuensial",
+    "scope": "body"
+  },
+  {
+    "key": "2. Ruang Pencarian Hyperparameter",
+    "scope": "body"
+  },
+  {
+    "key": "3. Skema 5-Fold Purged Rolling-Origin Cross-Validation",
+    "scope": "body"
+  },
+  {
+    "key": "4. Algoritma Tree-structured Parzen Estimator (TPE) dan MedianPruner",
+    "scope": "body"
+  },
+  {
+    "key": "F. Pelatihan Model Final dan Protokol Multi-Seed",
+    "scope": "body"
+  },
+  {
+    "key": "1. Pelatihan Ulang pada Train Pool (2020–2025)",
+    "scope": "body"
+  },
+  {
+    "key": "2. Protokol Multi-Seed Ensemble",
+    "scope": "body"
+  },
+  {
+    "key": "G. Implementasi Model Baseline Pembanding",
+    "scope": "body"
+  },
+  {
+    "key": "1. Baseline Naif: Random Walk Persistence",
+    "scope": "body"
+  },
+  {
+    "key": "2. Baseline Ekonometrika High-Frequency: HAR-RV",
+    "scope": "body"
+  },
+  {
+    "key": "3. Baseline Volatilitas Klasik: GARCH(1,1) Expanding Window",
+    "scope": "body"
+  },
+  {
+    "key": "4. Baseline Deep Learning Heuristik: LSTM Untuned",
+    "scope": "body"
+  },
+  {
+    "key": "H. Protokol Evaluasi dan Inferensi Statistik",
+    "scope": "body"
+  },
+  {
+    "key": "1. Metrik Evaluasi: QLIKE, MAE, dan RMSE",
+    "scope": "body"
+  },
+  {
+    "key": "2. Uji Asimtotik Diebold-Mariano dengan Koreksi Newey-West",
+    "scope": "body"
+  },
+  {
+    "key": "3. Estimasi Empiris Moving-Block Bootstrap",
+    "scope": "body"
+  },
+  {
+    "key": "4. Kriteria Keberhasilan Eksperimen",
+    "scope": "body"
+  },
+  {
+    "key": "I. Validitas dan Pengendalian Kebocoran Data",
+    "scope": "body"
+  },
+  {
+    "key": "1. Pengendalian Temporal Ordering dan Look-Ahead Bias",
+    "scope": "body"
+  },
+  {
+    "key": "2. Pengendalian Information Leakage pada Standarisasi Fitur",
+    "scope": "body"
+  },
+  {
+    "key": "3. Pengendalian Purging Gap pada Cross-Validation",
+    "scope": "body"
+  },
+  {
+    "key": "4. Isolasi Data Uji Eksternal",
+    "scope": "body"
+  },
+  {
+    "key": "J. Robustness, Reproduksibilitas, dan Alur Penelitian",
+    "scope": "body"
+  },
+  {
+    "key": "1. Manajemen Provenance, Cryptographic Hashing, dan Manifest Komputasi",
+    "scope": "body"
+  },
+  {
+    "key": "2. Arsitektur Kode dan Unit Testing Mandiri",
+    "scope": "body"
+  },
+  {
+    "key": "3. Tahapan Eksperimen dan Alur Komputasi",
+    "scope": "body"
+  },
+  {
+    "key": "K. Jadwal Penelitian",
+    "scope": "body"
+  },
+  {
+    "key": "DAFTAR PUSTAKA",
+    "scope": "body"
+  },
+  {
+    "key": "Tabel 2.1 Ringkasan Sintesis Penelitian Terdahulu",
+    "scope": "body"
+  },
+  {
+    "key": "Tabel 3.1 Definisi Fitur Masukan Teknikal Kausal",
+    "scope": "body"
+  },
+  {
+    "key": "Tabel 3.2 Pembagian Jendela Temporal Dataset Penelitian",
+    "scope": "body"
+  },
+  {
+    "key": "Tabel 3.3 Ruang Pencarian Hyperparameter Model LSTM",
+    "scope": "body"
+  },
+  {
+    "key": "Tabel 3.4 Konfigurasi Spesifikasi Model Baseline Pembanding",
+    "scope": "body"
+  },
+  {
+    "key": "Tabel 3.5 Protokol Evaluasi dan Kriteria Inferensi Statistik",
+    "scope": "body"
+  },
+  {
+    "key": "Tabel 3.6 Matriks Jadwal Pelaksanaan Penelitian",
+    "scope": "body"
+  },
+  {
+    "key": "Gambar 2.1 Arsitektur Sel dan Aliran Informasi LSTM",
+    "scope": "body"
+  },
+  {
+    "key": "Gambar 2.2 Alur Kerangka Pemikiran Konseptual Penelitian",
+    "scope": "body"
+  },
+  {
+    "key": "Gambar 3.1 Alur Tahapan Penelitian Komputasional",
+    "scope": "body"
+  }
+]

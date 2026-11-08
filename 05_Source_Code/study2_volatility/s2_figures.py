@@ -9,7 +9,7 @@ Prinsip Ilmiah:
 - Output disimpan di: `05_Source_Code/results/study2/figures/`
   1. Gambar 4.1: Deret waktu log RV harian 2020–2026 dan batas partisi temporal.
   2. Gambar 4.2: Riwayat optimasi hyperparameter Optuna (50 trial TPE).
-  3. Gambar 4.3: Perbandingan prediksi model pada periode holdout test 2026.
+  3. Gambar 4.3: Perbandingan prediksi model pada periode uji eksternal 2026.
   4. Gambar 4.4: Diagram batang perbandingan metrik kerugian asimetris QLIKE.
   5. Gambar 4.5: Selisih kerugian QLIKE kumulatif terhadap baseline persistence.
 """

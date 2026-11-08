@@ -29,10 +29,11 @@
 - RQ1: Bagaimana merancang pipeline optimasi hyperparameter LSTM berbasis Optuna yang bebas kebocoran untuk prediksi RV Bitcoin?
 - RQ2: Sejauh mana model mengungguli baseline persistence pada test eksternal 2026?
 - RQ3: Apakah model menyaingi baseline HAR-RV dan GARCH(1,1)?
-- RQ4: Bagaimana konsistensi kinerja model antara validasi 2024–2025 dan test eksternal 2026?
+
+*Catatan:* analisis konsistensi kinerja validasi 2024–2025 vs uji eksternal 2026 tetap disajikan sebagai **analisis tambahan** di Bab 4, bukan RQ resmi. Outline yang di-ACC dosen memuat 3 RQ.
 
 ### 1.3 Tujuan Penelitian
-Turunkan langsung dari RQ1–RQ4 + tujuan tambahan (analisis kontribusi optimasi vs LSTM default).
+Turunkan langsung dari RQ1–RQ3 + tujuan tambahan (analisis kontribusi optimasi vs LSTM default).
 
 ### 1.4 Manfaat Penelitian
 Teoretis (bukti empiris RV + HPO), praktis (pipeline risk management), metodologis (template evaluasi leakage-free).
@@ -167,7 +168,7 @@ Hash protokol/data, manifest per run, environment, struktur kode.
 - RQ1: pipeline berhasil dibangun & terverifikasi hash.
 - RQ2: **jelas signifikan** vs persistence.
 - RQ3: **ya** secara point estimate & CI vs HAR; kompetitif vs GARCH.
-- RQ4: **konsisten**; kinerja test 2026 tidak mengalami degradasi ekstrem dan tetap kompetitif.
+- Analisis tambahan (bukan RQ): konsistensi validasi vs uji 2026 — kinerja test tidak mengalami degradasi ekstrem dan tetap kompetitif.
 
 ---
 

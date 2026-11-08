@@ -1,4 +1,4 @@
-"""[BAB 3 Â§3.1 | KONFIGURASI DAN PARAMETER RESMI STUDY 2]
+"""[BAB 3 §3.1 | KONFIGURASI DAN PARAMETER RESMI STUDY 2]
 
 Modul ini mendefinisikan konstanta, direktori berkas, dan konfigurasi praregistrasi
 untuk Study 2: Peramalan Realized Volatility Harian Bitcoin Menggunakan LSTM dan Optuna.
@@ -12,7 +12,7 @@ import hashlib
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
-# [BAB 3 Â§3.2 | STRUKTUR DIREKTORI DAN REPRODUKSIBILITAS]
+# [BAB 3 §3.2 | STRUKTUR DIREKTORI DAN REPRODUKSIBILITAS]
 # ---------------------------------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SOURCE_ROOT = PROJECT_ROOT / "05_Source_Code"
@@ -31,7 +31,7 @@ PROTOCOL_PATH = PROJECT_ROOT / "docs" / "STUDY2_PROTOCOL.md"
 PROTOCOL_HASH_PATH = PROJECT_ROOT / "docs" / "STUDY2_PROTOCOL_HASH.txt"
 
 # ---------------------------------------------------------------------------
-# [BAB 3 Â§3.4 | PEMBAGIAN PERIODE TEMPORAL DAN AMANDEMEN A1]
+# [BAB 3 §3.4 | PEMBAGIAN PERIODE TEMPORAL DAN AMANDEMEN A1]
 # ---------------------------------------------------------------------------
 DATA_START = "2020-01-01"
 DATA_END = "2026-09-30"          # Berkas kline Binance Vision Oktober 2026 belum rilis
@@ -58,14 +58,14 @@ MONTHS = [
 ]
 
 # ---------------------------------------------------------------------------
-# [BAB 3 Â§3.3 | TARGET DAN FITUR VOLATILITAS]
+# [BAB 3 §3.3 | TARGET DAN FITUR VOLATILITAS]
 # ---------------------------------------------------------------------------
 TARGET = "log_rv"
 FEATURES = ["log_rv", "log_range", "log_volume", "log_absret", "rv_mean_5", "rv_mean_22"]
 RV_EPS = 1e-12
 
 # ---------------------------------------------------------------------------
-# [BAB 3 Â§3.6 | RUANG PENCARIAN HIPERPARAMETER DAN MULTI-SEED]
+# [BAB 3 §3.6 | RUANG PENCARIAN HIPERPARAMETER DAN MULTI-SEED]
 # ---------------------------------------------------------------------------
 SEEDS = (42, 123, 2024, 7, 99)
 OPTUNA_SEED = 42
@@ -95,7 +95,7 @@ UNTUNED_LSTM = {
 }
 
 # ---------------------------------------------------------------------------
-# [BAB 3 Â§3.7 | PENGUJIAN INFERENSI STATISTIK]
+# [BAB 3 §3.7 | PENGUJIAN INFERENSI STATISTIK]
 # ---------------------------------------------------------------------------
 DM_HAC_LAG = 5
 BOOTSTRAP_BLOCK = 20
@@ -110,7 +110,7 @@ MODELS = ("persistence", "har_rv", "garch11", "lstm_untuned", "lstm_optuna")
 
 
 # ---------------------------------------------------------------------------
-# [BAB 3 Â§3.2 | HELPER HASH DAN INTEGRITAS BUKTI]
+# [BAB 3 §3.2 | HELPER HASH DAN INTEGRITAS BUKTI]
 # ---------------------------------------------------------------------------
 def sha256_file(path: Path, chunk_size: int = 1 << 20) -> str:
     """Menghitung ringkasan SHA-256 berkas biner secara streaming."""

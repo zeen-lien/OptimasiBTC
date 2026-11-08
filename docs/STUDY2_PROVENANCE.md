@@ -35,7 +35,7 @@ yang dibuat setelah melihat hasil test.
 
 6. **Modul & test.** s2_stats, s2_models, s2_runlog, s2_optuna_search,
    s2_final_run, s2_analyze ditulis; smoke HPO (1 trial × 2 epoch) deterministik
-   (dua run identik); 15 unit test lulus. Sanity dev-only: QLIKE persistence
+   (dua run identik); 15 unit test lulus (jumlah suite saat run historis; suite aktif kini 34 tes). Sanity dev-only: QLIKE persistence
    0.846 vs HAR 0.598 (informasi dev).
 
 7. **Smoke final runner (2 seed × 2 epoch) mencetak angka placeholder LSTM

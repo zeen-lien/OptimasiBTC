@@ -4,8 +4,9 @@ Modul pencarian hiperparameter resmi untuk model usulan Study 2 (Protokol Bagian
 - Algoritma: Tree-structured Parzen Estimator (TPE, Bergstra et al. 2011) seed 42, 50 trials.
 - Mekanisme pemangkasan: MedianPruner (startup=10, warmup=2) untuk efisiensi komputasi.
 - Fungsi objektif: Rerata kerugian QLIKE (Patton 2011) pada 5 fold purged rolling-origin CV.
-- Isolasi ketat: Dilakukan HANYA pada jendela dev (2020-01-01 s.d. 2023-12-31).
-  Data 2024–2026 tidak pernah dimuat selama proses pencarian hiperparameter.
+- Isolasi data: CSV harian dimuat penuh, tetapi seluruh baris setelah `DEV_END` (2023-12-31)
+  dibuang sebelum pembentukan sampel. Data 2024–2026 tidak pernah dipakai untuk memilih
+  hyperparameter, menghitung objektif CV, atau menentukan model final.
 """
 
 from __future__ import annotations
