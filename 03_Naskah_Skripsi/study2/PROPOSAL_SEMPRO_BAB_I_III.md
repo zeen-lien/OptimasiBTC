@@ -171,7 +171,7 @@ Tahapan operasi komputasi internal pada sebuah sel LSTM pada setiap langkah wakt
    $$o_t = \sigma\left(W_o \cdot [h_{t-1}, x_t] + b_o\right) \tag{2.10}$$
    $$h_t = o_t \odot \tanh(c_t) \tag{2.11}$$
 
-Melalui mekanisme gerbang interaktif tersebut, LSTM mampu mempertahankan sinyal ketergantungan temporal jangka panjang secara stabil sekaligus menyaring derau sesaat, menjadikannya model yang sangat adaptif dalam memodelkan dinamika volatilitas finansial non-linear (Kim & Won, 2018).
+Pada Persamaan (2.6) hingga (2.11), $W_f, W_i, W_c,$ dan $W_o$ bertindak sebagai matriks bobot sinaptik, sedangkan $b_f, b_i, b_c,$ dan $b_o$ merupakan vektor bias untuk masing-masing gerbang. Simbol $\sigma$ merepresentasikan fungsi aktivasi non-linear sigmoid yang memetakan nilai ke dalam rentang $[0, 1]$, $\tanh$ adalah fungsi tangen hiperbolik dengan rentang luaran $[-1, 1]$, dan operator $\odot$ melambangkan perkalian elemen-demi-elemen (*Hadamard product*). Melalui mekanisme gerbang interaktif tersebut, LSTM mampu mempertahankan sinyal ketergantungan temporal jangka panjang secara stabil sekaligus menyaring derau sesaat, menjadikannya model yang sangat adaptif dalam memodelkan dinamika volatilitas finansial non-linear (Kim & Won, 2018).
 
 ### 3. Algoritma Optimasi Adam dan Regularisasi Dropout
 
@@ -370,7 +370,7 @@ $$rv\_mean\_5_t = \frac{1}{5} \sum_{i=0}^{4} \log RV_{t-i} \tag{3.5}$$
 
 $$rv\_mean\_22_t = \frac{1}{22} \sum_{i=0}^{21} \log RV_{t-i} \tag{3.6}$$
 
-Ringkasan formulasi matematis, tipe variabel, dan peran teoretis dari keenam fitur masukan disajikan secara komprehensif pada Tabel 3.1.
+Pada Persamaan (3.3) hingga (3.6), $H_{t,h}$ dan $L_{t,h}$ menyatakan harga tertinggi dan terendah pada bar jam ke-$h$, $V_{t,h}$ adalah volume perdagangan per jam, $C_t$ dan $C_{t-1}$ merepresentasikan harga penutupan harian pada hari $t$ dan $t-1$, serta indeks $i$ menyatakan kelambatan (*lag*) hari ke belakang. Ringkasan formulasi matematis, tipe variabel, dan peran teoretis dari keenam fitur masukan disajikan secara komprehensif pada Tabel 3.1.
 
 **Tabel 3.1 Definisi Fitur Masukan Teknikal Kausal**
 
@@ -463,7 +463,7 @@ Proyeksi akhir model LSTM untuk setiap langkah peramalan $t+1$ dihasilkan melalu
 
 $$\widehat{\log RV}_{t+1} = \frac{1}{5} \sum_{s \in \{42, 123, 2024, 7, 99\}} \widehat{\log RV}_{t+1}^{(s)} \tag{3.7}$$
 
-Agregasi multi-seed ini mereduksi varians estimasi individual dan meningkatkan stabilitas prediksi model secara signifikan saat menghadapi dinamika data uji yang belum pernah dipelajari sebelumnya.
+Pada Persamaan (3.7), $\widehat{\log RV}_{t+1}^{(s)}$ menyatakan nilai proyeksi satu hari ke depan yang dihasilkan oleh model dengan inisialisasi benih acak $s \in \{42, 123, 2024, 7, 99\}$, sedangkan $\widehat{\log RV}_{t+1}$ merupakan proyeksi akhir hasil rata-rata ansambel. Agregasi multi-seed ini mereduksi varians estimasi individual dan meningkatkan stabilitas prediksi model secara signifikan saat menghadapi dinamika data uji yang belum pernah dipelajari sebelumnya.
 
 ## G. Implementasi Model Baseline Pembanding
 

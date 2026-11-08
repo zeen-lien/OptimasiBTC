@@ -76,7 +76,7 @@ Tahapan operasi komputasi internal pada sebuah sel LSTM pada setiap langkah wakt
    $$o_t = \sigma\left(W_o \cdot [h_{t-1}, x_t] + b_o\right) \tag{2.10}$$
    $$h_t = o_t \odot \tanh(c_t) \tag{2.11}$$
 
-Melalui mekanisme gerbang interaktif tersebut, LSTM mampu mempertahankan sinyal ketergantungan temporal jangka panjang secara stabil sekaligus menyaring derau sesaat, menjadikannya model yang sangat adaptif dalam memodelkan dinamika volatilitas finansial non-linear (Kim & Won, 2018).
+Pada Persamaan (2.6) hingga (2.11), $W_f, W_i, W_c,$ dan $W_o$ bertindak sebagai matriks bobot sinaptik, sedangkan $b_f, b_i, b_c,$ dan $b_o$ merupakan vektor bias untuk masing-masing gerbang. Simbol $\sigma$ merepresentasikan fungsi aktivasi non-linear sigmoid yang memetakan nilai ke dalam rentang $[0, 1]$, $\tanh$ adalah fungsi tangen hiperbolik dengan rentang luaran $[-1, 1]$, dan operator $\odot$ melambangkan perkalian elemen-demi-elemen (*Hadamard product*). Melalui mekanisme gerbang interaktif tersebut, LSTM mampu mempertahankan sinyal ketergantungan temporal jangka panjang secara stabil sekaligus menyaring derau sesaat, menjadikannya model yang sangat adaptif dalam memodelkan dinamika volatilitas finansial non-linear (Kim & Won, 2018).
 
 ### 3. Algoritma Optimasi Adam dan Regularisasi Dropout
 
