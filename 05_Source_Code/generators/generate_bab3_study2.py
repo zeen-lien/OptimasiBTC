@@ -27,6 +27,11 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Cm, Pt, RGBColor
 
+from math_typesetter import (
+    render_math_to_runs_academic,
+    set_run_font_academic,
+)
+
 ROOT = Path(__file__).resolve().parents[2]
 SRC_MD = ROOT / "03_Naskah_Skripsi" / "study2" / "BAB_3_METODE_PENELITIAN.md"
 OUT_DOCX = ROOT / "03_Naskah_Skripsi" / "study2" / "BAB_3_METODE_PENELITIAN.docx"
@@ -163,7 +168,7 @@ def add_inline_formatting(p, text: str, default_size=12, default_bold=False, def
             run = p.add_run(tok[1:-1])
             set_run_font(run, name="Consolas", size=default_size - 1, bold=default_bold, italic=default_italic)
         elif (tok.startswith(r"\(") and tok.endswith(r"\)")) or (tok.startswith("$") and tok.endswith("$")):
-            render_inline_math(p, tok, default_size=default_size, base_bold=default_bold)
+            render_math_to_runs_academic(p, tok, default_size=default_size, base_bold=default_bold)
         else:
             run = p.add_run(tok)
             set_run_font(run, size=default_size, bold=default_bold, italic=default_italic)
@@ -309,23 +314,22 @@ def generate_bab3_docx():
             i += 1 # skip closing $$
             full_math = " ".join(math_lines)
             
-            # Check for tag \tag{...}
             tag_match = re.search(r"\\tag\{([^}]+)\}", full_math)
             tag_str = ""
             if tag_match:
                 tag_str = f"({tag_match.group(1)})"
                 full_math = full_math.replace(tag_match.group(0), "").strip()
 
-            eq_text = latex_to_unicode_display(full_math)
-            if tag_str:
-                eq_text = f"{eq_text}      {tag_str}"
-
             p = doc.add_paragraph()
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
             p.paragraph_format.space_before = Pt(4)
             p.paragraph_format.space_after = Pt(6)
-            run = p.add_run(eq_text)
-            set_run_font(run, size=11, italic=True)
+            render_math_to_runs_academic(p, full_math, default_size=11)
+            if tag_str:
+                r_space = p.add_run("      ")
+                set_run_font_academic(r_space, size=11, italic=False)
+                r_tag = p.add_run(tag_str)
+                set_run_font_academic(r_tag, size=11, italic=False, bold=False)
             continue
 
         # Single-line display math $$ ... $$
@@ -337,16 +341,16 @@ def generate_bab3_docx():
                 tag_str = f"({tag_match.group(1)})"
                 raw_eq = raw_eq.replace(tag_match.group(0), "").strip()
 
-            eq_text = latex_to_unicode_display(raw_eq)
-            if tag_str:
-                eq_text = f"{eq_text}      {tag_str}"
-
             p = doc.add_paragraph()
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
             p.paragraph_format.space_before = Pt(4)
             p.paragraph_format.space_after = Pt(6)
-            run = p.add_run(eq_text)
-            set_run_font(run, size=11, italic=True)
+            render_math_to_runs_academic(p, raw_eq, default_size=11)
+            if tag_str:
+                r_space = p.add_run("      ")
+                set_run_font_academic(r_space, size=11, italic=False)
+                r_tag = p.add_run(tag_str)
+                set_run_font_academic(r_tag, size=11, italic=False, bold=False)
             i += 1
             continue
 

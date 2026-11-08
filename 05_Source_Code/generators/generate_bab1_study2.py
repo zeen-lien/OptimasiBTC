@@ -24,6 +24,11 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Cm, Pt
 
+from math_typesetter import (
+    render_math_to_runs_academic,
+    set_run_font_academic,
+)
+
 ROOT = Path(__file__).resolve().parents[2]
 SRC_MD = ROOT / "03_Naskah_Skripsi" / "study2" / "BAB_1_PENDAHULUAN.md"
 OUT_DOCX = ROOT / "03_Naskah_Skripsi" / "study2" / "BAB_1_PENDAHULUAN.docx"
@@ -130,7 +135,7 @@ def add_inline_formatting(p, text: str, default_size=12, default_italic=False, d
             run = p.add_run(tok[1:-1])
             set_run_font(run, name="Consolas", size=default_size - 1, bold=default_bold, italic=default_italic)
         elif (tok.startswith(r"\(") and tok.endswith(r"\)")) or (tok.startswith("$") and tok.endswith("$")):
-            render_math_to_runs(p, tok, default_size=default_size, base_bold=default_bold)
+            render_math_to_runs_academic(p, tok, default_size=default_size, base_bold=default_bold)
         else:
             run = p.add_run(tok)
             set_run_font(run, size=default_size, bold=default_bold, italic=default_italic)
