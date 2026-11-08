@@ -16,7 +16,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
+from matplotlib.patches import Circle, FancyArrowPatch, FancyBboxPatch
 
 ROOT = Path(__file__).resolve().parents[2]
 FIG_DIR = ROOT / "03_Naskah_Skripsi" / "study2" / "figures"
@@ -143,64 +143,211 @@ def chip(ax, x: float, y: float, w: float, h: float, text: str, color: str, *, s
     label(ax, x + w / 2, y + h / 2, text, size=size, color=INK)
 
 
+def circle_op(ax, x: float, y: float, symbol: str, r: float = 0.28, edge: str = BLUE, face: str = "#FFFFFF", lw: float = 1.3, zorder: int = 4):
+    c = Circle((x, y), r, edgecolor=edge, facecolor=face, linewidth=lw, zorder=zorder)
+    ax.add_patch(c)
+    ax.text(x, y, symbol, fontsize=12, fontweight="bold", ha="center", va="center", color=edge, zorder=zorder + 1)
+
+
 # ---------------------------------------------------------------- Gambar 2.1
 def gambar_2_1() -> Path:
-    W, H = 12.0, 7.4
+    """Diagram Arsitektur Sel dan Aliran Informasi LSTM Kanonikal (Standar Olah & Persamaan 2.6-2.11)."""
+    W, H = 14.2, 8.4
     fig, ax = canvas(W, H)
 
-    # Kolom masukan
-    box(ax, 0.25, 1.15, 1.85, 5.55, edge=BLUE, lw=1.2)
-    label(ax, 1.175, 6.18, "Masukan pada\nwaktu $t$", size=10.5, color=BLUE, weight="bold")
-    label(ax, 1.175, 5.13, r"$x_t$", size=12.5)
-    label(ax, 1.175, 4.72, "(6 fitur kausal)", size=8.8, color=MUTED)
-    label(ax, 1.175, 3.15, r"$h_{t-1}$", size=12.5)
-    label(ax, 1.175, 1.92, r"$c_{t-1}$", size=12.5)
+    # Batas luar sel LSTM t
+    outer = FancyBboxPatch(
+        (2.15, 0.45), 10.35, 7.50,
+        boxstyle="round,pad=0,rounding_size=0.25",
+        linewidth=1.4, linestyle="--", edgecolor="#A0AEC0", facecolor="#F8FAFC", zorder=1
+    )
+    ax.add_patch(outer)
+    label(ax, 2.35, 7.68, "Batas Internal Komputasi Sel LSTM (Langkah Waktu $t$)", size=9.8, color="#4A5568", weight="bold", ha="left")
 
-    # Kartu gerbang
-    gates = [
-        ("Gerbang lupa (forget gate)", r"$f_t=\sigma\left(W_f\,[h_{t-1},x_t]+b_f\right)$", 5.55, MAROON),
-        ("Gerbang masuk (input gate)", r"$i_t=\sigma\left(W_i\,[h_{t-1},x_t]+b_i\right)$", 4.15, AMBER),
-        ("Kandidat status sel", r"$\tilde{c}_t=\tanh\left(W_c\,[h_{t-1},x_t]+b_c\right)$", 2.75, TEAL),
-        ("Gerbang keluar (output gate)", r"$o_t=\sigma\left(W_o\,[h_{t-1},x_t]+b_o\right)$", 1.35, PURPLE),
-    ]
-    gx, gw, gh = 2.95, 4.75, 1.12
-    for title, eq, y, color in gates:
-        box(ax, gx, y, gw, gh, edge=color, lw=1.2)
-        label(ax, gx + gw / 2, y + gh - 0.26, title, size=9.6, color=color, weight="bold")
-        label(ax, gx + gw / 2, y + 0.38, eq, size=11.3)
+    # =========================================================================
+    # 1. JALUR STATUS SEL (CELL STATE FREEWAY / JALAN TOL MEMORI) - BARIS ATAS
+    # =========================================================================
+    cy = 6.75
+    # Masukan c_{t-1}
+    box(ax, 0.20, cy - 0.45, 1.65, 0.90, edge=NAVY, lw=1.3)
+    label(ax, 1.025, cy + 0.16, "Status Sel Masa Lalu", size=8.2, color=NAVY, weight="bold")
+    label(ax, 1.025, cy - 0.18, r"$c_{t-1}$", size=12.0, weight="bold")
 
-    # Kartu hasil
-    box(ax, 8.55, 4.35, 3.2, 1.35, edge=NAVY, lw=1.3)
-    label(ax, 10.15, 5.42, "Pembaruan status sel", size=9.8, color=NAVY, weight="bold")
-    label(ax, 10.15, 4.83, r"$c_t=f_t\odot c_{t-1}+i_t\odot\tilde{c}_t$", size=11.8)
+    # Simpul Operasi 1: Perkalian elemen forget gate (x=4.20)
+    op1_x = 4.20
+    circle_op(ax, op1_x, cy, r"$\odot$", r=0.28, edge=MAROON, lw=1.4)
 
-    box(ax, 8.55, 2.35, 3.2, 1.35, edge=GREEN, lw=1.3)
-    label(ax, 10.15, 3.42, "Status tersembunyi", size=9.8, color=GREEN, weight="bold")
-    label(ax, 10.15, 2.83, r"$h_t=o_t\odot\tanh\left(c_t\right)$", size=11.8)
+    # Simpul Operasi 2: Penjumlahan update memori baru (x=6.95)
+    op2_x = 6.95
+    circle_op(ax, op2_x, cy, r"$+$", r=0.28, edge=NAVY, lw=1.5)
 
-    box(ax, 8.55, 0.55, 3.2, 0.95, edge=LINE, lw=1.0, face="#F5F7FA")
-    label(ax, 10.15, 1.02, r"Keluaran linear: $\hat{y}_{t+1}=\log RV_{t+1}$", size=10.4)
+    # Titik Percabangan c_t ke tanh dan keluaran (x=11.15)
+    split_c_x = 11.15
 
-    # Aliran masukan ke gerbang
-    for _, _, y, _ in gates:
-        arrow(ax, (2.10, y + gh / 2), (gx, y + gh / 2), rad=0.0)
+    # Aliran jalan tol c:
+    arrow(ax, (1.85, cy), (op1_x - 0.32, cy), color=NAVY, lw=1.5)
+    arrow(ax, (op1_x + 0.32, cy), (op2_x - 0.32, cy), color=NAVY, lw=1.5)
+    ax.plot([op2_x + 0.32, split_c_x], [cy, cy], color=NAVY, lw=1.5, zorder=2)
+    # Titik cabang c_t
+    dot_c = Circle((split_c_x, cy), 0.08, facecolor=NAVY, edgecolor=NAVY, zorder=4)
+    ax.add_patch(dot_c)
+    # Lanjut ke keluaran c_t
+    arrow(ax, (split_c_x, cy), (12.75, cy), color=NAVY, lw=1.5)
 
-    # Gerbang ke hasil
-    arrow(ax, (gx + gw, 6.11), (8.55, 5.35), rad=-0.08, color=MAROON)
-    arrow(ax, (gx + gw, 4.71), (8.55, 4.95), rad=0.04, color=AMBER)
-    arrow(ax, (gx + gw, 3.31), (8.55, 4.62), rad=0.10, color=TEAL)
-    arrow(ax, (gx + gw, 1.91), (8.55, 3.20), rad=0.12, color=PURPLE)
+    # Keluaran c_t di kanan
+    box(ax, 12.80, cy - 0.45, 1.25, 0.90, edge=NAVY, lw=1.3)
+    label(ax, 13.425, cy + 0.16, "Status Sel Baru", size=8.2, color=NAVY, weight="bold")
+    label(ax, 13.425, cy - 0.18, r"$c_t$", size=12.0, weight="bold")
 
-    # c_{t-1} dirutekan di atas gerbang menuju kartu status sel
-    ax.plot([1.175, 1.175, 10.15], [6.70, 7.02, 7.02], color=NAVY, lw=1.0, zorder=1)
-    arrow(ax, (10.15, 7.02), (10.15, 5.72), color=NAVY, lw=1.0)
+    # Formula Persamaan (2.9) di atas rel
+    label(ax, 6.95, 7.30, r"Pembaruan Status Sel: $c_t = f_t \odot c_{t-1} + i_t \odot \tilde{c}_t$", size=10.5, color=NAVY, weight="bold")
 
-    # c_t -> h_t
-    arrow(ax, (10.15, 4.35), (10.15, 3.70), color=NAVY)
-    arrow(ax, (10.15, 2.35), (10.15, 1.50), color=GREEN)
+    # =========================================================================
+    # 2. MASUKAN x_t DAN h_{t-1} SERTA BLOK KONKATENASI
+    # =========================================================================
+    # Masukan x_t
+    box(ax, 0.20, 0.70, 1.65, 1.15, edge=BLUE, lw=1.3)
+    label(ax, 1.025, 1.55, "Fitur Masukan Baru", size=8.0, color=BLUE, weight="bold")
+    label(ax, 1.025, 1.22, r"$x_t \in \mathbb{R}^6$", size=11.0, weight="bold")
+    label(ax, 1.025, 0.92, "(6 fitur kausal)", size=7.8, color=MUTED)
 
-    label(ax, 0.28, 0.36, r"$\sigma$ = sigmoid; $\tanh$ = tangen hiperbolik; $\odot$ = perkalian elemen; $[\,\cdot\,,\,\cdot\,]$ = konkatenasi vektor",
-          size=8.4, color=MUTED, ha="left")
+    # Masukan h_{t-1}
+    box(ax, 0.20, 2.25, 1.65, 0.95, edge=GREEN, lw=1.3)
+    label(ax, 1.025, 2.85, "Status Tersembunyi Lalu", size=7.8, color=GREEN, weight="bold")
+    label(ax, 1.025, 2.50, r"$h_{t-1}$", size=11.5, weight="bold")
+
+    # Blok Konkatenasi [h_{t-1}, x_t]
+    box(ax, 2.35, 1.40, 1.40, 1.50, edge=BLUE, lw=1.4, face="#EBF4FF")
+    label(ax, 3.05, 2.52, "Konkatenasi", size=8.2, color=BLUE, weight="bold")
+    label(ax, 3.05, 2.12, r"$[h_{t-1}, x_t]$", size=11.8, weight="bold")
+    label(ax, 3.05, 1.70, "Penggabungan Vektor", size=7.2, color=MUTED)
+
+    arrow(ax, (1.85, 2.72), (2.35, 2.30), color=GREEN, lw=1.3)
+    arrow(ax, (1.85, 1.30), (2.35, 1.90), color=BLUE, lw=1.3)
+
+    # =========================================================================
+    # 3. EMPAT GERBANG KOMPUTASI (FOUR PARALLEL GATES)
+    # =========================================================================
+    # Jalur Bus Konkatenasi
+    bus_y = 2.15
+    line_bus = "#2B6CB0"
+    ax.plot([3.75, 9.40], [bus_y, bus_y], color=line_bus, lw=1.5, zorder=2)
+    label(ax, 3.82, bus_y + 0.16, r"$[h_{t-1}, x_t]$", size=8.5, color=BLUE, ha="left")
+
+    # --- Gate 1: Gerbang Lupa (Forget Gate) ---
+    g1_x = 4.20
+    box(ax, 3.35, 3.45, 1.70, 1.90, edge=MAROON, lw=1.3)
+    label(ax, g1_x, 5.08, "Gerbang Lupa (Forget)", size=8.5, color=MAROON, weight="bold")
+    label(ax, g1_x, 4.68, r"$\sigma$", size=14.0, color=MAROON, weight="bold")
+    label(ax, g1_x, 4.12, r"$f_t = \sigma\left(W_f [h_{t-1}, x_t] + b_f\right)$", size=8.0)
+    label(ax, g1_x, 3.70, "(Persamaan 2.6)", size=7.5, color=MUTED)
+
+    # Cabang Bus ke Gate 1
+    arrow(ax, (g1_x, bus_y), (g1_x, 3.45), color=MAROON, lw=1.3)
+    # Output Gate 1 naik ke op1 pada jalan tol c
+    arrow(ax, (g1_x, 5.35), (op1_x, cy - 0.32), color=MAROON, lw=1.4)
+    label(ax, g1_x + 0.22, 5.85, r"$f_t$", size=9.5, color=MAROON, weight="bold")
+
+    # --- Gate 2: Gerbang Masuk (Input Gate) ---
+    g2_x = 5.95
+    box(ax, 5.15, 3.45, 1.60, 1.90, edge=AMBER, lw=1.3)
+    label(ax, g2_x, 5.08, "Gerbang Masuk (Input)", size=8.5, color=AMBER, weight="bold")
+    label(ax, g2_x, 4.68, r"$\sigma$", size=14.0, color=AMBER, weight="bold")
+    label(ax, g2_x, 4.12, r"$i_t = \sigma\left(W_i [h_{t-1}, x_t] + b_i\right)$", size=8.0)
+    label(ax, g2_x, 3.70, "(Persamaan 2.7)", size=7.5, color=MUTED)
+
+    arrow(ax, (g2_x, bus_y), (g2_x, 3.45), color=AMBER, lw=1.3)
+
+    # --- Gate 3: Kandidat Status Sel (Candidate Cell State) ---
+    g3_x = 7.80
+    box(ax, 7.00, 3.45, 1.60, 1.90, edge=TEAL, lw=1.3)
+    label(ax, g3_x, 5.08, "Kandidat Status Sel", size=8.5, color=TEAL, weight="bold")
+    label(ax, g3_x, 4.68, r"$\tanh$", size=13.0, color=TEAL, weight="bold")
+    label(ax, g3_x, 4.12, r"$\tilde{c}_t = \tanh\left(W_c [h_{t-1}, x_t] + b_c\right)$", size=7.8)
+    label(ax, g3_x, 3.70, "(Persamaan 2.8)", size=7.5, color=MUTED)
+
+    arrow(ax, (g3_x, bus_y), (g3_x, 3.45), color=TEAL, lw=1.3)
+
+    # Pertemuan i_t dan \tilde{c}_t pada simpul perkalian elemen \odot
+    mult_i_c_y = 5.80
+    circle_op(ax, op2_x, mult_i_c_y, r"$\odot$", r=0.26, edge=AMBER, lw=1.3)
+    arrow(ax, (g2_x, 5.35), (op2_x - 0.28, mult_i_c_y - 0.05), color=AMBER, lw=1.2, rad=0.08)
+    label(ax, g2_x + 0.28, 5.62, r"$i_t$", size=9.0, color=AMBER, weight="bold")
+
+    arrow(ax, (g3_x, 5.35), (op2_x + 0.28, mult_i_c_y - 0.05), color=TEAL, lw=1.2, rad=-0.08)
+    label(ax, g3_x - 0.28, 5.62, r"$\tilde{c}_t$", size=9.0, color=TEAL, weight="bold")
+
+    # Hasil perkalian (i_t \odot \tilde{c}_t) naik ke op2 (+) pada jalan tol c
+    arrow(ax, (op2_x, mult_i_c_y + 0.28), (op2_x, cy - 0.32), color=NAVY, lw=1.4)
+    label(ax, op2_x + 0.45, 6.22, r"$i_t \odot \tilde{c}_t$", size=8.5, color=NAVY)
+
+    # --- Gate 4: Gerbang Keluar (Output Gate) ---
+    g4_x = 9.40
+    box(ax, 8.60, 3.45, 1.60, 1.90, edge=PURPLE, lw=1.3)
+    label(ax, g4_x, 5.08, "Gerbang Keluar (Output)", size=8.5, color=PURPLE, weight="bold")
+    label(ax, g4_x, 4.68, r"$\sigma$", size=14.0, color=PURPLE, weight="bold")
+    label(ax, g4_x, 4.12, r"$o_t = \sigma\left(W_o [h_{t-1}, x_t] + b_o\right)$", size=8.0)
+    label(ax, g4_x, 3.70, "(Persamaan 2.10)", size=7.5, color=MUTED)
+
+    arrow(ax, (g4_x, bus_y), (g4_x, 3.45), color=PURPLE, lw=1.3)
+
+    # =========================================================================
+    # 4. STATUS TERSEMBUNYI h_t DAN KELUARAN MODEL
+    # =========================================================================
+    # Jalur c_t turun ke blok aktivasi \tanh(c_t)
+    tanh_c_y = 4.40
+    box(ax, split_c_x - 0.50, tanh_c_y - 0.35, 1.00, 0.70, edge=GREEN, lw=1.3, face="#F0FFF4")
+    label(ax, split_c_x, tanh_c_y, r"$\tanh$", size=13.0, color=GREEN, weight="bold")
+
+    # Garis c_t turun ke tanh
+    arrow(ax, (split_c_x, cy), (split_c_x, tanh_c_y + 0.38), color=GREEN, lw=1.3)
+    label(ax, split_c_x + 0.28, 5.50, r"$c_t$", size=9.5, color=GREEN, weight="bold")
+
+    # Simpul perkalian o_t \odot tanh(c_t)
+    op_h_y = 2.45
+    circle_op(ax, split_c_x, op_h_y, r"$\odot$", r=0.28, edge=GREEN, lw=1.4)
+
+    # tanh(c_t) turun ke operator perkalian
+    arrow(ax, (split_c_x, tanh_c_y - 0.38), (split_c_x, op_h_y + 0.32), color=GREEN, lw=1.3)
+
+    # Output Gate (o_t) keluar dari sisi kanan Gate 4 (x=10.20, y=3.80) lalu turun ke simpul op_h_y
+    ax.plot([10.20, 10.55, 10.55], [3.80, 3.80, op_h_y], color=PURPLE, lw=1.3, zorder=2)
+    arrow(ax, (10.55, op_h_y), (split_c_x - 0.32, op_h_y), color=PURPLE, lw=1.3)
+    label(ax, 10.35, 4.02, r"$o_t$", size=9.5, color=PURPLE, weight="bold")
+
+    # Dari operator perkalian dihasilkan h_t (Persamaan 2.11)
+    label(ax, split_c_x, op_h_y - 0.45, r"$h_t = o_t \odot \tanh(c_t)$", size=9.2, color=GREEN, weight="bold")
+
+    # Titik cabang h_t (ke kanan keluar sel dan ke bawah ke lapisan prediksi)
+    split_h_x = 12.00
+    ax.plot([split_c_x + 0.32, split_h_x], [op_h_y, op_h_y], color=GREEN, lw=1.5, zorder=2)
+    dot_h = Circle((split_h_x, op_h_y), 0.08, facecolor=GREEN, edgecolor=GREEN, zorder=4)
+    ax.add_patch(dot_h)
+
+    # 1. h_t keluar ke kanan (ke sel t+1)
+    arrow(ax, (split_h_x, op_h_y), (12.75, op_h_y), color=GREEN, lw=1.5)
+    box(ax, 12.80, op_h_y - 0.45, 1.25, 0.90, edge=GREEN, lw=1.3)
+    label(ax, 13.425, op_h_y + 0.16, "Status Tersembunyi", size=7.8, color=GREEN, weight="bold")
+    label(ax, 13.425, op_h_y - 0.18, r"$h_t$", size=12.0, weight="bold")
+
+    # 2. h_t turun ke Lapisan Luaran Linier (Dense / Linear Projection)
+    box(ax, 4.80, 0.70, 5.50, 0.95, edge=LINE, lw=1.3, face="#FFFFFF")
+    label(ax, 7.55, 1.35, "Lapisan Luaran Linier (Dense Layer / Proyeksi Regresi Volatilitas)", size=8.5, color=INK, weight="bold")
+    label(ax, 7.55, 0.95, r"$\hat{y}_{t+1} = \log RV_{t+1} = W_y \cdot h_t + b_y$", size=10.5, color=NAVY, weight="bold")
+
+    # Garis dari split_h_x turun dan belok ke Lapisan Luaran Linier
+    ax.plot([split_h_x, split_h_x, 10.35], [op_h_y, 1.15, 1.15], color=NAVY, lw=1.3, zorder=2)
+    arrow(ax, (10.50, 1.15), (10.35, 1.15), color=NAVY, lw=1.3)
+    label(ax, split_h_x + 0.22, 1.80, r"$h_t$", size=9.0, color=GREEN, weight="bold")
+
+    # =========================================================================
+    # 5. KETERANGAN LEGENDA NOTASI
+    # =========================================================================
+    label(
+        ax, 0.20, 0.15,
+        r"Notasi Matematis: $\sigma$ = fungsi aktivasi sigmoid $[0,1]$; $\tanh$ = tangen hiperbolik $[-1,1]$; $\odot$ = perkalian elemen (Hadamard product); $+$ = penjumlahan vektor; $[h_{t-1}, x_t]$ = konkatenasi vektor.",
+        size=8.0, color=MUTED, ha="left"
+    )
 
     out = FIG_DIR / "gambar_2_1_arsitektur_lstm.png"
     fig.savefig(out, facecolor="white")

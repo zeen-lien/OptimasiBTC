@@ -109,3 +109,4 @@ if __name__ == "__main__":
     audit_symbols_explanation()
     audit_tables_and_figures()
     audit_structure_checklist()
+
