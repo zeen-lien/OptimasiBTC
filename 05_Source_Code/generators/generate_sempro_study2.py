@@ -53,9 +53,10 @@ CHAPTER_FILES = [
     SRC_DIR / "BAB_2_LANDASAN_TEORI.md",
     SRC_DIR / "BAB_3_METODE_PENELITIAN.md",
     SRC_DIR / "DAFTAR_REFERENSI_STUDY2.md",
+    SRC_DIR / "LAMPIRAN_SEMPRO.md",
 ]
 
-# Pemetaan nomor halaman untuk DAFTAR ISI / TABEL / GAMBAR.
+# Pemetaan nomor halaman untuk DAFTAR ISI / TABEL / GAMBAR / LAMPIRAN.
 # Berkas ini dihasilkan oleh update_toc_pages_sempro.ps1 (Word COM).
 # Bila belum ada, generator menulis tanda "?" agar tetap bisa dijalankan.
 PAGE_MAP_PATH = Path(__file__).resolve().parent / "toc_pages_sempro.json"
@@ -80,6 +81,7 @@ def heading_entries():
     selalu sinkron dengan naskah."""
     entries = []
     for ch_file in CHAPTER_FILES:
+        is_lampiran = (ch_file.name == "LAMPIRAN_SEMPRO.md")
         for raw in ch_file.read_text(encoding="utf-8").splitlines():
             line = raw.rstrip()
             if line.startswith("# BAB "):
@@ -87,10 +89,12 @@ def heading_entries():
                 entries.append((0, title, title.split(" ", 2)[-1]))
             elif line.startswith("# DAFTAR PUSTAKA"):
                 entries.append((0, "DAFTAR PUSTAKA", "DAFTAR PUSTAKA"))
+            elif line.startswith("# LAMPIRAN"):
+                entries.append((0, "LAMPIRAN", "LAMPIRAN"))
             elif line.startswith("## "):
                 title = line[3:].strip()
                 entries.append((1, title, title))
-            elif line.startswith("### "):
+            elif line.startswith("### ") and not is_lampiran:
                 title = line[4:].strip()
                 entries.append((2, title, title))
     return entries
@@ -113,6 +117,16 @@ def figure_captions():
             m = re.match(r"!\[([^\]]+)\]\(", raw.strip())
             if m:
                 caps.append(m.group(1).strip())
+    return caps
+
+
+def appendix_captions():
+    caps = []
+    for ch_file in CHAPTER_FILES:
+        for raw in ch_file.read_text(encoding="utf-8").splitlines():
+            line = raw.strip()
+            if line.startswith("## Lampiran "):
+                caps.append(line[3:].strip())
     return caps
 
 GREEK = {
@@ -366,13 +380,14 @@ def add_figure(doc, img_path: Path, caption: str):
     add_inline_formatting(cp, caption, default_size=10, default_italic=True)
 
 
-def add_table_docx(doc, headers: list[str], rows: list[list[str]], caption: str):
-    cp = doc.add_paragraph()
-    cp.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    cp.paragraph_format.space_before = Pt(8)
-    cp.paragraph_format.space_after = Pt(4)
-    run_cap = cp.add_run(caption)
-    set_run_font(run_cap, size=11, bold=True)
+def add_table_docx(doc, headers: list[str], rows: list[list[str]], caption: str = ""):
+    if caption:
+        cp = doc.add_paragraph()
+        cp.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        cp.paragraph_format.space_before = Pt(8)
+        cp.paragraph_format.space_after = Pt(4)
+        run_cap = cp.add_run(caption)
+        set_run_font(run_cap, size=11, bold=True)
 
     num_cols = len(headers)
     tbl = doc.add_table(rows=len(rows) + 1, cols=num_cols)
@@ -401,7 +416,7 @@ def add_table_docx(doc, headers: list[str], rows: list[list[str]], caption: str)
             val = row[c_idx] if c_idx < len(row) else ""
             row_cells[c_idx].text = ""
             p = row_cells[c_idx].paragraphs[0]
-            p.alignment = WD_ALIGN_PARAGRAPH.CENTER if c_idx == 0 or len(val) <= 4 else WD_ALIGN_PARAGRAPH.LEFT
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER if (c_idx == 0 and len(val) <= 4) or len(val) <= 2 or val == ":" else WD_ALIGN_PARAGRAPH.LEFT
             p.paragraph_format.space_before = Pt(2)
             p.paragraph_format.space_after = Pt(2)
             p.paragraph_format.line_spacing = 1.15
@@ -610,7 +625,8 @@ def add_table_of_contents(doc):
     add_leader_entry(doc, "PERSETUJUAN PEMBIMBING", "ii", bold=True, space_after=2)
     add_leader_entry(doc, "DAFTAR ISI", "iii", bold=True, space_after=2)
     add_leader_entry(doc, "DAFTAR TABEL", page_of(page_map, "DAFTAR TABEL", "iv"), bold=True, space_after=2)
-    add_leader_entry(doc, "DAFTAR GAMBAR", page_of(page_map, "DAFTAR GAMBAR", "v"), bold=True, space_after=6)
+    add_leader_entry(doc, "DAFTAR GAMBAR", page_of(page_map, "DAFTAR GAMBAR", "v"), bold=True, space_after=2)
+    add_leader_entry(doc, "DAFTAR LAMPIRAN", page_of(page_map, "DAFTAR LAMPIRAN", "vi"), bold=True, space_after=6)
 
     for level, title, search_key in heading_entries():
         if level == 0:
@@ -668,6 +684,22 @@ def add_list_of_figures(doc):
     doc.add_page_break()
 
 
+def add_list_of_appendices(doc):
+    page_map = load_page_map()
+
+    p_title = doc.add_paragraph()
+    p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_title.paragraph_format.space_before = Pt(0)
+    p_title.paragraph_format.space_after = Pt(18)
+    r_t = p_title.add_run("DAFTAR LAMPIRAN")
+    set_run_font(r_t, size=14, bold=True)
+
+    for caption in appendix_captions():
+        add_leader_entry(doc, caption, page_of(page_map, caption))
+
+    doc.add_page_break()
+
+
 def render_markdown_files(doc, chapter_files):
     """Render daftar berkas Markdown ke dalam objek Document.
 
@@ -690,7 +722,7 @@ def render_markdown_files(doc, chapter_files):
                 continue
 
             # Bab / Main Heading
-            if line.startswith("# BAB ") or line.startswith("# DAFTAR PUSTAKA"):
+            if line.startswith("# BAB ") or line.startswith("# DAFTAR PUSTAKA") or line.startswith("# LAMPIRAN"):
                 if ch_idx > 0 and i == 0:
                     doc.add_page_break()
 
@@ -700,6 +732,16 @@ def render_markdown_files(doc, chapter_files):
                     p.paragraph_format.space_before = Pt(0)
                     p.paragraph_format.space_after = Pt(18)
                     r = p.add_run("DAFTAR PUSTAKA")
+                    set_run_font(r, size=14, bold=True)
+                    i += 1
+                    continue
+
+                if line.startswith("# LAMPIRAN"):
+                    p = doc.add_paragraph()
+                    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    p.paragraph_format.space_before = Pt(0)
+                    p.paragraph_format.space_after = Pt(18)
+                    r = p.add_run("LAMPIRAN")
                     set_run_font(r, size=14, bold=True)
                     i += 1
                     continue
@@ -727,9 +769,11 @@ def render_markdown_files(doc, chapter_files):
                 i += 1
                 continue
 
-            # Subheading Level 2 (## A. ...)
+            # Subheading Level 2 (## A. ...) or (## Lampiran ...)
             if line.startswith("## "):
                 subhead = line.replace("## ", "").strip()
+                if subhead.startswith("Lampiran ") and not subhead.startswith("Lampiran 1"):
+                    doc.add_page_break()
                 p = doc.add_paragraph()
                 p.alignment = WD_ALIGN_PARAGRAPH.LEFT
                 p.paragraph_format.space_before = Pt(14)
@@ -833,7 +877,7 @@ def render_markdown_files(doc, chapter_files):
                 i += 1
                 continue
 
-            # Tables
+            # Tables with caption
             if line.startswith("**Tabel ") and line.endswith("**"):
                 cap_text = line[2:-2].strip()
                 i += 1
@@ -851,6 +895,22 @@ def render_markdown_files(doc, chapter_files):
                         cells = [c.strip() for c in r_line.strip("|").split("|")]
                         rows.append(cells)
                     add_table_docx(doc, headers, rows, cap_text)
+                continue
+
+            # Tables without caption (e.g. Lampiran 1, Lampiran 2, Lampiran 5)
+            if line.startswith("|"):
+                tbl_lines = []
+                while i < len(lines) and lines[i].strip().startswith("|"):
+                    tbl_lines.append(lines[i].strip())
+                    i += 1
+
+                if len(tbl_lines) >= 3:
+                    headers = [c.strip() for c in tbl_lines[0].strip("|").split("|")]
+                    rows = []
+                    for r_line in tbl_lines[2:]:
+                        cells = [c.strip() for c in r_line.strip("|").split("|")]
+                        rows.append(cells)
+                    add_table_docx(doc, headers, rows, "")
                 continue
 
             # Bullet / Numbered lists
@@ -930,8 +990,9 @@ def generate_sempro_bundle():
     add_table_of_contents(doc)
     add_list_of_tables(doc)
     add_list_of_figures(doc)
+    add_list_of_appendices(doc)
 
-    # Section 2: Body (Bab I, Bab II, Bab III, Daftar Pustaka)
+    # Section 2: Body (Bab I, Bab II, Bab III, Daftar Pustaka, Lampiran)
     sec2 = doc.add_section()
     sec2.top_margin = Cm(4.0)
     sec2.left_margin = Cm(4.0)
@@ -953,10 +1014,17 @@ def generate_sempro_bundle():
     print(f"[OK] Berhasil menghasilkan berkas proposal Sempro: {OUT_DOCX}")
 
     # Kunci pencarian untuk penghitung nomor halaman DAFTAR ISI (Word COM)
-    keys = [{"key": k, "scope": "front"} for k in ("DAFTAR TABEL", "DAFTAR GAMBAR")]
+    keys = [{"key": k, "scope": "front"} for k in ("DAFTAR TABEL", "DAFTAR GAMBAR", "DAFTAR LAMPIRAN")]
     keys += [{"key": search_key, "scope": "body"} for _, _, search_key in heading_entries()]
-    keys += [{"key": cap, "scope": "body"} for cap in table_captions() + figure_captions()]
-    TOC_KEYS_PATH.write_text(json.dumps(keys, ensure_ascii=False, indent=2), encoding="utf-8")
+    keys += [{"key": cap, "scope": "body"} for cap in table_captions() + figure_captions() + appendix_captions()]
+    all_keys = []
+    seen = set()
+    for item in keys:
+        pair = (item["key"], item["scope"])
+        if pair not in seen:
+            seen.add(pair)
+            all_keys.append(item)
+    TOC_KEYS_PATH.write_text(json.dumps(all_keys, ensure_ascii=False, indent=2), encoding="utf-8")
 
     # Save Bundled Markdown
     OUT_MD.write_text("\n\n---\n\n".join(md_combined_blocks), encoding="utf-8")

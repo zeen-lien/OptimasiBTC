@@ -8,6 +8,10 @@
     "scope": "front"
   },
   {
+    "key": "DAFTAR LAMPIRAN",
+    "scope": "front"
+  },
+  {
     "key": "PENDAHULUAN",
     "scope": "body"
   },
@@ -321,6 +325,30 @@
   },
   {
     "key": "DAFTAR PUSTAKA",
+    "scope": "body"
+  },
+  {
+    "key": "LAMPIRAN",
+    "scope": "body"
+  },
+  {
+    "key": "Lampiran 1 Salinan Formulir Pengajuan Judul dan Outline Penelitian yang Disetujui",
+    "scope": "body"
+  },
+  {
+    "key": "Lampiran 2 Matriks Rencana Jadwal Pelaksanaan Penelitian (Gantt Chart 16 Minggu)",
+    "scope": "body"
+  },
+  {
+    "key": "Lampiran 3 Spesifikasi Teknis Lingkungan Komputasi Eksperimen dan Dependensi Perangkat Lunak",
+    "scope": "body"
+  },
+  {
+    "key": "Lampiran 4 Kamus Fitur Kausal dan Integritas Kunci Kriptografis SHA-256 Dataset Binance Vision",
+    "scope": "body"
+  },
+  {
+    "key": "Lampiran 5 Format Kartu Kendali / Log Book Bimbingan Proposal Skripsi",
     "scope": "body"
   },
   {

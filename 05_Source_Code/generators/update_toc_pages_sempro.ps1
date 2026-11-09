@@ -77,7 +77,7 @@ try {
         if ($k.scope -eq "front") {
             $p = Find-Page $doc $s1Start $s1End $needle $true $false
         } else {
-            $isCaption = $needle.StartsWith("Tabel ") -or $needle.StartsWith("Gambar ")
+            $isCaption = $needle.StartsWith("Tabel ") -or $needle.StartsWith("Gambar ") -or $needle.StartsWith("Lampiran ")
             $p = Find-Page $doc $s2Start $s2End $needle $false $isCaption
         }
         if ($null -eq $p) {

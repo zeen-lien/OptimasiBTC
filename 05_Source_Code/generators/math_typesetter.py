@@ -328,3 +328,4 @@ def render_math_to_runs_academic(
             subscript=tok.subscript,
             superscript=tok.superscript,
         )
+
