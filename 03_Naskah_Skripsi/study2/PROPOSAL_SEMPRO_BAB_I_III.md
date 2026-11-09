@@ -278,16 +278,16 @@ Alur kerangka pemikiran konseptual tersebut diorganisasikan ke dalam lima tahapa
 
 ## I. Hipotesis Penelitian
 
-Berdasarkan landasan teori, tinjauan penelitian terdahulu, dan kerangka pemikiran konseptual yang telah dipaparkan, dirumuskan tiga hipotesis penelitian yang akan diuji secara empiris:
+Berdasarkan landasan teori, tinjauan penelitian terdahulu, dan kerangka pemikiran konseptual yang telah dipaparkan, dirumuskan tiga hipotesis penelitian yang akan diuji secara empiris selaras dengan rumusan masalah yang ditetapkan:
 
 * **Hipotesis 1 (H1):**
-  Model *Long Short-Term Memory* (LSTM) teroptimasi Optuna menghasilkan nilai fungsi kerugian asimetris *Quasi-Likelihood* (QLIKE) yang secara signifikan lebih rendah dibandingkan model *baseline Random Walk Persistence* pada data uji eksternal tahun 2026, yang dibuktikan melalui uji signifikansi Diebold-Mariano satu sisi dengan nilai-$p < 0{,}05$ dan batas atas interval kepercayaan *Moving-Block Bootstrap* 95% berada di bawah nol.
+  Integrasi skema 5-fold *Purged Cross-Validation* dengan jeda pemisah (*purge gap*) dan penalaan Bayesian Optuna TPE mampu menghasilkan model *Long Short-Term Memory* (LSTM) yang stabil dan bebas dari degradasi performa yang dipicu oleh kebocoran informasi temporal (*data leakage*).
 
 * **Hipotesis 2 (H2):**
-  Model LSTM teroptimasi Optuna mampu menghasilkan nilai fungsi kerugian QLIKE yang kompetitif dan menyaingi akurasi model ekonometrika klasik *Heterogeneous Autoregressive of Realized Volatility* (HAR-RV) dan GARCH(1,1) dalam memproyeksikan dinamika *realized volatility* Bitcoin pada data uji eksternal tahun 2026.
+  Model LSTM teroptimasi Optuna menghasilkan nilai fungsi kerugian asimetris *Quasi-Likelihood* (QLIKE) yang secara signifikan lebih rendah dibandingkan model *baseline Random Walk Persistence* pada data uji eksternal tahun 2026, yang dibuktikan melalui uji signifikansi Diebold-Mariano satu sisi dengan nilai-$p < 0{,}05$ dan batas atas interval kepercayaan *Moving-Block Bootstrap* 95% berada di bawah nol.
 
 * **Hipotesis 3 (H3):**
-  Integrasi skema 5-fold *Purged Cross-Validation* dengan jeda pemisah (*purge gap*) dan penalaan Bayesian Optuna TPE mampu mempertahankan stabilitas performa generalisasi model LSTM pada evaluasi *out-of-sample* tanpa mengalami degradasi akurasi ekstrem yang dipicu oleh kebocoran informasi temporal (*data leakage*).
+  Model LSTM teroptimasi Optuna mampu menghasilkan nilai fungsi kerugian QLIKE yang kompetitif dan menyaingi akurasi model ekonometrika klasik *Heterogeneous Autoregressive of Realized Volatility* (HAR-RV) dan GARCH(1,1) dalam memproyeksikan dinamika *realized volatility* Bitcoin pada data uji eksternal tahun 2026.
 
 
 ---
