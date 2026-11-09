@@ -287,3 +287,4 @@ def generate_simulasi_docx():
 
 if __name__ == "__main__":
     generate_simulasi_docx()
+

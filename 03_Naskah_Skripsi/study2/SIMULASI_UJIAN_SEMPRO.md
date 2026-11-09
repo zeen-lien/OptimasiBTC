@@ -216,3 +216,4 @@
 * **Cross-Validation:** 5-fold *Purged Rolling-Origin* dengan *purge gap* 10 hari dan scaler spesifik per fold.
 * **Model Baseline (4 Model):** *Random Walk Persistence*, HAR-RV Corsi, GARCH(1,1), LSTM *Untuned*.
 * **Evaluasi & Uji:** Loss primer QLIKE, Diebold-Mariano HAC Newey-West lag 5 ($p < 0{,}05$), *Moving-Block Bootstrap* 10.000 sampel (selang 95%), 5 seed `(42, 123, 2024, 7, 99)`.
+
