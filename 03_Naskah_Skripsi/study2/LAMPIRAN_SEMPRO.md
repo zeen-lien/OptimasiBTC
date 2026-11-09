@@ -124,3 +124,4 @@ Dosen Pembimbing Proposal,
 
 **Teguh Tamrin, S.Kom., M.Kom.**  
 NIP/NIY. ...................................................
+
