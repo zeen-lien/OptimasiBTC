@@ -172,7 +172,7 @@ def generate_simulasi_docx():
     while i < len(lines):
         line = lines[i].strip()
 
-        # Handle callout block > [!TIP]
+        # Handle callout block > [!TIP] or >
         if line.startswith("> [!TIP]") or line.startswith(">"):
             if not in_callout:
                 in_callout = True
@@ -184,7 +184,12 @@ def generate_simulasi_docx():
             continue
         elif in_callout:
             in_callout = False
-            add_callout_box(doc, "\n".join(callout_lines), title="PETUNJUK FORMULA 3 LANGKAH")
+            full_callout_txt = "\n".join(callout_lines)
+            if "Bapak" in full_callout_txt or "Penguji" in full_callout_txt:
+                box_title = "CONTOH SKRIP LISAN DI DEPAN PENGUJI"
+            else:
+                box_title = "PETUNJUK FORMULA 3 LANGKAH"
+            add_callout_box(doc, full_callout_txt, title=box_title)
             callout_lines = []
             # continue evaluating current line
 
@@ -213,6 +218,18 @@ def generate_simulasi_docx():
             p.paragraph_format.space_after = Pt(6)
             r = p.add_run(sec_title)
             set_run_font(r, name="Calibri", size=13, bold=True, color_rgb=RGBColor(31, 78, 121))
+            i += 1
+            continue
+
+        # Header 4: Sub-sub-part (e.g. #### 1. Rumus...)
+        if line.startswith("#### "):
+            sub_title = line[5:].strip()
+            p = doc.add_paragraph()
+            p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            p.paragraph_format.space_before = Pt(10)
+            p.paragraph_format.space_after = Pt(3)
+            r = p.add_run(sub_title)
+            set_run_font(r, name="Calibri", size=11, bold=True, color_rgb=RGBColor(31, 78, 121))
             i += 1
             continue
 

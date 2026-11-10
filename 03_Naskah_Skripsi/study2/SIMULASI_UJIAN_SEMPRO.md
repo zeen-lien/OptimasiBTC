@@ -262,7 +262,7 @@
 ### Pertanyaan 21: "Apa itu Uji Diebold-Mariano dan kenapa harus menggunakan koreksi HAC Newey-West?"
 * **Jawaban Langsung:**
   "**Uji Diebold-Mariano (DM)** adalah uji hipotesis statistik formal untuk membandingkan akurasi peramalan antara dua model deret waktu yang bersaing dengan menguji signifikansi selisih kerugian (*differential loss*):
-  $$d_t = L(y_t, \hat{y}_{1,t}) - L(y_t, \hat{y}_{2,t})$$
+  $$d_t = L(y_t, \hat{y}_{\text{baseline}, t}) - L(y_t, \hat{y}_{\text{LSTM}, t})$$
   Hipotesis nol ($H_0$) menyatakan bahwa kedua model memiliki akurasi yang sama ($\mathbb{E}[d_t] = 0$).
   
   **Mengapa Harus Menggunakan Koreksi HAC Newey-West?**  
@@ -318,7 +318,211 @@
 
 ---
 
-## RANGKUMAN CHEAT-SHEET ANGKA KUNCI SKRIPSI (HAFALKAN DI LUAR KEPALA!)
+## BAGIAN 7: BEDAH TUNTAS RUMUS MATEMATIS, ASAL-USUL, CARA BACA SIMBOL, & PANDUAN LISAN MENJELASKAN DIAGRAM
+
+### A. Kamus Lengkap Rumus, Asal-Usul (Paper), Bukti Matematis, & Cara Baca Simbol
+
+#### 1. Rumus Return Intra-hari, Realized Variance ($RV_t$), dan Transformasi $\log RV_t$
+* **Persamaan Matematis:**
+  $$r_{t,h} = \ln(C_{t,h}) - \ln(O_{t,h})$$
+  $$\text{RV}_t = \sum_{h=1}^{24} r_{t,h}^2$$
+  $$\log RV_t = \ln(\text{RV}_t + 10^{-12})$$
+* **Dapat dari Mana & Asal Usul Teori:**
+  * Penemu & Paper Rujukan: Andersen & Bollerslev (1998) *"Answering the Skeptics: Yes, Standard Volatility Models do Provide Accurate Forecasts"* (*International Economic Review*) dan Andersen, Bollerslev, Diebold, & Labys (2003) *"Modeling and Forecasting Realized Volatility"* (*Econometrica*).
+* **Dasar Ilmiah & Bukti Matematis:**
+  * Teori *Continuous-Time Finance & Semimartingale*: Dalam proses difusi harga kontinu, volatilitas laten harian adalah integral varians sejati $\int_0^1 \sigma^2(s)ds$. Andersen et al. membuktikan secara matematis bahwa ketika sampling harga intra-hari dipercepat menuju nol ($m \to \infty$), jumlah kuadrat return frekuensi tinggi berkonvergensi dalam probabilitas (*converges in probability*) menuju variasi kuadratik sejati (*quadratic variation*).
+  * Dengan menjumlahkan 24 lilin 1 jam per hari, varians derau pengukuran (*measurement noise*) tereduksi drastis sebesar $\approx 95{,}8\%$ ($1/24$) dibandingkan jika hanya memakai kuadrat return harian tunggal ($r_t^2$).
+* **Mengapa Memakai Rumus Ini & Bukan Rumus Lain:**
+  * Volatilitas adalah variabel laten (tidak tampak pada harga harian). Memakai $r_t^2$ biasa sangat berderau (*noisy*). RV berbasis data 1-jam memberikan proksi varians tanpa bias (*unbiased estimator*).
+  * Transformasi logaritma natural ($\log RV_t$) menormalkan sebaran data yang memiliki kemencengan positif ekstrem (*right-skewed*) dan ekor tebal (*fat tails*), sehingga mendekati distribusi normal (Gaussian). Ini mempercepat konvergensi optimasi gradien pada LSTM dan menjamin prediksi varians selalu positif saat dikembalikan lewat fungsi eksponensial.
+* **Cara Membaca Simbol Secara Lisan di Depan Dosen:**
+  * $r_{t,h}$: Dibaca *"r sub t koma h"* $\rightarrow$ Imbal hasil logaritmik hari ke-$t$ jam ke-$h$.
+  * $\ln$: Dibaca *"logaritma natural"* (logaritma berbasis bilangan natural $e$).
+  * $C_{t,h}$: Dibaca *"C sub t koma h"* $\rightarrow$ Harga penutupan (*closing price*) lilin jam ke-$h$.
+  * $O_{t,h}$: Dibaca *"O sub t koma h"* $\rightarrow$ Harga pembukaan (*opening price*) lilin jam ke-$h$.
+  * $\text{RV}_t$: Dibaca *"Realized Variance hari ke-t"*.
+  * $\sum_{h=1}^{24}$: Dibaca *"sigma penjumlahan dari indeks h sama dengan 1 sampai 24 lilin satu jam"*.
+  * $r_{t,h}^2$: Dibaca *"r sub t koma h kuadrat"*.
+  * $10^{-12}$: Dibaca *"sepuluh pangkat minus dua belas"* $\rightarrow$ Konstanta stabilitas numerik (*machine epsilon*) agar fungsi $\ln$ tidak menghasilkan nilai minus tak hingga ($-\infty$) seandainya terdapat hari dengan varians mendekati nol.
+
+---
+
+#### 2. Rumus Arsitektur Sel dan 3 Gerbang LSTM (Long Short-Term Memory)
+* **Persamaan Matematis:**
+  $$f_t = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f)$$
+  $$i_t = \sigma(W_i \cdot [h_{t-1}, x_t] + b_i)$$
+  $$\tilde{c}_t = \tanh(W_c \cdot [h_{t-1}, x_t] + b_c)$$
+  $$c_t = f_t \odot c_{t-1} + i_t \odot \tilde{c}_t$$
+  $$o_t = \sigma(W_o \cdot [h_{t-1}, x_t] + b_o)$$
+  $$h_t = o_t \odot \tanh(c_t)$$
+* **Dapat dari Mana & Asal Usul Teori:**
+  * Penemu & Paper Rujukan: Sepp Hochreiter & Jürgen Schmidhuber (1997) *"Long Short-Term Memory"* (*Neural Computation*), dan penyempurnaan gerbang lupa (*forget gate*) oleh Felix A. Gers, Jürgen Schmidhuber, & Fred Cummins (2000) *"Learning to Forget: Continual Prediction with LSTM"* (*Neural Computation*).
+* **Dasar Ilmiah & Bukti Matematis:**
+  * Mengatasi Bencana *Vanishing Gradient*: Pada RNN konvensional, propagasi mundur melalui waktu (*Backpropagation Through Time / BPTT*) melibatkan perkalian berantai matriks bobot $\prod_{k} W^T$. Jika nilai eigen bobot $< 1$, gradien lenyap mendekati nol secara eksponensial setelah beberapa langkah waktu.
+  * LSTM memperkenalkan mekanisme *Constant Error Carousel* (CEC) pada status sel ($c_t$), di mana turunan terhadap memori sebelumnya memiliki jalur aditif langsung: $\frac{\partial c_t}{\partial c_{t-1}} = f_t$. Jika gerbang lupa bernilai mendekati 1 ($f_t \approx 1$), sinyal gradien dapat mengalir bebas tanpa hambatan melintasi puluhan langkah waktu masa lalu.
+* **Mengapa Memakai Rumus Ini:**
+  * Volatilitas Bitcoin memiliki dependensi memori panjang (*long-memory*) majemuk (harian, mingguan, bulanan) yang tidak sanggup diingat oleh RNN biasa akibat hilangnya gradien, dan memiliki relasi non-linear yang tidak sanggup dimodelkan oleh model linier GARCH/HAR.
+* **Cara Membaca Simbol Secara Lisan di Depan Dosen:**
+  * $f_t$: Dibaca *"f sub t"* $\rightarrow$ Vektor aktivasi gerbang lupa (*forget gate*) pada langkah waktu $t$.
+  * $\sigma$: Dibaca *"fungsi aktivasi sigma atau sigmoid logistik"*, rumusnya $\sigma(z) = \frac{1}{1 + e^{-z}}$, nilainya selalu berada di antara 0 dan 1 (0 = lupakan/buang total, 1 = pertahankan penuh).
+  * $W_f$: Dibaca *"matriks bobot W sub f untuk gerbang lupa"*.
+  * $[h_{t-1}, x_t]$: Dibaca *"konkatenasi atau penggabungan vektor hidden state kemarin h sub t minus satu dengan vektor masukan baru x sub t hari ini"*.
+  * $b_f$: Dibaca *"vektor bias b sub f untuk gerbang lupa"*.
+  * $i_t$: Dibaca *"i sub t"* $\rightarrow$ Vektor aktivasi gerbang masuk (*input gate*) pada langkah waktu $t$ (bernilai 0 s.d. 1, menentukan porsi informasi baru yang diizinkan masuk).
+  * $\tilde{c}_t$: Dibaca *"c-tilde sub t"* $\rightarrow$ Vektor kandidat memori baru pada waktu $t$.
+  * $\tanh$: Dibaca *"fungsi tangens hiperbolik"*, rumusnya $\tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}$, memetakan nilai ke dalam rentang $[-1, +1]$ untuk memodulasi sinyal kandidat.
+  * $c_t$: Dibaca *"c sub t"* $\rightarrow$ Status sel (*cell state*) pada waktu $t$, merupakan jalan tol memori jangka panjang (*long-term memory highway*).
+  * $\odot$: Dibaca *"simbol Hadamard product atau perkalian elemen-per-elemen (element-wise multiplication)"* (tegaskan ke dosen: ini bukan perkalian dot matriks biasa, melainkan perkalian titik-demi-titik antar-elemen vektor!).
+  * $c_{t-1}$: Dibaca *"c sub t minus satu"* $\rightarrow$ Status sel dari hari sebelumnya.
+  * $o_t$: Dibaca *"o sub t"* $\rightarrow$ Vektor aktivasi gerbang keluar (*output gate*) pada waktu $t$ (bernilai 0 s.d. 1).
+  * $h_t$: Dibaca *"h sub t"* $\rightarrow$ Status tersembunyi (*hidden state*) pada waktu $t$, merupakan keluaran representasi sel yang diteruskan ke lapisan regresi linier akhir serta dialirkan ke sel langkah waktu berikutnya.
+
+---
+
+#### 3. Rumus Fungsi Kerugian Asimetris QLIKE (Quasi-Likelihood)
+* **Persamaan Matematis:**
+  $$\text{QLIKE}(RV_t, \widehat{RV}_t) = \frac{RV_t}{\widehat{RV}_t} - \ln\left(\frac{RV_t}{\widehat{RV}_t}\right) - 1$$
+* **Dapat dari Mana & Asal Usul Teori:**
+  * Penemu & Paper Rujukan: Andrew J. Patton (2011) *"Data-based ranking of volatility models"* (*Journal of Econometrics*).
+* **Dasar Ilmiah & Bukti Matematis:**
+  * Teorema *Robust Loss Function*: Patton membuktikan secara analitik bahwa ketika membandingkan beberapa model peramalan volatilitas menggunakan proksi observasi yang berderau (*imperfect volatility proxy*), urutan perankingan model terjamin konsisten identik dengan urutan terhadap volatilitas laten sejati **hanya jika** menggunakan fungsi kerugian dari famili Bregman divergence berderajat homogenitas nol atau satu.
+  * Dua fungsi yang memenuhi syarat ini adalah MSE dan QLIKE. Namun, Patton membuktikan secara formal bahwa MSE rentan terdistorsi oleh pencilan (*outliers*), sedangkan QLIKE memiliki varians penaksir ranking terkecil dan imun terhadap pergeseran skala proksi.
+* **Mengapa Memakai Rumus Ini:**
+  1. Bersifat *noise-robust* terhadap proksi Realized Variance.
+  2. Bersifat asimetris menguntungkan bagi industri finansial: Menghukum kesalahan peramalan risiko yang terlalu rendah (*under-forecasting*) lebih dari 4 kali lipat lebih berat dibanding kesalahan terlalu tinggi (*over-forecasting*). Meremehkan volatilitas Bitcoin dapat mengakibatkan kebangkrutan modal dan likuidasi paksa (*margin call*).
+* **Cara Membaca Simbol Secara Lisan di Depan Dosen:**
+  * $\text{QLIKE}(RV_t, \widehat{RV}_t)$: Dibaca *"nilai kerugian QLIKE antara Realized Variance aktual RV sub t dengan estimasi ramalan RV-topi sub t"*.
+  * $\frac{RV_t}{\widehat{RV}_t}$: Dibaca *"rasio RV sub t dibagi RV-topi sub t"*.
+  * $\ln\left(\frac{RV_t}{\widehat{RV}_t}\right)$: Dibaca *"logaritma natural dari rasio RV sub t dibagi RV-topi sub t"*.
+  * $- 1$: Dibaca *"dikurangi satu (konstanta normalisasi agar loss bernilai tepat 0 ketika ramalan identik sempurna dengan aktual, yakni ketika rasio bernilai 1)"*.
+
+---
+
+#### 4. Rumus Optimasi Bayesian Optuna TPE (Tree-structured Parzen Estimator)
+* **Persamaan Matematis:**
+  $$p(x|y) = \begin{cases} \ell(x) & \text{jika } y < y^* \\ g(x) & \text{jika } y \ge y^* \end{cases}$$
+  $$\text{Expected Improvement (EI)}_y(x) \propto \frac{\ell(x)}{g(x)}$$
+* **Dapat dari Mana & Asal Usul Teori:**
+  * Penemu & Paper Rujukan: James Bergstra, Rémi Bardenet, Yoshua Bengio, & Balázs Kégl (2011) *"Algorithms for Hyper-Parameter Optimization"* (*NeurIPS*). Dan kerangka kerja Optuna oleh Takuya Akiba et al. (2019) (*ACM KDD*).
+* **Dasar Ilmiah & Bukti Matematis:**
+  * Membalik Aturan Bayes: Optimasi Bayesian standar berbasis Gaussian Process memodelkan fungsi objektif $p(y|x)$ secara langsung dengan inversi matriks berbiaya $\mathcal{O}(n^3)$. TPE membalik pemodelan menjadi $p(x|y)$ menggunakan dua estimasi densitas kernel non-parametrik ($\ell(x)$ untuk model sukses dan $g(x)$ untuk model gagal).
+  * Bergstra et al. membuktikan secara analitik bahwa memaksimalkan kriteria *Expected Improvement* $\text{EI}(x) = \int_{-\infty}^{y^*} (y^* - y) p(y|x) dy$ ekuivalen matematis dengan memilih titik kandidat parameter $x$ yang memaksimalkan rasio densitas $\frac{\ell(x)}{g(x)}$.
+* **Mengapa Memakai Rumus Ini:**
+  * Berbiaya komputasi linier $\mathcal{O}(n)$, mampu mengeksplorasi ruang parameter campuran (kontinu, diskrit, logaritmik) secara adaptif, terbukti konvergen ke konfigurasi optimal jauh lebih cepat daripada Random Search, dan terintegrasi dengan pemangkas dini *MedianPruner*.
+* **Cara Membaca Simbol Secara Lisan di Depan Dosen:**
+  * $p(x|y)$: Dibaca *"probabilitas densitas konfigurasi parameter x bersyarat terhadap nilai kerugian validasi y"*.
+  * $y^*$: Dibaca *"y-bintang"* $\rightarrow$ Nilai kuantil ambang batas performa (persentil $\gamma = 15\%$ teratas dari trial sebelumnya).
+  * $\ell(x)$: Dibaca *"l sub x"* $\rightarrow$ Distribusi densitas kernel dari kumpulan hyperparameter yang menghasilkan skor bagus (loss di bawah $y^*$).
+  * $g(x)$: Dibaca *"g sub x"* $\rightarrow$ Distribusi densitas kernel dari kumpulan hyperparameter yang menghasilkan skor buruk (loss di atas atau sama dengan $y^*$).
+  * $\frac{\ell(x)}{g(x)}$: Dibaca *"rasio l sub x dibagi g sub x; algoritma Optuna secara cerdas akan mengevaluasi kombinasi x baru yang memaksimalkan rasio ini, artinya titik yang paling disukai model sukses dan paling dijauhi model gagal"*.
+
+---
+
+#### 5. Rumus Uji Diebold-Mariano (DM) dengan Koreksi HAC Newey-West
+* **Persamaan Matematis:**
+  $$d_t = L(y_t, \hat{y}_{\text{baseline}, t}) - L(y_t, \hat{y}_{\text{LSTM}, t})$$
+  $$\bar{d} = \frac{1}{T} \sum_{t=1}^T d_t$$
+  $$\text{DM} = \frac{\bar{d}}{\sqrt{\hat{V}(\bar{d}) / T}} \xrightarrow{d} \mathcal{N}(0, 1)$$
+  $$\hat{V}(\bar{d}) = \hat{\gamma}_0 + 2 \sum_{j=1}^{h-1} w_j \hat{\gamma}_j, \quad w_j = 1 - \frac{j}{h}$$
+* **Dapat dari Mana & Asal Usul Teori:**
+  * Penemu & Paper Rujukan: Francis X. Diebold & Roberto S. Mariano (1995) *"Comparing Predictive Accuracy"* (*Journal of Business & Economic Statistics*). Dan koreksi matriks kovarians oleh Whitney K. Newey & Kenneth D. West (1987) (*Econometrica*).
+* **Dasar Ilmiah & Bukti Matematis:**
+  * Teorema Limit Pusat untuk Deret Berkorelasi: Selisih galat ramalan $d_t$ pada data runtun waktu hampir pasti memiliki autokorelasi serial dan heteroskedastisitas. Jika diuji memakai uji t-Student biasa, varians sampel terdistorsi terlalu kecil (*underestimated*), memicu nilai t membengkak secara semu sehingga menolak hipotesis nol secara keliru (*Type I error / False Discovery*).
+  * Estimator HAC Newey-West menggunakan kernel segitiga Bartlett ($w_j = 1 - j/h$) untuk membobot autokovarians lag hingga batas horizon $h=5$, menjamin matriks varians selalu bernilai semi-definit positif dan menghasilkan nilai-$p$ yang valid secara asimtotik.
+* **Mengapa Memakai Rumus Ini:**
+  * Menjadi standar emas ekonometrika modern untuk membuktikan bahwa keunggulan LSTM bukan kebetulan acak (*stochastic fluke*), melainkan signifikan secara statistik pada taraf nyata $\alpha = 0{,}05$.
+* **Cara Membaca Simbol Secara Lisan di Depan Dosen:**
+  * $d_t$: Dibaca *"d sub t"* $\rightarrow$ Diferensial kerugian (*loss differential*) hari ke-$t$.
+  * $\bar{d}$: Dibaca *"d-bar"* $\rightarrow$ Nilai rata-rata selisih kerugian pada seluruh sampel data uji $T$ hari.
+  * $\text{DM}$: Dibaca *"statistik uji Diebold-Mariano"*.
+  * $\hat{V}(\bar{d})$: Dibaca *"V-topi dari d-bar"* $\rightarrow$ Taksiran varians asimtotik jangka panjang Newey-West.
+  * $\hat{\gamma}_0$: Dibaca *"gamma-topi nol"* $\rightarrow$ Varians sampel pada lag ke-0.
+  * $\hat{\gamma}_j$: Dibaca *"gamma-topi sub j"* $\rightarrow$ Autokovarians sampel pada lag ke-$j$.
+  * $w_j = 1 - \frac{j}{h}$: Dibaca *"bobot kernel Bartlett w sub j sama dengan satu minus j dibagi horizon h (di mana h = 5)"*.
+  * $\xrightarrow{d} \mathcal{N}(0, 1)$: Dibaca *"berkonvergensi dalam distribusi menuju distribusi normal baku standar dengan rata-rata 0 dan varians 1"*.
+
+---
+
+#### 6. Rumus Model Pembanding HAR-RV (Corsi, 2009)
+* **Persamaan Matematis:**
+  $$\log RV_{t+1} = \beta_0 + \beta_d \log RV_t + \beta_w \log RV_t^{(w)} + \beta_m \log RV_t^{(m)} + \varepsilon_{t+1}$$
+  $$\log RV_t^{(w)} = \frac{1}{5} \sum_{i=0}^4 \log RV_{t-i}, \quad \log RV_t^{(m)} = \frac{1}{22} \sum_{i=0}^{21} \log RV_{t-i}$$
+* **Dapat dari Mana & Asal Usul Teori:**
+  * Penemu & Paper Rujukan: Fulvio Corsi (2009) *"A Simple Approximate Long-Memory Model of Realized Volatility"* (*Journal of Financial Econometrics*).
+* **Dasar Ilmiah & Bukti Matematis:**
+  * Berlandaskan *Heterogeneous Market Hypothesis* (Müller et al., 1997). Volatilitas pasar tercipta dari interaksi tiga kelompok pelaku pasar dengan horizon investasi yang berbeda: pedagang harian intraday (*daily*, $d$), manajer portofolio mingguan (*weekly*, $w$), dan investor institusional bulanan (*monthly*, $m$).
+* **Mengapa Memakai Rumus Ini:**
+  * Sebagai baseline ekonometrika frekuensi tinggi standar industri tertinggi. Jika model AI tidak sanggup mengalahkan HAR-RV, maka model AI tersebut belum terbukti bernilai di dunia finansial kuantitatif.
+* **Cara Membaca Simbol Secara Lisan di Depan Dosen:**
+  * $\beta_0, \beta_d, \beta_w, \beta_m$: Dibaca *"koefisien regresi beta nol (konstanta), beta d (harian), beta w (mingguan), dan beta m (bulanan)"*.
+  * $\log RV_t^{(w)}$: Dibaca *"rata-rata bergerak log RV horizon mingguan lima hari bursa terakhir"*.
+  * $\log RV_t^{(m)}$: Dibaca *"rata-rata bergerak log RV horizon bulanan dua puluh dua hari bursa terakhir"*.
+  * $\varepsilon_{t+1}$: Dibaca *"epsilon sub t plus satu"* $\rightarrow$ Galat residual model peramalan.
+
+---
+
+#### 7. Rumus Estimator Dispersi Rentang Parkinson (1980)
+* **Persamaan Matematis:**
+  $$\log range_t = \ln(\max H_{t,h} - \min L_{t,h} + 10^{-12})$$
+* **Dapat dari Mana & Asal Usul Teori:**
+  * Penemu & Paper Rujukan: Michael Parkinson (1980) *"The Extreme Value Method for Estimating the Variance of the Rate of Return"* (*Journal of Business*).
+* **Dasar Ilmiah & Bukti Matematis:**
+  * Parkinson membuktikan secara matematis melalui sifat gerak Brown (*Brownian motion*) bahwa selisih harga tertinggi ($H$) dan terendah ($L$) dalam satu hari memiliki efisiensi statistik **5 kali lipat lebih tinggi** dibandingkan selisih harga penutupan dan pembukaan ($C - O$), karena merekam batas dispersi ekstrem fluktuasi intra-hari tanpa terdistorsi oleh arah return.
+* **Mengapa Memakai Rumus Ini:**
+  * Digunakan sebagai Fitur Masukan ke-2 pada model LSTM kita untuk melengkapi informasi volatilitas dengan mengukur rentang dispersi harga ekstrem harian tanpa menimbulkan *look-ahead bias*.
+* **Cara Membaca Simbol Secara Lisan di Depan Dosen:**
+  * $\log range_t$: Dibaca *"log range hari ke-t"*.
+  * $\max H_{t,h}$: Dibaca *"nilai maksimum dari harga tertinggi lilin jam ke-h pada hari ke-t"*.
+  * $\min L_{t,h}$: Dibaca *"nilai minimum dari harga terendah lilin jam ke-h pada hari ke-t"*.
+
+---
+
+### B. Panduan Lisan Menjelaskan Diagram Proposal di Depan Dewan Penguji
+
+#### 1. Cara Menjelaskan GAMBAR 2.1 (Arsitektur Sel & Aliran Informasi LSTM)
+*(Gunakan bahasa Indonesia yang runtut, percaya diri, dan santun sambil menunjuk bagian diagram):*
+
+> *"Bapak dan Ibu Dosen Penguji yang saya hormati, izin saya menguraikan Gambar 2.1 mengenai anatomi arsitektur sel LSTM dan dinamika aliran informasinya:*
+> 
+> *Jika kita cermati diagram ini, satu sel LSTM pada langkah waktu $t$ memiliki **dua jalur utama** dan **tiga gerbang logika penyaring** yang bekerja secara sekuensial:*
+> 
+> 1. **Dua Masukan di Sisi Kiri Bawah ($x_t$ dan $h_{t-1}$):** Di bagian kiri bawah, ada dua informasi yang masuk bersamaan: vektor masukan hari ini ($x_t$, yang berisi 6 fitur mikrostruktur kita) dan rekaman memori dari hari kemarin ($h_{t-1}$). Kedua sinyal ini digabungkan (*concatenated*) untuk disalurkan serentak ke tiga gerbang logika.
+> 2. **Jalan Tol Memori di Sisi Atas (Cell State, $c_{t-1} \to c_t$):** Garis horizontal lurus paling atas adalah *cell state* atau 'jalan tol memori jangka panjang'. Karakteristik terpentingnya adalah gradien mengalir secara linier tanpa perkalian matriks berulang, sehingga LSTM terbebas dari masalah *vanishing gradient*.
+> 3. **Gerbang Pertama di Kiri (Forget Gate, $f_t$):** Masukan diarahkan ke fungsi aktivasi sigmoid ($\sigma$) yang menghasilkan output antara 0 sampai 1. Nilai ini dikalikan secara titik per titik (*Hadamard product*, $\odot$) ke jalur *cell state* memori lama ($c_{t-1}$). Gerbang ini bertindak sebagai pemilih: 'Informasi volatilitas masa lalu mana yang sudah usang dan harus dibuang (0) atau dipertahankan (1)?'
+> 4. **Gerbang Kedua di Tengah (Input Gate $i_t$ dan Kandidat $\tilde{c}_t$):** Jalur ini bertugas mencatat hal baru hari ini. Sinyal dilewatkan ke sigmoid ($i_t$) untuk menentukan filter kepentingannya, dan secara paralel ke tangen hiperbolik ($\tanh$) untuk membuat kandidat memori baru ($\tilde{c}_t$) dengan rentang $-1$ hingga $+1$. Keduanya dikalikan secara elemen, lalu ditambahkan ($+$) ke jalan tol status sel. Di titik inilah memori jangka panjang diperbarui secara resmi menjadi $c_t$.
+> 5. **Gerbang Ketiga di Kanan (Output Gate $o_t$ dan Hidden State $h_t$):** Sinyal disaring lagi oleh fungsi sigmoid ($o_t$), sementara status sel memori $c_t$ dimodulasi melalui $\tanh$. Keduanya dikalikan untuk menghasilkan $h_t$ (status tersembunyi), yang dikeluarkan ke atas melalui lapisan linier untuk menghasilkan ramalan $\log RV_{t+1}$ sekaligus diteruskan ke sel langkah hari berikutnya.
+> 
+> *Kesimpulannya, melalui interaksi tiga gerbang dan jalan tol status sel inilah, model LSTM mampu mengingat pola fluktuasi Bitcoin puluhan hari ke belakang tanpa kehilangan sinyal gradien."*
+
+---
+
+#### 2. Cara Menjelaskan GAMBAR 2.2 (Kerangka Pemikiran Konseptual Penelitian)
+*(Gunakan bahasa yang menghubungkan masalah, solusi, dan hasil):*
+
+> *"Bapak dan Ibu Dosen Penguji, Gambar 2.2 merangkum alur berpikir konseptual yang melandasi penelitian skripsi ini:*
+> 1. **Titik Tolak Masalah (*Problem Statement*):** Pasar Bitcoin memiliki tingkat volatilitas sangat ekstrem non-stop 24/7. Mayoritas peneliti informatika sebelumnya mencoba menebak harga nominal penutupan (*closing price*), namun secara ilmiah harga penutupan bergerak acak (*random walk*) dan mustahil diprediksi secara konsisten.
+> 2. **Pergeseran Paradigma (*Paradigm Shift*):** Kami mengalihkan fokus pada *Realized Volatility* yang terbukti memiliki sifat *volatility clustering* dan persistensi memori panjang, yang sangat dibutuhkan industri keuangan digital untuk mitigasi risiko.
+> 3. **Identifikasi Kesenjangan Riset (*Research Gap*):** Model ekonometrika linier (GARCH, HAR-RV) gagal menangkap lonjakan varians non-linear pasar kripto. Di sisi lain, riset deep learning sebelumnya kerap terjebak pada epidemi kebocoran data (*data leakage*) dan optimasi parameter *trial-and-error* manual yang memboroskan komputasi.
+> 4. **Solusi Usulan (*Proposed Solution*):** Kami merancang pipeline komputasi terintegrasi: arsitektur LSTM yang dioptimasi secara cerdas menggunakan algoritma Bayesian Optuna TPE dengan pangkas dini *MedianPruner*, didukung protokol 5-fold Purged Cross-Validation ber-jeda 10 hari dan evaluasi asimetris QLIKE.
+> 5. **Validasi & Inferensi Ilmiah (*Validation & Inference*):** Model diuji pada data out-of-sample tahun 2026, lalu diuji signifikansinya menggunakan Uji Diebold-Mariano berkoreksi HAC Newey-West dan 10.000 Moving-Block Bootstrap guna menjamin kesimpulan ilmiah bebas bias."*
+
+---
+
+#### 3. Cara Menjelaskan GAMBAR 3.1 (Diagram Alir Tahapan Penelitian Komputasional)
+*(Gunakan bahasa tahapan operasional yang sistematis dari hulu ke hilir):*
+
+> *"Bapak dan Ibu Dosen Penguji, Gambar 3.1 menguraikan cetak biru operasional metodologi eksperimen komputasi kami yang terbagi ke dalam 7 tahapan berurutan:*
+> 1. **Tahap 1 (Akuisisi & Audit Integritas Data):** Mengunduh 81 arsip data kline 1 jam dari Binance Vision (2020–2026), memvalidasi hash kriptografis SHA-256, dan menerapkan Amandemen A1 (eliminasi 1 hari cacat server 19 Februari 2020) sehingga diperoleh tepat 2.464 hari observasi bersih terverifikasi.
+> 2. **Tahap 2 (Rekayasa Fitur Kausal):** Menghitung variabel target $\log RV_{t+1}$ dan 6 fitur masukan berakar mikrostruktur pasar (RV, Parkinson Range, Volume/MDH, AbsRet Shock, HAR-5, HAR-22) yang sepenuhnya bebas dari bias masa depan (*look-ahead bias*).
+> 3. **Tahap 3 (Partisi Temporal Kronologis Murni):** Membagi dataset berdasarkan kalender murni: Development 2020–2023 (1.460 hari), Validation 2024–2025 (731 hari), dan Uji Out-of-Sample 2026 (273 hari).
+> 4. **Tahap 4 (Optimasi Bayesian Optuna & Purged CV):** Menjalankan 50 trials penalaan hyperparameter menggunakan Optuna TPE dan *MedianPruner* di atas skema 5-fold Purged Cross-Validation ber-jeda pemisah 10 hari dan standarisasi lokal (*fold-specific scaling*) untuk menemukan 6 hyperparameter optimal.
+> 5. **Tahap 5 (Pelatihan Model Final & Konstruksi Baseline):** Melatih arsitektur LSTM terbaik menggunakan 5 *random seed* apriori `(42, 123, 2024, 7, 99)` dan membangun 4 model baseline pembanding (Persistence, HAR-RV, GARCH, LSTM Untuned).
+> 6. **Tahap 6 (Evaluasi Out-of-Sample & Statistik Inferensial):** Menguji seluruh model pada data uji 2026 dengan metrik primer QLIKE, lalu membuktikan keunggulannya melalui Uji Diebold-Mariano berkoreksi HAC Newey-West lag 5 ($p < 0{,}05$) dan 10.000 sampel Moving-Block Bootstrap.
+> 7. **Tahap 7 (Penarikan Kesimpulan Ilmiah):** Menarik kesimpulan transparan berdasarkan matriks kriteria keberhasilan yang telah ditetapkan di Bab III."*
+
+---
+
+## BAGIAN 8: RANGKUMAN CHEAT-SHEET ANGKA KUNCI SKRIPSI (HAFALKAN DI LUAR KEPALA!)
 
 * **Rentang Data Observasi:** 1 Januari 2020 s.d. 30 September 2026 (81 bulan kalender penuh).
 * **Total Sampel Hari:** **2.464 hari observasi** (setelah eliminasi 1 hari cacat server 19 Feb 2020 via Amandemen A1).
