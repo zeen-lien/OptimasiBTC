@@ -5,11 +5,12 @@ ke dalam satu berkas Microsoft Word (.docx) profesional dan berbobot akademis:
 - Identitas Lengkap Mahasiswa & Dospem
 - Petunjuk Mental & Formula 3 Langkah Menjawab Penguji
 - Bagian 1: Fondasi, Urgensi, & Motivasi Penelitian (5 Pertanyaan)
-- Bagian 2: Landasan Teori & Arsitektur Model (3 Pertanyaan)
-- Bagian 3: Optimasi Hyperparameter dengan Optuna (3 Pertanyaan)
-- Bagian 4: Metodologi, Anti-Leakage, & Statistik Inferensial (4 Pertanyaan)
-- Bagian 5: Menghadapi Pertanyaan Jebakan Dosen (3 Pertanyaan)
-- Rangkuman Cheat-Sheet Angka Kunci Skripsi
+- Bagian 2: Novelty (Kebaruan Penelitian) & Kontribusi Ilmiah (3 Pertanyaan)
+- Bagian 3: Karakteristik Data, Rekayasa Fitur, & Anomali Pasar (4 Pertanyaan)
+- Bagian 4: Arsitektur Model & Algoritma Optimasi Optuna (4 Pertanyaan)
+- Bagian 5: Metodologi Validasi, Anti-Data Leakage, & Statistik Inferensial (5 Pertanyaan)
+- Bagian 6: Menghadapi Pertanyaan Jebakan Dosen Penguji (5 Pertanyaan)
+- Rangkuman Cheat-Sheet Angka Kunci Skripsi (Hafalan Lengkap)
 
 Input : 03_Naskah_Skripsi/study2/SIMULASI_UJIAN_SEMPRO.md
 Output: 03_Naskah_Skripsi/study2/SIMULASI_UJIAN_SEMPRO.docx
