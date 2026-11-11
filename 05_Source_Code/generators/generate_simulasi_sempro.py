@@ -8,7 +8,7 @@ ke dalam satu berkas Microsoft Word (.docx) profesional dan berbobot akademis:
 - Bagian 2: Novelty (Kebaruan Penelitian) & Kontribusi Ilmiah (3 Pertanyaan)
 - Bagian 3: Karakteristik Data, Rekayasa Fitur, & Anomali Pasar (4 Pertanyaan)
 - Bagian 4: Arsitektur Model & Algoritma Optimasi Optuna (4 Pertanyaan)
-- Bagian 5: Metodologi Validasi, Anti-Data Leakage, & Statistik Inferensial (5 Pertanyaan)
+- Bagian 5: Metodologi Validasi, Anti-Data Leakage, & Statistik Inferensial (6 Pertanyaan)
 - Bagian 6: Menghadapi Pertanyaan Jebakan Dosen Penguji (5 Pertanyaan)
 - Rangkuman Cheat-Sheet Angka Kunci Skripsi (Hafalan Lengkap)
 

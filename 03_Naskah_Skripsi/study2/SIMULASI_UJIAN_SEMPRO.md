@@ -206,7 +206,19 @@
 
 ## BAGIAN 5: METODOLOGI VALIDASI, ANTI-DATA LEAKAGE, & STATISTIK INFERENSIAL
 
-### Pertanyaan 17: "Apa yang dimaksud dengan kebocoran data (*data leakage*) pada deret waktu dan bagaimana kamu membuktikan penelitian kamu bebas kebocoran data?"
+### Pertanyaan 17: "Apa jenis dan pendekatan penelitian yang kamu gunakan dalam skripsi ini? Kenapa bukan Research and Development (R&D) atau kualitatif?"
+* **Jawaban Langsung:**
+  "Terima kasih atas pertanyaannya, Bapak/Ibu Penguji. Sebagaimana tercantum pada **Bab III Sub-bab A.1 naskah proposal**, penelitian skripsi ini menggunakan **pendekatan kuantitatif dengan desain eksperimental komputasional (*computational experimental research*)**."
+* **Alasan Ilmiah Mengapa Kuantitatif Eksperimental Komputasional (Bukan R&D):**
+  1. **Pendekatan Kuantitatif:** Karena objek penelitian adalah data deret waktu finansial empiris numerik (fluktuasi harga dan Realized Variance Bitcoin) yang dianalisis secara matematis untuk menguji tiga hipotesis penelitian ($H_1, H_2, H_3$) secara terukur dan objektif.
+  2. **Desain Eksperimental Komputasional (Bukan R&D):** Penelitian ini bukan merancang produk aplikasi antarmuka pengguna seperti web atau mobile (*Software Engineering / R&D Prototyping*), melainkan melakukan **eksperimen sains data terkontrol (*controlled computational experiment*)**. Kami menguji efek variabel perlakuan (*treatment*, yaitu arsitektur LSTM dengan penalaan Bayesian Optuna) terhadap empat model pembanding kontrol (*baseline*: Persistence, HAR-RV, GARCH, LSTM Untuned) di bawah protokol pengujian yang sama persis bebas kebocoran data.
+  3. **Pengujian Inferensi Statistik Formal:** Keberhasilan eksperimen disimpulkan bukan melalui uji kepuasan pengguna (*user acceptance test / SUS* seperti pada R&D), melainkan melalui pengujian inferensial formal **Diebold-Mariano berkoreksi HAC Newey-West** dan **10.000 repetisi Moving-Block Bootstrap**.
+* **Kesesuaian dengan Pedoman UNISNU:**
+  * Sesuai Buku Pedoman Penulisan Skripsi UNISNU Jepara (Bab III Penelitian Kuantitatif), mahasiswa diwajibkan mencantumkan jenis dan pendekatan penelitian. Desain eksperimental komputasional merupakan metodologi standar tertinggi untuk riset kecerdasan buatan (*Artificial Intelligence*) dan sains data (*Data Science*).
+
+---
+
+### Pertanyaan 18: "Apa yang dimaksud dengan kebocoran data (*data leakage*) pada deret waktu dan bagaimana kamu membuktikan penelitian kamu bebas kebocoran data?"
 * **Jawaban Langsung:**
   "**Kebocoran data (*data leakage*) adalah kondisi cacat metodologis fatal di mana informasi masa depan (*future information*) secara sengaja atau tidak sengaja menyusup ke dalam proses pelatihan masa lalu (*look-ahead bias*), sehingga menghasilkan performa semu yang tampak hebat di atas kertas tetapi langsung gagal saat diuji di dunia nyata.**  
   Penelitian ini menerapkan **4 lapis benteng pencegahan kebocoran data**:
@@ -218,7 +230,7 @@
 
 ---
 
-### Pertanyaan 18: "Kenapa evaluasi utamanya memakai fungsi kerugian QLIKE, bukan MSE atau MAE? Bagaimana bukti matematis keunggulan penalti asimetrisnya?"
+### Pertanyaan 19: "Kenapa evaluasi utamanya memakai fungsi kerugian QLIKE, bukan MSE atau MAE? Bagaimana bukti matematis keunggulan penalti asimetrisnya?"
 * **Jawaban Langsung:**
   "Karena **volatilitas aktual adalah variabel laten yang diestimasi menggunakan proksi (*realized variance*) yang berderau (*noisy proxy*)**.  
   Penelitian ekonometrika terkemuka oleh **Patton (2011)** membuktikan secara matematis bahwa fungsi kerugian simetris konvensional seperti MSE tidak tahan terhadap derau proksi dan dapat menghasilkan perankingan model yang bias/salah.  
@@ -240,7 +252,7 @@
 
 ---
 
-### Pertanyaan 19: "Apa saja model pembanding (*baseline*) yang kamu gunakan dan apa fungsinya masing-masing?"
+### Pertanyaan 20: "Apa saja model pembanding (*baseline*) yang kamu gunakan dan apa fungsinya masing-masing?"
 * **Jawaban Langsung:**
   "Penelitian ini membandingkan model usulan (LSTM-Optuna) terhadap **4 model baseline bertingkat**:
   1. **Random Walk Persistence (Baseline Naif):** Asumsi sederhana bahwa volatilitas besok sama persis dengan volatilitas hari ini. Ini adalah *sanity check* paling mendasar: jika model deep learning gagal mengalahkan model naif ini, maka model tersebut secara ilmiah tidak layak dipakai.
@@ -250,7 +262,7 @@
 
 ---
 
-### Pertanyaan 20: "Bagaimana kamu membuktikan bahwa keunggulan model LSTM-Optuna bukan faktor kebetulan (*stochastic fluke*)?"
+### Pertanyaan 21: "Bagaimana kamu membuktikan bahwa keunggulan model LSTM-Optuna bukan faktor kebetulan (*stochastic fluke*)?"
 * **Jawaban Langsung:**
   "Keunggulan model tidak hanya dinilai dari selisih angka rata-rata metrik, melainkan dibuktikan melalui **tiga lapisan uji statistik inferensial formal**:
   1. **Uji Diebold-Mariano (1995) dengan Koreksi HAC Newey-West:** Menguji secara asimtotik apakah selisih kerugian peramalan ($d_t = L_{\text{baseline}} - L_{\text{LSTM}}$) bernilai positif secara signifikan dengan nilai-$p < 0{,}05$. Estimator HAC Newey-West dengan lag 5 digunakan untuk mengoreksi autokorelasi dan heteroskedastisitas pada deret galat.
@@ -259,7 +271,7 @@
 
 ---
 
-### Pertanyaan 21: "Apa itu Uji Diebold-Mariano dan kenapa harus menggunakan koreksi HAC Newey-West?"
+### Pertanyaan 22: "Apa itu Uji Diebold-Mariano dan kenapa harus menggunakan koreksi HAC Newey-West?"
 * **Jawaban Langsung:**
   "**Uji Diebold-Mariano (DM)** adalah uji hipotesis statistik formal untuk membandingkan akurasi peramalan antara dua model deret waktu yang bersaing dengan menguji signifikansi selisih kerugian (*differential loss*):
   $$d_t = L(y_t, \hat{y}_{\text{baseline}, t}) - L(y_t, \hat{y}_{\text{LSTM}, t})$$
@@ -275,21 +287,21 @@
 
 ## BAGIAN 6: MENGHADAPI PERTANYAAN JEBAKAN DOSEN PENGUJI (*TRICKY QUESTIONS*)
 
-### Pertanyaan 22 (Jebakan 1): "Kenapa kamu tidak membuat aplikasi Android/Web-nya saja agar bisa dipakai langsung oleh masyarakat?"
+### Pertanyaan 23 (Jebakan 1): "Kenapa kamu tidak membuat aplikasi Android/Web-nya saja agar bisa dipakai langsung oleh masyarakat?"
 * **Cara Menjawab:**
   *"Terima kasih atas pertanyaannya, Bapak/Ibu Penguji. Sesuai dengan **Batasan Masalah butir 7 di Bab I**, fokus penelitian skripsi ini murni diletakkan pada **kontribusi komputasional dan saintifik deret waktu**, yaitu memecahkan masalah keandalan peramalan non-linear, optimasi parameter Bayesian, dan integritas validasi bebas kebocoran data.  
   Membangun aplikasi antarmuka tanpa memastikan model peramalannya akurat dan bebas bias secara statistik justru akan menghasilkan sistem yang berbahaya bagi pengguna. Oleh karena itu, penelitian ini fokus menuntaskan modul peramalan inti (*core computation engine*)-nya terlebih dahulu. Pembuatan aplikasi antarmuka pengguna (*user interface*) dan integrasi sistem perdagangan otomatis telah kami rencanakan sebagai rekomendasi saran untuk penelitian lanjutan di Bab V."*
 
 ---
 
-### Pertanyaan 23 (Jebakan 2): "Dari mana kamu mendapatkan data kline 1 jam Bitcoin? Apakah datanya resmi dan valid?"
+### Pertanyaan 24 (Jebakan 2): "Dari mana kamu mendapatkan data kline 1 jam Bitcoin? Apakah datanya resmi dan valid?"
 * **Cara Menjawab:**
   *"Data diunduh langsung dari arsip publik resmi bursa Binance melalui repositori **Binance Vision** (`data.binance.vision`), yang merupakan repositori data historis terstandarisasi institusional yang digunakan oleh peneliti komputasi finansial global.  
   Sebanyak 81 berkas arsip bulanan (Januari 2020 s.d. September 2026) telah diverifikasi integritasnya menggunakan **kunci kriptografis SHA-256** (tercatat pada Lampiran 4 proposal). Selain itu, kami melakukan audit stempel waktu UTC dan menerapkan Amandemen A1: seluruh hari observasi memiliki kelengkapan minimal 20 kline (83,3% kelengkapan), di mana hanya ada 1 hari cacat server bursa pada 19 Februari 2020 yang memiliki 1 kline sehingga dieliminasi secara objektif."*
 
 ---
 
-### Pertanyaan 24 (Jebakan 3): "Kalau hasil pengujian nanti ternyata model LSTM kamu kalah dari HAR-RV, apakah skripsi kamu dianggap gagal?"
+### Pertanyaan 25 (Jebakan 3): "Kalau hasil pengujian nanti ternyata model LSTM kamu kalah dari HAR-RV, apakah skripsi kamu dianggap gagal?"
 * **Cara Menjawab:**
   *"Tidak, Bapak/Ibu. Dalam penelitian sains komputasi yang berintegritas tinggi, **tujuan utama penelitian adalah menemukan kebenaran empiris melalui metodologi yang sahih, bukan memaksakan model harus menang dengan cara memanipulasi data**.  
   Pada Tabel 3.5 naskah Bab III, kami telah mendefinisikan secara jujur kriteria keberhasilan eksperimen:
@@ -299,7 +311,7 @@
 
 ---
 
-### Pertanyaan 25 (Jebakan 4): "Apa jaminan bahwa eksperimen kamu bisa direproduksi ulang (*reproducible*) secara identik oleh orang lain atau penguji?"
+### Pertanyaan 26 (Jebakan 4): "Apa jaminan bahwa eksperimen kamu bisa direproduksi ulang (*reproducible*) secara identik oleh orang lain atau penguji?"
 * **Cara Menjawab:**
   *"Kami menjamin reproduktibilitas eksperimen melalui 4 pilar transparansi komputasi:
   1. **Determinisme Komputasi Penuh:** Seluruh inisialisasi benih acak (*random seeds*) pada level lingkungan Python (`random`), NumPy (`np.random`), PyTorch/TensorFlow, serta algoritma Optuna dikunci secara deterministik menggunakan lima seed tetap: `(42, 123, 2024, 7, 99)`.
@@ -309,7 +321,7 @@
 
 ---
 
-### Pertanyaan 26 (Jebakan 5): "Apa batasan (limitasi) penelitian ini jika diterapkan di dunia nyata atau industri finansial?"
+### Pertanyaan 27 (Jebakan 5): "Apa batasan (limitasi) penelitian ini jika diterapkan di dunia nyata atau industri finansial?"
 * **Cara Menjawab:**
   *"Sebagai peneliti yang objektif, kami secara transparan mengakui 3 batasan (*limitations*) penelitian ini sebagaimana tercantum pada Batasan Masalah Bab I:
   1. **Fokus pada Point Forecasting, Bukan Sistem Eksekusi:** Model ini dirancang khusus untuk meramalkan angka estimasi varians satu hari ke depan (*statistical point forecast*). Model ini belum mencakup simulasi eksekusi perdagangan riil (*backtesting execution*), biaya transaksi (*trading fee*), *slippage*, atau kedalaman buku pesanan (*order book depth*).
