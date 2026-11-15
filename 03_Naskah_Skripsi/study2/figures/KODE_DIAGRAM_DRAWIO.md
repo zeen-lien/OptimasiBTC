@@ -20,74 +20,104 @@ Dokumen ini berisi kode Mermaid termutakhir (versi audit revisi 2026) untuk **Ga
 
 ---
 
-## 1. GAMBAR 2.1: ARSITEKTUR DAN MEKANISME GERBANG SEL LSTM
+## 1. GAMBAR 2.1: ARSITEKTUR DAN MEKANISME GERBANG SEL LSTM (LENGKAP SESUAI NASKAH)
 * **File Target:** `03_Naskah_Skripsi/study2/figures/gambar_2_1_arsitektur_lstm.png`
-* **Penempatan Naskah:** Bab II Sub-bab D.2 (Anatomi Mekanisme Gerbang Sel LSTM)
+* **Penempatan di naskah:** Bab II Sub-bab D.2 (Anatomi Mekanisme Gerbang Sel LSTM)
 
 ```mermaid
-graph TD
-    classDef default font-family:'Segoe UI',Helvetica,Arial,sans-serif,font-size:14px,color:#111,stroke-width:2px;
-    classDef inout fill:#E3F2FD,stroke:#1565C0,color:#0D47A1,font-size:15px,font-weight:bold;
-    classDef gate fill:#FFF3E0,stroke:#E65100,color:#BF360C,font-size:14px;
-    classDef state fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20,font-size:14px;
-    classDef op fill:#F3E5F5,stroke:#7B1FA2,color:#4A148C,font-size:14px,font-weight:bold;
+flowchart TD
+    %% Styling Global
+    classDef default font-family:'Segoe UI',Arial,sans-serif,font-size:12px;
+    classDef blueBox fill:#F8FAFC,stroke:#1E3A8A,stroke-width:2px,color:#0F172A,rx:6px,ry:6px;
+    classDef greenBox fill:#F0FDF4,stroke:#15803D,stroke-width:2px,color:#14532D,rx:6px,ry:6px;
+    classDef cyanBox fill:#EFF6FF,stroke:#2563EB,stroke-width:2px,color:#1E3A8A,rx:6px,ry:6px;
+    
+    classDef forgetBox fill:#FEF2F2,stroke:#DC2626,stroke-width:2px,color:#7F1D1D,rx:8px,ry:8px;
+    classDef inputBox fill:#FFFBEB,stroke:#D97706,stroke-width:2px,color:#78350F,rx:8px,ry:8px;
+    classDef candBox fill:#ECFDF5,stroke:#0D9488,stroke-width:2px,color:#134E4A,rx:8px,ry:8px;
+    classDef outBox fill:#FAF5FF,stroke:#7C3AED,stroke-width:2px,color:#4C1D95,rx:8px,ry:8px;
+    
+    classDef opNode fill:#FFFFFF,stroke:#831843,stroke-width:2px,color:#831843,font-size:15px,font-weight:bold;
+    classDef opAdd fill:#FFFFFF,stroke:#1E3A8A,stroke-width:2px,color:#1E3A8A,font-size:16px,font-weight:bold;
+    classDef actNode fill:#F0FDF4,stroke:#16A34A,stroke-width:2px,color:#15803D,font-size:14px,font-weight:bold,rx:8px,ry:8px;
+    classDef concatBox fill:#EFF6FF,stroke:#2563EB,stroke-width:2px,color:#1E3A8A,rx:6px,ry:6px;
+    classDef denseBox fill:#FFFFFF,stroke:#1E3A8A,stroke-width:2px,color:#0F172A,rx:6px,ry:6px;
+    classDef legend fill:none,stroke:none,color:#475569,font-size:11px;
 
-    subgraph Inputs ["MASUKAN PADA WAKTU t"]
-        xt["Fitur Masukan Baru: x_t"]:::inout
-        ht1["Hidden State Masa Lalu: h_{t-1}"]:::inout
-        ct1["Cell State Masa Lalu: c_{t-1}"]:::inout
-    end
-
-    subgraph Sel_LSTM ["INTERNAL KOMPUTASI SEL LSTM"]
-        concat["Penggabungan Vektor: [h_{t-1}, x_t]"]:::op
-
-        subgraph Gerbang_Logika ["Gerbang Logika Adaptif (Formula Sebaris)"]
-            fg["Gerbang Lupa (Forget Gate): &nbsp; f_t = σ(W_f · [h_{t-1}, x_t] + b_f)"]:::gate
-            ig["Gerbang Masuk (Input Gate): &nbsp; i_t = σ(W_i · [h_{t-1}, x_t] + b_i)"]:::gate
-            cg["Kandidat Memori Sel: &nbsp; c~_t = tanh(W_c · [h_{t-1}, x_t] + b_c)"]:::gate
-            og["Gerbang Keluar (Output Gate): &nbsp; o_t = σ(W_o · [h_{t-1}, x_t] + b_o)"]:::gate
+    %% Subgraph Batas Internal LSTM
+    subgraph Sel_LSTM ["<b>Batas Internal Komputasi Sel LSTM (Langkah Waktu t)</b>"]
+        
+        %% Jalur Atas Cell State
+        subgraph Top_Highway ["<b>Pembaruan Status Sel: &nbsp; c<sub>t</sub> = f<sub>t</sub> ⊙ c<sub>t-1</sub> + i<sub>t</sub> ⊙ c̃<sub>t</sub></b>"]
+            mul_f(( "⊙" )):::opNode
+            add_c(( "+" )):::opAdd
         end
 
-        subgraph Memori_Jangka_Panjang ["Pembaruan Status Memori Sel (Cell State)"]
-            mulf["Buang Memori Usang: &nbsp; f_t ⊙ c_{t-1}"]:::state
-            muli["Simpan Info Relevan: &nbsp; i_t ⊙ c~_t"]:::state
-            addc["Akumulasi Memori Baru: &nbsp; c_t = (f_t ⊙ c_{t-1}) + (i_t ⊙ c~_t)"]:::state
+        %% Operasi Input & Kandidat
+        mul_i(( "⊙" )):::opNode
+
+        %% 4 Gerbang Logika Utama
+        subgraph Gates [" "]
+            fg["<b>Gerbang Lupa (Forget)</b><br/><br/><b><font size='+2'>σ</font></b><br/><br/><i>f<sub>t</sub> = σ(W<sub>f</sub>[h<sub>t-1</sub>, x<sub>t</sub>] + b<sub>f</sub>)</i><br/><br/><small>(Persamaan 2.6)</small>"]:::forgetBox
+            ig["<b>Gerbang Masuk (Input)</b><br/><br/><b><font size='+2'>σ</font></b><br/><br/><i>i<sub>t</sub> = σ(W<sub>i</sub>[h<sub>t-1</sub>, x<sub>t</sub>] + b<sub>i</sub>)</i><br/><br/><small>(Persamaan 2.7)</small>"]:::inputBox
+            cg["<b>Kandidat Status Sel</b><br/><br/><b><font size='+1'>tanh</font></b><br/><br/><i>c̃<sub>t</sub> = tanh(W<sub>c</sub>[h<sub>t-1</sub>, x<sub>t</sub>] + b<sub>c</sub>)</i><br/><br/><small>(Persamaan 2.8)</small>"]:::candBox
+            og["<b>Gerbang Keluar (Output)</b><br/><br/><b><font size='+2'>σ</font></b><br/><br/><i>o<sub>t</sub> = σ(W<sub>o</sub>[h<sub>t-1</sub>, x<sub>t</sub>] + b<sub>o</sub>)</i><br/><br/><small>(Persamaan 2.10)</small>"]:::outBox
         end
 
-        tanhc["Aktivasi Non-Linear Sel: &nbsp; tanh(c_t)"]:::op
-        calc_h["Representasi Status Tersembunyi: &nbsp; h_t = o_t ⊙ tanh(c_t)"]:::inout
+        %% Konkatenasi Bawah
+        concat["<b>Konkatenasi</b><br/>[h<sub>t-1</sub>, x<sub>t</sub>]<br/><small>Penggabungan Vektor</small>"]:::concatBox
+
+        %% Modulasi Output & Hidden State
+        act_tanh["<b>tanh</b>"]:::actNode
+        mul_o(( "⊙" )):::opNode
+
+        %% Lapisan Dense Luaran
+        dense["<b>Lapisan Luaran Linier (Dense Layer / Proyeksi Regresi Volatilitas)</b><br/><i>ŷ<sub>t+1</sub> = log RV<sub>t+1</sub> = W<sub>y</sub> · h<sub>t</sub> + b<sub>y</sub></i>"]:::denseBox
     end
 
-    subgraph Outputs ["KELUARAN PADA WAKTU t"]
-        ct_out["Cell State Baru: c_t"]:::inout
-        ht_out["Hidden State Baru: h_t"]:::inout
-        pred["Target Peramalan: log RV_{t+1}"]:::inout
-    end
+    %% Masukan Luar (Sisi Kiri)
+    ct_prev["<b>Status Sel Masa Lalu</b><br/><i>c<sub>t-1</sub></i>"]:::blueBox
+    ht_prev["<b>Status Tersembunyi Lalu</b><br/><i>h<sub>t-1</sub></i>"]:::greenBox
+    xt_in["<b>Fitur Masukan Baru</b><br/><i>x<sub>t</sub> ∈ ℝ<sup>6</sup></i><br/><small>(6 fitur kausal)</small>"]:::cyanBox
 
-    xt --> concat
-    ht1 --> concat
+    %% Keluaran Luar (Sisi Kanan)
+    ct_next["<b>Status Sel Baru</b><br/><i>c<sub>t</sub></i>"]:::blueBox
+    ht_next["<b>Status Tersembunyi</b><br/><i>h<sub>t</sub></i>"]:::greenBox
 
+    %% Catatan Kaki / Notasi
+    note["Notasi Matematis: σ = fungsi aktivasi sigmoid [0, 1]; tanh = tangen hiperbolik [−1, 1]; ⊙ = perkalian elemen (Hadamard product); + = penjumlahan vektor; [h<sub>t-1</sub>, x<sub>t</sub>] = konkatenasi vektor."]:::legend
+
+    %% Aliran Masukan ke Sel
+    ct_prev --> mul_f
+    ht_prev --> concat
+    xt_in --> concat
+
+    %% Aliran Bus Konkatenasi ke 4 Gerbang
     concat --> fg
     concat --> ig
     concat --> cg
     concat --> og
 
-    ct1 --> mulf
-    fg --> mulf
-    mulf --> addc
+    %% Aliran Gerbang Lupa ke Jalur Atas
+    fg -->| "f<sub>t</sub>" | mul_f
+    mul_f --> add_c
 
-    ig --> muli
-    cg --> muli
-    muli --> addc
+    %% Aliran Gerbang Masuk & Kandidat
+    ig -->| "i<sub>t</sub>" | mul_i
+    cg -->| "c̃<sub>t</sub>" | mul_i
+    mul_i -->| "i<sub>t</sub> ⊙ c̃<sub>t</sub>" | add_c
 
-    addc --> ct_out
-    addc --> tanhc
+    %% Aliran Jalur Cell State ke Luaran & Modulasi
+    add_c -->| "c<sub>t</sub>" | ct_next
+    add_c -->| "c<sub>t</sub>" | act_tanh
 
-    tanhc --> calc_h
-    og --> calc_h
+    %% Aliran Output Gate & Hidden State
+    act_tanh --> mul_o
+    og -->| "o<sub>t</sub>" | mul_o
 
-    calc_h --> ht_out
-    ht_out --> pred
+    %% Aliran Hidden State ke Luar & Dense Layer
+    mul_o -->| "h<sub>t</sub>" | ht_next
+    mul_o -->| "h<sub>t</sub>" | dense
 ```
 
 ---
