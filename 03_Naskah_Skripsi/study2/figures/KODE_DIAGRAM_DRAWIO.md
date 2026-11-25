@@ -122,7 +122,7 @@ flowchart TD
 
 ---
 
-## 2. GAMBAR 2.2: KERANGKA PEMIKIRAN PENELITIAN (DENGAN DECISION DIAMOND & FEEDBACK LOOP)
+## 2. GAMBAR 2.2: KERANGKA PEMIKIRAN PENELITIAN (VERSI VERTIKAL 6 TAHAP SINKRON 1:1)
 * **File Target:** `03_Naskah_Skripsi/study2/figures/gambar_2_2_kerangka_pemikiran.png`
 * **Penempatan Naskah:** Bab II Sub-bab H (Kerangka Pemikiran)
 
@@ -136,28 +136,26 @@ flowchart TD
     classDef successBox fill:#F0FDF4,stroke:#16A34A,stroke-width:2px,color:#14532D,rx:6px,ry:6px;
     classDef note fill:none,stroke:none,color:#64748B,font-size:11px,text-align:left;
 
-    A["<b>1. Identifikasi Masalah & Perumusan Target</b><br/>• Masalah: Fluktuasi ekstrem Bitcoin & keterbatasan model linier konvensional<br/>• Target: Log proksi Realized Volatility harian satu hari ke depan (t+1)"]:::stageBox
+    A["<b>1. Identifikasi Masalah dan Perumusan Target Peramalan</b><br/>• Masalah: Fluktuasi ekstrem Bitcoin & ketidakmampuan model linier menangkap volatilitas non-linear.<br/>• Target Prediksi: Log proksi Realized Volatility harian satu hari ke depan (t+1) berbasis data intrahari."]:::stageBox
 
-    B["<b>2. Akuisisi & Pra-pemrosesan Data</b><br/>• Sumber: Binance Vision SPOT BTC/USDT kline 1 jam (1 Jan 2020 – 30 Sep 2026)<br/>• Rekayasa 6 Fitur Kausal (log RV, RV lag-5, RV lag-22, return, Parkinson, Garman-Klass)"]:::stageBox
+    B["<b>2. Pengumpulan dan Pra-pemrosesan Data Frekuensi Tinggi</b><br/>• Sumber Data: Transaksi SPOT BTC/USDT kline 1 jam Binance Vision (1 Jan 2020 – 30 Sep 2026).<br/>• Audit Integritas: Filter data cacat (hanya hari dengan ≥ 20 bar yang dipertahankan).<br/>• Rekayasa 6 Fitur Kausal: log RV, RV lag-5, RV lag-22, return harian, Parkinson, dan Garman-Klass."]:::stageBox
 
-    C["<b>3. Partisi Waktu Kronologis & Pengendalian Kebocoran Data</b><br/>• Data Pengembangan (2020–2023) | Train Pool (2020–2025) | Evaluasi Temporal (2026)*<br/>• Purge Gap = lookback + 1 untuk memutus autokorelasi serial"]:::stageBox
+    C["<b>3. Partisi Deret Waktu dan Pengendalian Kebocoran Data</b><br/>• Data Pengembangan (2020–2023 / 1.460 hari): Digunakan untuk penalaan hyperparameter (HPO).<br/>• Train Pool (2020–2025 / 2.191 hari): Digunakan untuk pelatihan model final.<br/>• Data Evaluasi Temporal (2026 / 273 hari)*: Pengujian generalisasi kinerja model di masa depan.<br/>• Purge Gap = lookback + 1 hari: Penyangga ketat untuk memutus autokorelasi serial antar-sampel."]:::stageBox
 
-    subgraph Pemodelan ["<b>Tahap Penalaan & Pelatihan Model</b>"]
-        D1["<b>Model Usulan: LSTM + Optuna TPE</b><br/>• Optimasi Bayesian TPE (50 trial)<br/>• 5-fold Purged Rolling-Origin CV<br/>• Fungsi Kerugian: Asimetris QLIKE"]:::stageBox
-        D2["<b>Model Pembanding (Baselines)</b><br/>• Primer: Persistence & HAR-RV<br/>• Sekunder: GARCH(1,1) & LSTM Untuned<br/>• Tanpa refit pada evaluasi temporal"]:::stageBox
+    subgraph Tahap4 ["<b>4. Penalaan Hyperparameter (Optuna TPE) dan Model Pembanding</b>"]
+        D1["<b>Model Usulan: LSTM + Optuna TPE</b><br/>• Algoritma: Bayesian TPE (Tree-structured Parzen)<br/>• Search Space: Lookback (5–30), Units (16–128),<br/>  Dropout (0.0–0.4), Learning Rate (1e-4–1e-2).<br/>• Validasi: 5-Fold Purged Rolling-Origin CV (50 trial).<br/>• Fungsi Objektif: Minimasi loss asimetris QLIKE."]:::stageBox
+        D2["<b>Model Pembanding (Baselines)</b><br/>• Pembanding Primer:<br/>  1. Random Walk Persistence (Naïve Benchmark)<br/>  2. Heterogeneous Autoregressive (HAR-RV)<br/>• Pembanding Sekunder:<br/>  3. Generalized Autoregressive (GARCH(1,1))<br/>  4. Long Short-Term Memory tanpa talaan (Untuned)"]:::stageBox
     end
 
-    DECISION{"<b>Apakah Kriteria Validasi<br/>& Konvergensi Terpenuhi?</b><br/>(Loss QLIKE Minimum & Konvergen)"}:::decision
+    DECISION{"<b>Apakah Kriteria Validasi<br/>& Konvergensi Terpenuhi?</b><br/>(Early Stopping & Minimasi QLIKE)"}:::decision
 
-    LOOP["<b>Mekanisme Umpan Balik (Feedback Loop):</b><br/>• Penyesuaian Ruang Pencarian Hyperparameter<br/>• Pembaruan Distribusi Probabilitas Parzen (TPE)<br/>• Talaan Ulang Bobot & Arsitektur LSTM"]:::loopBox
+    LOOP["<b>Mekanisme Umpan Balik (Feedback Loop):</b><br/>• Perbarui Model Probabilitas Parzen<br/>• Eksplorasi Kombinasi Parameter Baru<br/>• Talaan Ulang Arsitektur LSTM"]:::loopBox
 
-    FINAL["<b>Pelatihan Model Final LSTM Terpilih</b><br/>• Dilatih pada Train Pool 2020–2025 (90% fit, 10% early stopping)<br/>• Menggunakan konfigurasi hyperparameter terbaik"]:::successBox
+    FINAL["<b>5. Pelatihan Model Final pada Train Pool (2020–2025)</b><br/>• Arsitektur: Konfigurasi hyperparameter terbaik hasil Optuna.<br/>• Pembagian Data: 90% Pelatihan Fit (1.972 hari) dan<br/>  10% Validasi Internal Early Stopping (219 hari).<br/>• Pelatihan mandiri tanpa refit pada periode evaluasi 2026."]:::successBox
 
-    E["<b>4. Pengujian Kinerja pada Periode Evaluasi Temporal 2026*</b><br/>• Evaluasi performa generalisasi model pada 273 observasi valid tahun 2026<br/>• Metrik Primer: Asimetris QLIKE | Metrik Sekunder: MAE & RMSE"]:::stageBox
+    E["<b>6. Evaluasi Kinerja (2026) dan Uji Hipotesis Statistik (H0 vs H1)</b><br/>• Data Pengujian: Periode Evaluasi Temporal 2026 (273 observasi harian valid).<br/>• Evaluasi Kerugian: Metrik Asimetris QLIKE (Primer) serta metrik simetris MAE dan RMSE (Sekunder).<br/>• Uji Inferensial Primer: Uji Diebold–Mariano satu sisi dengan estimasi HAC Newey–West (α = 0,05).<br/>• Uji Robustness: Stationary Moving-Block Bootstrap 95% Confidence Interval (&lt; 0).<br/>• Keputusan Statistik: Penolakan Hipotesis Nol (H0) dan Penerimaan Hipotesis Alternatif (H1) secara formal."]:::stageBox
 
-    F["<b>5. Uji Statistik Inferensial & Pengujian Hipotesis (H0 vs H1)</b><br/>• Uji Diebold–Mariano satu sisi dengan koreksi HAC Newey–West (α = 0,05)<br/>• Uji Ketahanan: Stationary Moving-Block Bootstrap 95% CI (< 0)<br/>• Keputusan Statistik: Penerimaan H1 (Keunggulan signifikan model usulan)"]:::stageBox
-
-    N["* Keterbatasan Paparan: Karena sebagian periode 2026 pernah ditinjau pada analisis awal, hasil ditafsirkan sebagai evaluasi temporal terisolasi dengan keterbatasan paparan historis tersebut, bukan pure unseen external holdout."]:::note
+    N["* Catatan Keterbatasan Paparan: Karena sebagian periode 2026 pernah ditinjau pada analisis eksplorasi awal, hasil pengujian secara metodologis ditafsirkan sebagai evaluasi temporal terisolasi, bukan holdout eksternal yang murni independen."]:::note
 
     %% Alur Panah
     A --> B
@@ -165,13 +163,12 @@ flowchart TD
     C --> D1
     C --> D2
     D1 --> DECISION
-    DECISION -- "<b>TIDAK</b><br/>(Belum Optimal / Overfit)" --> LOOP
+    DECISION -- "<b>TIDAK</b><br/>(Belum Konvergen)" --> LOOP
     LOOP --> D1
-    DECISION -- "<b>YA</b><br/>(Konvergen & Optimal)" --> FINAL
+    DECISION -- "<b>YA</b><br/>(Optimal)" --> FINAL
     FINAL --> E
     D2 --> E
-    E --> F
-    F -.-> N
+    E -.-> N
 ```
 
 
