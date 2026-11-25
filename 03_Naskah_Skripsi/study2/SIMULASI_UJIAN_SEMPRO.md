@@ -312,21 +312,23 @@
 ---
 
 
-### Pertanyaan Baru: "Bagaimana rumusan Hipotesis Penelitian kamu? Kenapa menggunakan format $H_0$ dan $H_1$ serta pengujian satu sisi?"
+### Pertanyaan: "Bagaimana rumusan Hipotesis Penelitian kamu? Kenapa di naskah diganti menjadi H0 dan H1, bukan H1 dan H2?"
 * **🎯 Kata Kunci Hafalan:**
-  **"Hipotesis dirumuskan formal berpasangan H0 (tidak ada keunggulan signifikan / selisih loss ≥ 0) dan H1 (LSTM-Optuna unggul signifikan / selisih loss < 0) yang diuji satu sisi pada taraf α = 0,05."**
+  **"Hipotesis dirumuskan secara baku berpasangan antara H0 (Hipotesis Nol: tidak ada keunggulan signifikan / E[dt] ≥ 0) dan H1 (Hipotesis Alternatif: model usulan unggul signifikan / E[dt] < 0) yang diuji satu sisi pada taraf α = 0,05."**
 * **🗣️ Jawaban Lisan ke Penguji:**
-  "Sesuai kaidah metode penelitian kuantitatif, hipotesis penelitian dirumuskan secara berpasangan antara Hipotesis Nol ($H_0$) dan Hipotesis Alternatif ($H_1$) untuk dua komparasi primer:
-  1. **Hipotesis 1 (vs Baseline Random Walk Persistence):**
-     * **$H_0$:** Model LSTM-Optuna tidak menghasilkan rata-rata QLIKE yang lebih rendah secara signifikan dibandingkan baseline Persistence pada evaluasi temporal 2026 ($\mu_{d_1} \ge 0$).
-     * **$H_1$:** Model LSTM-Optuna menghasilkan rata-rata QLIKE yang lebih rendah secara signifikan dibandingkan baseline Persistence pada evaluasi temporal 2026 ($\mu_{d_1} < 0$).
-  2. **Hipotesis 2 (vs Model Ekonometrika HAR-RV):**
-     * **$H_0$:** Model LSTM-Optuna tidak menghasilkan rata-rata QLIKE yang lebih rendah secara signifikan dibandingkan model HAR-RV pada evaluasi temporal 2026 ($\mu_{d_2} \ge 0$).
-     * **$H_1$:** Model LSTM-Optuna menghasilkan rata-rata QLIKE yang lebih rendah secara signifikan dibandingkan model HAR-RV pada evaluasi temporal 2026 ($\mu_{d_2} < 0$).
+  "Terima kasih atas pertanyaannya, Bapak/Ibu Penguji. Sesuai dengan kaidah metodologi penelitian kuantitatif yang benar dan arahan Bapak Dosen Pembimbing, penulisan hipotesis tidak boleh menggunakan label 'H1 dan H2' seolah-olah itu urutan hipotesis nomor satu dan dua. Notasi 'H' dalam statistik merujuk pada pasangan hipotesis nol dan alternatif:
   
-  **Alasan Pengujian Satu Sisi (One-Sided):** Karena tujuan penelitian adalah membuktikan keunggulan (*superiority*) model usulan, bukan sekadar melihat apakah ada perbedaan dua arah. Uji statistiknya menggunakan Diebold–Mariano dengan estimasi HAC Newey–West pada $\alpha = 0{,}05$.
-  Sedangkan GARCH(1,1) dan LSTM untuned dilaporkan secara deskriptif sebagai pembanding sekunder tanpa uji hipotesis formal primer."
-
+  * **$H_0$ (Hipotesis Nol):**
+    Model *deep learning* LSTM yang dioptimasi Optuna (TPE) **tidak menghasilkan** akurasi peramalan *realized volatility* Bitcoin yang lebih baik secara signifikan dibandingkan model *baseline* Random Walk Persistence dan model ekonometrika HAR-RV berdasarkan fungsi kerugian asimetris QLIKE pada data evaluasi temporal 2026 ($E[d_t] \ge 0$).
+  
+  * **$H_1$ (Hipotesis Alternatif / Hipotesis Kerja):**
+    Model *deep learning* LSTM yang dioptimasi Optuna (TPE) **menghasilkan** akurasi peramalan *realized volatility* Bitcoin yang lebih baik secara signifikan dibandingkan model *baseline* Random Walk Persistence dan model ekonometrika HAR-RV berdasarkan fungsi kerugian asimetris QLIKE pada data evaluasi temporal 2026 ($E[d_t] < 0$).
+  
+  Secara operasional, pembuktian penerimaan $H_1$ diuji terhadap dua pembanding primer:
+  1. Komparasi vs **Random Walk Persistence** ($d_{1,t} = \text{Loss}_{\text{QLIKE}}(\text{LSTM}) - \text{Loss}_{\text{QLIKE}}(\text{Persistence})$).
+  2. Komparasi vs **Model Ekonometrika HAR-RV** ($d_{2,t} = \text{Loss}_{\text{QLIKE}}(\text{LSTM}) - \text{Loss}_{\text{QLIKE}}(\text{HAR-RV})$).
+  
+  Keduanya diuji secara satu sisi (*one-sided test*) menggunakan uji Diebold–Mariano dengan estimasi HAC Newey–West pada $\alpha = 0{,}05$ dan Moving-Block Bootstrap 95% CI. Sedangkan model GARCH(1,1) dan LSTM tanpa penalaan (*untuned*) dilaporkan secara deskriptif sebagai analisis komparasi sekunder."
 
 
 ### Pertanyaan Baru: "Pada Bab III tertulis pengujian unit (unit testing) mandiri, apakah berkas tes fisiknya benar-benar ada di repositori dan apa saja yang diuji?"
